@@ -9,7 +9,6 @@
 </head>
 <body>
     <!-- Placeholder for dynamic header -->
-    <div id="header"></div>
     <?php include("header.php"); ?>
 
     <main>
@@ -43,7 +42,6 @@
     </main>
 
     <!-- Placeholder for dynamic footer -->
-    <div id="footer"></div>
     <?php include("footer.php"); ?>
 
     <!-- The "Back to Top" button -->

@@ -45,7 +45,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
   <!-- Header (loaded dynamically) -->
-  <div id="header"></div>
  <?php include("header.php"); ?>
   <main>
     <h2>Contact Us</h2>
@@ -74,7 +73,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </main>
  
   <!-- Footer (loaded dynamically) -->
-  <div id="footer"></div>
    <?php include("footer.php"); ?>
  
   <!-- Include JS (header, footer, back to top, etc.) -->

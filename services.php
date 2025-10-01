@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-     <div id="header"></div>
      <?php include("header.php"); ?>
     <main>
 <section id="Services">
@@ -55,7 +54,6 @@
     </div>
 </section>
 </main>
-    <div id="footer"></div>
     <?php include("footer.php"); ?>
  <script src="include.js"></script>
    
