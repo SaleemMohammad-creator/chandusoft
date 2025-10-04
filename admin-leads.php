@@ -33,21 +33,24 @@ $dbName = 'chandusoft';
 $conn = new mysqli($host, $dbUser, $dbPass, $dbName);
 if ($conn->connect_error) die("DB connection failed: " . $conn->connect_error);
 
-// Fetch odd ID leads
-$resultOdd = $conn->query("SELECT * FROM leads WHERE id % 2 = 1 ORDER BY id DESC");
-
-// Fetch even ID leads
-$resultEven = $conn->query("SELECT * FROM leads WHERE id % 2 = 0 ORDER BY id DESC");
+// Fetch latest 5 leads
+$resultLatest = $conn->query("SELECT * FROM leads ORDER BY id DESC LIMIT 5");
+ 
+// Fetch odd ID leads ordered by id ASC (ascending)
+$resultOdd = $conn->query("SELECT * FROM leads WHERE id % 2 = 1 ORDER BY id ASC");
+ 
+// Fetch even ID leads ordered by id ASC (ascending)
+$resultEven = $conn->query("SELECT * FROM leads WHERE id % 2 = 0 ORDER BY id ASC");
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <title>Leads - Admin Panel</title>
 <style>
-body { font-family: Arial; padding: 15px; background:#f7f7f7; }
+body { font-family: Arial; padding: 20px; background:#f7f7f7; }
 h2 { margin-top: 40px; }
-table { border-collapse: collapse; width: 70%; margin-bottom: 30px; }
-th, td { border:1px solid #ccc; padding:15px; text-align:left; }
+table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
+th, td { border:1px solid #ccc; padding:10px; text-align:left; }
 th { background-color:#4CAF50; color:white; }
 tr:nth-child(even){background:#f2f2f2;}
 tr:nth-child(odd){background:#ffffff;}
@@ -59,34 +62,48 @@ tr:hover{background:#e6f7ff;}
 </head>
 <body>
 <div class="logout"><a href="logout.php">Logout</a></div>
-
+ 
+<h2>Latest 5 Leads</h2>
+<table>
+<tr><th>ID</th><th>Name</th><th>Email</th><th>Message</th><th>Submitted At</th></tr>
+<?php while($row = $resultLatest->fetch_assoc()): ?>
+<tr>
+  <td><?= $row['id'] ?></td>
+  <td><?= htmlspecialchars($row['name']) ?></td>
+  <td><?= htmlspecialchars($row['email']) ?></td>
+  <td><?= htmlspecialchars($row['message']) ?></td>
+  <td><?= htmlspecialchars($row['created_at']) ?></td>
+</tr>
+<?php endwhile; ?>
+</table>
+ 
 <h2>Odd ID Leads</h2>
 <table>
 <tr><th>ID</th><th>Name</th><th>Email</th><th>Message</th><th>Submitted At</th></tr>
 <?php while($row = $resultOdd->fetch_assoc()): ?>
 <tr>
-<td><?= $row['id'] ?></td>
-<td><?= htmlspecialchars($row['name']) ?></td>
-<td><?= htmlspecialchars($row['email']) ?></td>
-<td><?= htmlspecialchars($row['message']) ?></td>
-<td><?= htmlspecialchars($row['created_at']) ?></td>
+  <td><?= $row['id'] ?></td>
+  <td><?= htmlspecialchars($row['name']) ?></td>
+  <td><?= htmlspecialchars($row['email']) ?></td>
+  <td><?= htmlspecialchars($row['message']) ?></td>
+  <td><?= htmlspecialchars($row['created_at']) ?></td>
 </tr>
 <?php endwhile; ?>
 </table>
-
+ 
 <h2>Even ID Leads</h2>
 <table>
 <tr><th>ID</th><th>Name</th><th>Email</th><th>Message</th><th>Submitted At</th></tr>
 <?php while($row = $resultEven->fetch_assoc()): ?>
 <tr>
-<td><?= $row['id'] ?></td>
-<td><?= htmlspecialchars($row['name']) ?></td>
-<td><?= htmlspecialchars($row['email']) ?></td>
-<td><?= htmlspecialchars($row['message']) ?></td>
-<td><?= htmlspecialchars($row['created_at']) ?></td>
+  <td><?= $row['id'] ?></td>
+  <td><?= htmlspecialchars($row['name']) ?></td>
+  <td><?= htmlspecialchars($row['email']) ?></td>
+  <td><?= htmlspecialchars($row['message']) ?></td>
+  <td><?= htmlspecialchars($row['created_at']) ?></td>
 </tr>
 <?php endwhile; ?>
 </table>
-
+ 
 </body>
 </html>
