@@ -1,0 +1,90 @@
+<?php
+require "config.php";
+
+$message = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (!verify_csrf($_POST['csrf_token'])) {
+        die("❌ Invalid CSRF token");
+    }
+
+    $name = trim($_POST["name"]);
+    $email = trim($_POST["email"]);
+    $password = $_POST["password"];
+    $confirm_password = $_POST["confirm_password"];
+
+    // Validate email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $message = "❌ Invalid email format";
+    } 
+    // Check password match
+    elseif ($password !== $confirm_password) {
+        $message = "❌ Passwords do not match";
+    } 
+    else {
+        // Hash password
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+        // Check if email already exists
+        $check = $pdo->prepare("SELECT email FROM users WHERE email = ?");
+        $check->execute([$email]);
+        if ($check->fetch()) {
+            $message = "⚠️ Email already registered!";
+        } else {
+            // Insert new user
+            $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
+            $stmt->execute([$name, $email, $passwordHash]);
+            $message = "✅ Registration successful! <a href='login.php'>Login Now</a>";
+        }
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .form-container {
+            background: white;
+            padding: 25px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            width: 350px;
+        }
+        h2 { text-align: center; }
+        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background: #3498db; border: none; color: white; font-size: 16px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #2980b9; }
+        .message { margin-top: 10px; text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Create Account</h2>
+    <?php if ($message) echo "<div class='message'>$message</div>"; ?>
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>" />
+        <input type="text" name="name" placeholder="Full Name" required />
+        <input type="email" name="email" placeholder="Email Address" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required />
+        <button type="submit">Register</button>
+    </form>
+
+    <div class="message">Already have an account? <a href="login.php">Login</a></div>
+</div>
+
+</body>
+</html>

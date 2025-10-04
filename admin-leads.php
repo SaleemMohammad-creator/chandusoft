@@ -47,7 +47,7 @@ if ($conn->connect_error) {
 }
 
 // Fetch leads
-$result = $conn->query("SELECT * FROM leads ORDER BY name");
+$result = $conn->query("SELECT * FROM leads ORDER BY id desc limit 5;");
 ?>
 <!DOCTYPE html>
 <html>
@@ -73,3 +73,5 @@ $result = $conn->query("SELECT * FROM leads ORDER BY name");
     </table>
 </body>
 </html>
+
+

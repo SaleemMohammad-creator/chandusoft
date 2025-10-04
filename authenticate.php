@@ -1,32 +1,29 @@
 <?php
-session_start();
-
-// Hardcoded credentials
-$valid_email = "cstl@gmail.com";
-$valid_user  = "Saleem";
-$valid_password = "cstl1234";
+require "config.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    // CSRF token validation
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        die("⛔ Security token invalid.");
+    if (!verify_csrf($_POST['csrf_token'])) {
+        die("❌ Invalid CSRF token");
     }
 
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
-    if ($email === $valid_email && $password === $valid_password) {
-        $_SESSION['email'] = $email;
-        $_SESSION['user']  = $valid_user;
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
 
-        $_SESSION['success'] = "Login Successful!";
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['user'] = [
+            'id' => $user['id'],
+            'name' => $user['name'],
+            'email' => $user['email']
+        ];
         header("Location: dashboard.php");
         exit();
     } else {
-        $_SESSION['error'] = "Invalid email or password!";
+        $_SESSION['error'] = "❌ Invalid email or password!";
         header("Location: login.php");
         exit();
     }
 }
-?>

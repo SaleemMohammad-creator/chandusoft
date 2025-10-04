@@ -1,34 +1,30 @@
 <?php
-session_start();
+require "config.php";
 
-if (!isset($_SESSION['email'])) {
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
-    exit();
+    exit;
 }
-
-$success_msg = '';
-if (isset($_SESSION['success'])) {
-    $success_msg = $_SESSION['success'];
-    unset($_SESSION['success']);
-}
-
-$user = isset($_SESSION['user']) ? $_SESSION['user'] : 'Guest';
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dashboard</title>
-    <style>
-        .success { color: green; font-weight: bold; }
-    </style>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<style>
+body { font-family: Arial; background:#f7f7f7; display:flex; justify-content:center; align-items:center; height:100vh; }
+.container { background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); text-align:center; }
+button { padding:10px 20px; background:#d9534f; color:white; border:none; border-radius:4px; cursor:pointer; }
+button:hover { background:#c9302c; }
+</style>
 </head>
 <body>
-    <?php if ($success_msg): ?>
-        <p class="success"><?php echo htmlspecialchars($success_msg); ?></p>
-    <?php endif; ?>
-
-    <h1>Welcome, <?php echo htmlspecialchars($user); ?>!</h1>
-    <a href="logout.php">Logout</a>
+<div class="container">
+    <h2>Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h2>
+    <p>You are logged in.</p>
+    <form action="logout.php" method="post">
+        <button type="submit">Logout</button>
+    </form>
+</div>
 </body>
 </html>
