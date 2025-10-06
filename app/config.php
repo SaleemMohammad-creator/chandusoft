@@ -1,10 +1,12 @@
 <?php
 // Start secure session
-session_start([
-    'cookie_httponly' => true,
-    'cookie_secure' => isset($_SERVER['HTTPS']),
-    'cookie_samesite' => 'Strict',
-]);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start([
+        'cookie_httponly' => true,
+        'cookie_secure' => false, // true if HTTPS
+        'cookie_samesite' => 'Strict'
+    ]);
+}
 
 // CSRF token
 if (empty($_SESSION['csrf_token'])) {
@@ -15,12 +17,7 @@ function verify_csrf($token) {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
-// Error handling
-ini_set('display_errors', 1); // On locally
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Database config
+// PDO DB connection
 $host = '127.0.0.1';
 $db   = 'chandusoft';
 $user = 'root';
