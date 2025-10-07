@@ -1,19 +1,22 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 
-// Check login
-if (!isset($_SESSION['user'])) {
+// Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
 
-$user = $_SESSION['user'];
-$role = htmlspecialchars($user['role']);
-$username = htmlspecialchars($user['name']);
+// Safe user info
+$user_role = $_SESSION['user_role'] ?? 'Admin';
+$user_name = $_SESSION['user_name'] ?? 'User';
+
+// CSRF token (from config.php)
+$csrf_token = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
+$_SESSION['csrf_token'] = $csrf_token;
 
 $error = '';
 $success = '';
-$csrf_token = $_SESSION['csrf_token'];
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -24,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $errors = [];
 
-    if (!verify_csrf($csrf)) $errors[] = "Invalid CSRF token.";
+    if (!verify_csrf($csrf)) $errors[] = "Invalid CSRF token."; // use function from config.php
     if ($title === '') $errors[] = "Title is required.";
     if ($slug === '') $slug = strtolower(str_replace(' ', '-', $title)); // auto-generate slug
 
@@ -51,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
 .navbar { background:#2c3e50; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
 .navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
-.navbar a:hover { text-decoration:underline; }
+.navbar a:hover { text-decoration:none; }
 .container { max-width: 800px; margin:30px auto; background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
 h2 { margin-top:0; }
 form label { display:block; margin-bottom:8px; font-weight:bold; }
@@ -68,7 +71,7 @@ form button:hover { background-color:#2980b9; }
 <div class="navbar">
     <div><strong>Chandusoft Admin</strong></div>
     <div>
-        Welcome <?= $role ?>, <?= $username ?>!
+        Welcome <?= htmlspecialchars($user_role) ?>!
         <a href="pages.php">Pages</a>
         <a href="admin-leads.php">Leads</a>
         <a href="logout.php">Logout</a>
@@ -84,7 +87,7 @@ form button:hover { background-color:#2980b9; }
         <div class="message success"><?= $success ?></div>
     <?php endif; ?>
 
-    <form method="POST">
+    <form method="POST" action="">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
 
         <label for="title">Page Title *</label>

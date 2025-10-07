@@ -13,14 +13,43 @@ $user_name = $_SESSION['user_name'] ?? 'User';
 
 // Handle search
 $search = trim($_GET['search'] ?? '');
-if ($search !== '') {
-    $stmt = $pdo->prepare("SELECT * FROM pages WHERE title LIKE :s OR slug LIKE :s ORDER BY id DESC");
-    $stmt->execute(['s' => "%$search%"]);
-    $pages = $stmt->fetchAll();
-} else {
-    $stmt = $pdo->query("SELECT * FROM pages ORDER BY id DESC");
-    $pages = $stmt->fetchAll();
+
+// Handle archive action
+if (isset($_GET['archive_id']) && $user_role === 'admin') {
+    $archive_id = (int)$_GET['archive_id'];
+    $stmt = $pdo->prepare("UPDATE pages SET status='archived' WHERE id=:id");
+    $stmt->execute(['id' => $archive_id]);
+    header("Location: pages.php");
+    exit;
 }
+
+// Filter pages
+$filter = $_GET['filter'] ?? 'all';
+$query = "SELECT * FROM pages";
+$params = [];
+
+if ($filter === 'published') {
+    $query .= " WHERE status='published'";
+} elseif ($filter === 'draft') {
+    $query .= " WHERE status='draft'";
+} elseif ($filter === 'archived') {
+    $query .= " WHERE status='archived'";
+}
+
+if ($search !== '') {
+    $searchQuery = "title LIKE :s OR slug LIKE :s";
+    if (strpos($query, 'WHERE') !== false) {
+        $query .= " AND ($searchQuery)";
+    } else {
+        $query .= " WHERE $searchQuery";
+    }
+    $params['s'] = "%$search%";
+}
+
+$query .= " ORDER BY id DESC";
+$stmt = $pdo->prepare($query);
+$stmt->execute($params);
+$pages = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,20 +59,35 @@ if ($search !== '') {
 <style>
 body { font-family: Arial; background:#f4f4f4; margin:0; padding:0; }
 .navbar { background:#2c3e50; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
-.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
-.navbar a:hover { text-decoration:none; } /* Removed underline on hover */
-.container { max-width:1100px; margin:30px auto; background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+.navbar a { color:#fff; text-decoration:none; margin-left:10px; font-weight:bold; padding:5px 10px; border-radius:4px; }
+.navbar a:hover { text-decoration:none; background:#1a2a38; }
+
+.container { max-width:1200px; margin:30px auto; background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+
 .top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.top-bar input[type="text"] { padding:7px; width:200px; border:1px solid #ccc; border-radius:4px; margin-right:6px; }
-.top-bar button { padding:7px 12px; border:none; border-radius:4px; background:#3498db; color:#fff; font-weight:bold; cursor:pointer; }
-.create-btn { background:#27ae60; color:#fff; padding:7px 16px; border-radius:4px; font-weight:bold; text-decoration:none; }
-table { border-collapse:collapse; width:100%; }
-th, td { border:1px solid #ddd; padding:12px; text-align:left; }
+.filters { display:flex; gap:10px; }
+.filters a { padding:8px 16px; text-decoration:none; color:#3498db; font-weight:bold; border-bottom:2px solid transparent; transition:0.3s; }
+.filters a:hover { color:#1d6fa5; border-bottom:2px solid #1d6fa5; }
+.filters a.active { color:#1d6fa5; border-bottom:2px solid #1d6fa5; }
+
+.right-side { display:flex; align-items:center; gap:10px; }
+
+.search-form { display:flex; align-items:center; gap:5px; }
+.search-form input[type="text"] { padding:8px 12px; width:250px; border:1px solid #ccc; border-radius:4px; font-size:14px; }
+.search-form button { padding:8px 16px; border:none; border-radius:4px; background:#3498db; color:#fff; font-weight:bold; cursor:pointer; font-size:14px; transition:0.3s; }
+.search-form button:hover { background:#1d6fa5; }
+
+.create-btn { background:#27ae60; color:#fff; padding:8px 18px; border-radius:4px; font-weight:bold; text-decoration:none; white-space:nowrap; }
+
+table { border-collapse:collapse; width:100%; font-size:15px; }
+th, td { border:1px solid #ddd; padding:10px 12px; text-align:left; vertical-align:middle; }
 th { background:#3498db; color:#fff; }
 tr:nth-child(even){background:#f9f9f9;}
 tr:hover{background:#eef7ff;}
-.actions button { margin-right:5px; padding:5px 10px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; }
+
+.actions button { margin-right:5px; padding:6px 14px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px; }
 .edit-btn { background:#23b07d; color:#fff; }
+.archive-btn { background:#f39c12; color:#fff; }
 .delete-btn { background:#c0392b; color:#fff; }
 </style>
 </head>
@@ -52,7 +96,7 @@ tr:hover{background:#eef7ff;}
 <div class="navbar">
     <div><strong>Chandusoft Admin</strong></div>
     <div>
-        Welcome <?= htmlspecialchars($user_role) ?>!
+        Welcome <?= htmlspecialchars($user_role) ?>, <?= htmlspecialchars($user_name) ?>!
         <a href="dashboard.php">Dashboard</a>
         <a href="pages.php">Pages</a>
         <a href="admin-leads.php">Leads</a>
@@ -62,19 +106,31 @@ tr:hover{background:#eef7ff;}
 
 <div class="container">
     <div class="top-bar">
-        <form method="get">
-            <input type="text" name="search" placeholder="Search title or slug" value="<?= htmlspecialchars($search) ?>">
-            <button type="submit">Search</button>
-        </form>
-        <a class="create-btn" href="create.php">+ Create New Page</a>
+        <!-- Filters on left -->
+        <div class="filters">
+            <a href="pages.php?filter=all" class="<?= $filter==='all'?'active':'' ?>">All (<?= count($pages) ?>)</a>
+            <a href="pages.php?filter=published" class="<?= $filter==='published'?'active':'' ?>">Published (<?= count(array_filter($pages, fn($p)=>$p['status']==='published')) ?>)</a>
+            <a href="pages.php?filter=draft" class="<?= $filter==='draft'?'active':'' ?>">Draft (<?= count(array_filter($pages, fn($p)=>$p['status']==='draft')) ?>)</a>
+            <a href="pages.php?filter=archived" class="<?= $filter==='archived'?'active':'' ?>">Archived (<?= count(array_filter($pages, fn($p)=>$p['status']==='archived')) ?>)</a>
+        </div>
+
+        <!-- Search bar in middle -->
+        <div class="right-side">
+            <form class="search-form" method="get">
+                <input type="text" name="search" placeholder="Search title or slug" value="<?= htmlspecialchars($search ?? '') ?>">
+                <button type="submit">Search</button>
+            </form>
+            <a class="create-btn" href="create.php">+ Create New Page</a>
+        </div>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Title</th>
+                <th>Pages</th>
                 <th>Slug</th>
                 <th>Status</th>
+                <th>Created</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -82,19 +138,23 @@ tr:hover{background:#eef7ff;}
         <?php if (!empty($pages)): ?>
             <?php foreach ($pages as $page): ?>
             <tr>
-                <td><?= htmlspecialchars($page['title']) ?></td>
-                <td><?= htmlspecialchars($page['slug']) ?></td>
-                <td><?= htmlspecialchars($page['status']) ?></td>
+                <td><?= htmlspecialchars($page['title'] ?? '') ?></td>
+                <td><?= htmlspecialchars($page['slug'] ?? '') ?></td>
+                <td><?= htmlspecialchars($page['status'] ?? '') ?></td>
+                <td><?= htmlspecialchars($page['created_at'] ?? '') ?></td>
                 <td class="actions">
                     <button class="edit-btn" onclick="window.location.href='edit.php?id=<?= $page['id'] ?>'">Edit</button>
-                    <?php if ($user_role === 'admin'): ?>
-                    <button class="delete-btn" onclick="if(confirm('Delete this page?')) window.location.href='delete.php?id=<?= $page['id'] ?>'">Delete</button>
+                    <?php if($user_role === 'admin' && ($page['status'] ?? '') !== 'archived'): ?>
+                        <button class="archive-btn" onclick="if(confirm('Archive this page?')) window.location.href='pages.php?archive_id=<?= $page['id'] ?>'">Archive</button>
+                    <?php endif; ?>
+                    <?php if($user_role === 'admin'): ?>
+                        <button class="delete-btn" onclick="if(confirm('Delete this page?')) window.location.href='delete.php?id=<?= $page['id'] ?>'">Delete</button>
                     <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>
         <?php else: ?>
-            <tr><td colspan="4" style="text-align:center;">No pages found.</td></tr>
+            <tr><td colspan="5" style="text-align:center;">No pages found.</td></tr>
         <?php endif; ?>
         </tbody>
     </table>

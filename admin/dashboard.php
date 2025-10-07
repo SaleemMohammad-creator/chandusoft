@@ -90,7 +90,7 @@ body { font-family: Arial, sans-serif; margin:0; background:#f7f8fc; }
 <div class="container">
     <div class="dashboard-box">
         <h1>Dashboard</h1>
-        <div class="role-badge">Role: <?= htmlspecialchars($user_role) ?></div>
+    
         <ul>
             <li>Total leads: <?= $totalLeads ?></li>
             <li>Pages published: <?= $pagesPublished ?></li>
