@@ -1,5 +1,12 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
+
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
+    header("Location: dashboard.php");
+    exit;
+}
+
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,13 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
-            // ✅ Store user as array
-            $_SESSION['user'] = [
-                'id' => $user['id'],
-                'name' => $user['name'],
-                'role' => $user['role']
-            ];
-            header("Location: pages.php");
+            // Store session consistently
+            $_SESSION['user_id']   = $user['id'];
+            $_SESSION['user_role'] = $user['role'] ?? 'Admin';
+            $_SESSION['user_name'] = $user['name'] ?? 'User';
+
+            header("Location: dashboard.php");
             exit;
         } else {
             $message = "Invalid email or password";
@@ -29,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,7 +54,9 @@ p.message { padding:10px; border-radius:4px; text-align:center; margin-bottom:15
 <body>
 <div class="container">
     <h2>Admin Login</h2>
-    <?php if ($message) echo "<p class='message'>" . htmlspecialchars($message) . "</p>"; ?>
+    <?php if ($message): ?>
+        <p class="message"><?= htmlspecialchars($message) ?></p>
+    <?php endif; ?>
     <form method="post">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <label>Email</label>

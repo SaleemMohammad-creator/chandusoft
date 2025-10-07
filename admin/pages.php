@@ -1,28 +1,27 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 
-// Check login
-if (!isset($_SESSION['user'])) {
+// Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
 
-$user = $_SESSION['user'];
-$role = htmlspecialchars($user['role']);
-$username = htmlspecialchars($user['name']);
+// Safe user info
+$user_role = $_SESSION['user_role'] ?? 'Admin';
+$user_name = $_SESSION['user_name'] ?? 'User';
 
-$search = $_GET['search'] ?? '';
-
+// Handle search
+$search = trim($_GET['search'] ?? '');
 if ($search !== '') {
-    $stmt = $pdo->prepare("SELECT * FROM pages WHERE title LIKE :search OR slug LIKE :search ORDER BY id DESC");
-    $stmt->execute(['search' => "%$search%"]);
+    $stmt = $pdo->prepare("SELECT * FROM pages WHERE title LIKE :s OR slug LIKE :s ORDER BY id DESC");
+    $stmt->execute(['s' => "%$search%"]);
     $pages = $stmt->fetchAll();
 } else {
     $stmt = $pdo->query("SELECT * FROM pages ORDER BY id DESC");
     $pages = $stmt->fetchAll();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,7 +31,7 @@ if ($search !== '') {
 body { font-family: Arial; background:#f4f4f4; margin:0; padding:0; }
 .navbar { background:#2c3e50; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
 .navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
-.navbar a:hover { text-decoration:underline; }
+.navbar a:hover { text-decoration:none; } /* Removed underline on hover */
 .container { max-width:1100px; margin:30px auto; background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
 .top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
 .top-bar input[type="text"] { padding:7px; width:200px; border:1px solid #ccc; border-radius:4px; margin-right:6px; }
@@ -53,7 +52,8 @@ tr:hover{background:#eef7ff;}
 <div class="navbar">
     <div><strong>Chandusoft Admin</strong></div>
     <div>
-        Welcome <?= $role ?>, <?= $username ?>!
+        Welcome <?= htmlspecialchars($user_role) ?>!
+        <a href="dashboard.php">Dashboard</a>
         <a href="pages.php">Pages</a>
         <a href="admin-leads.php">Leads</a>
         <a href="logout.php">Logout</a>
@@ -87,14 +87,14 @@ tr:hover{background:#eef7ff;}
                 <td><?= htmlspecialchars($page['status']) ?></td>
                 <td class="actions">
                     <button class="edit-btn" onclick="window.location.href='edit.php?id=<?= $page['id'] ?>'">Edit</button>
-                    <?php if ($role==='admin'): ?>
+                    <?php if ($user_role === 'admin'): ?>
                     <button class="delete-btn" onclick="if(confirm('Delete this page?')) window.location.href='delete.php?id=<?= $page['id'] ?>'">Delete</button>
                     <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>
         <?php else: ?>
-            <tr><td colspan="4">No pages found.</td></tr>
+            <tr><td colspan="4" style="text-align:center;">No pages found.</td></tr>
         <?php endif; ?>
         </tbody>
     </table>
