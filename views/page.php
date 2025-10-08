@@ -1,3 +1,4 @@
+
 <?php
 // Ensure $page exists
 if (!isset($page) || empty($page)) {
