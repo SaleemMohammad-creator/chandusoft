@@ -1,3 +1,8 @@
+<?php 
+require_once __DIR__ . '/../app/config.php'; 
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +14,9 @@
 </head>
 <body>
     <!-- Placeholder for dynamic header -->
+    <div id="header"></div>
     <?php include("header.php"); ?>
-
+ 
     <main>
         <section class="hero">
             <div class="hero-content">
@@ -19,7 +25,7 @@
                 <a href="services.php" class="btn-hero"><b>Explore Services</b></a>
             </div>
         </section>
-
+ 
         <section class="testimonials">
   <h2 style="color: rgb(42, 105, 240);">What Our Clients Say</h2>
   <div class="testimonial-container">
@@ -40,13 +46,14 @@
     </div>
 </section>
     </main>
-
+ 
     <!-- Placeholder for dynamic footer -->
+    <div id="footer"></div>
     <?php include("footer.php"); ?>
-
+ 
     <!-- The "Back to Top" button -->
     <button id="back-to-top" title="Back to Top">↑</button>
-
+ 
     <!-- Include JavaScript for dynamic loading and smooth scroll -->
      <script src="include.js"></script>
 </body>
