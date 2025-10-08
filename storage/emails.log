@@ -9,3 +9,5 @@ Error: SMTP Error: Could not connect to SMTP host. Failed to connect to server S
 [2025-10-08 04:29:09] - Status: error - Name: nnn - Email: nn@gmail.com - Subject: New Lead Submission - Error: SMTP Error: Could not authenticate.
 [2025-10-08 04:32:36] - Status: error - Name: zzz - Email: yy@gmail.com - Subject: New Lead Submission - Error: SMTP Error: Could not authenticate.
 [2025-10-08 04:33:32] - Status: error - Name: zzz - Email: yy@gmail.com - Subject: New Lead Submission - Error: SMTP Error: Could not authenticate.
+[2025-10-08 04:39:34] - Status: error - Name: aa - Email: abb@gmail.com - Subject: New Lead Submission - Error: SMTP Error: Could not authenticate.
+[2025-10-08 04:40:50] - Status: success - Name: aa - Email: abbcg@gmail.com - Subject: New Lead Submission - Error: 
