@@ -91,15 +91,20 @@ tr:hover{background:#eef7ff;}
 .archive-btn { background:#f39c12; color:#fff; }
 
 .delete-btn { 
-    background:#c0392b; 
-    color:#fff; 
-    cursor:block;         /* Cursor stays default, not pointer */
-    pointer-events:auto;    /* Only actual click triggers action */
+    background: #c0392b; 
+    color: #fff; 
+    cursor: not-allowed !important;   /* 🚫 shows blocked cursor */
+    pointer-events: none;             /* disables click */
+    opacity: 0.6;                     /* visually show disabled */
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;
 }
-.delete-btn:hover { background:#c0392b; } /* No hover effect */
-.message { padding:10px; border-radius:4px; margin-bottom:20px; font-weight:bold; }
-.success { background:#d4edda; color:#155724; }
-.error { background:#f8d7da; color:#721c24; }
+.delete-btn:hover { 
+    background: #c0392b;              /* keep same color on hover */
+}
 </style>
 </head>
 <body>

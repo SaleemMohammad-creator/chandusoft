@@ -21,16 +21,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
+        // ✅ Create logs directory if missing
+        $logDir = __DIR__ . '/../logs';
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        $logFile = $logDir . '/login_attempts.log';
+        $timestamp = date('Y-m-d H:i:s');
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown IP';
+
         if ($user && password_verify($password, $user['password'])) {
-            // Store session consistently
+            // Store session
             $_SESSION['user_id']   = $user['id'];
             $_SESSION['user_role'] = $user['role'] ?? 'Admin';
             $_SESSION['user_name'] = $user['name'] ?? 'User';
+
+            // ✅ Log successful login
+            $entry = "[{$timestamp}] ✅ SUCCESS login | User: {$email} | IP: {$ip}\n";
+            file_put_contents($logFile, $entry, FILE_APPEND | LOCK_EX);
 
             header("Location: dashboard.php");
             exit;
         } else {
             $message = "Invalid email or password";
+
+            // ❌ Log failed login attempt
+            $entry = "[{$timestamp}] ❌ FAILED login | Email: {$email} | IP: {$ip}\n";
+            file_put_contents($logFile, $entry, FILE_APPEND | LOCK_EX);
         }
     }
 }
