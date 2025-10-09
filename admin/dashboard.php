@@ -13,7 +13,7 @@ $user_name = $_SESSION['user_name'] ?? 'User';
 
 // Fetch last 5 leads
 $stmt = $pdo->query("SELECT * FROM leads ORDER BY id DESC LIMIT 5");
-$leads = $stmt->fetchAll();
+$leads = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Total leads
 $totalLeadsStmt = $pdo->query("SELECT COUNT(*) AS total FROM leads");
@@ -29,7 +29,7 @@ $pagesDraft = 2;
 <meta charset="UTF-8">
 <title>Chandusoft Admin Dashboard</title>
 <style>
-body { font-family: Arial, sans-serif; margin:0; background:#f7f8fc; }
+body { font-family: Arial; margin:0; background:#f7f8fc; }
 
 /* Navbar */
 .navbar { background:#2c3e50; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
@@ -41,11 +41,10 @@ body { font-family: Arial, sans-serif; margin:0; background:#f7f8fc; }
 .navbar .navbar-right span { margin-right:10px; font-weight:bold; }
 
 .navbar a.nav-btn {
-    color:#fff; text-decoration:none; margin-left:5px; /* Reduced space */
+    color:#fff; text-decoration:none; margin-left:5px;
     font-weight:bold; padding:6px 12px; border-radius:4px;
     transition:background 0.3s;
 }
-
 
 /* Container */
 .container {
@@ -58,13 +57,6 @@ body { font-family: Arial, sans-serif; margin:0; background:#f7f8fc; }
 .dashboard-box h1 { font-size:2em; margin-bottom:15px; }
 .dashboard-box ul { list-style: disc inside; padding-left:0; margin-bottom:20px; }
 .dashboard-box ul li { margin-bottom:6px; font-size:1.1em; }
-
-/* Role Badge */
-.role-badge {
-    display:inline-block; background:#2980b9; color:white; 
-    padding:5px 12px; border-radius:20px; font-size:0.9em;
-    margin-bottom:20px;
-}
 
 /* Table */
 .leads-table { width:100%; border-collapse:collapse; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
@@ -79,7 +71,7 @@ body { font-family: Arial, sans-serif; margin:0; background:#f7f8fc; }
 <div class="navbar">
     <div class="navbar-left">Chandusoft Admin</div>
     <div class="navbar-right">
-        <span>Welcome <?= htmlspecialchars($user_role) ?>!</span>
+        <span>Welcome <?= htmlspecialchars((string)$user_role) ?>!</span>
         <a href="dashboard.php" class="nav-btn">Dashboard</a>
         <a href="pages.php" class="nav-btn">Pages</a>
         <a href="admin-leads.php" class="nav-btn">Leads</a>
@@ -92,9 +84,9 @@ body { font-family: Arial, sans-serif; margin:0; background:#f7f8fc; }
         <h1>Dashboard</h1>
     
         <ul>
-            <li>Total leads: <?= $totalLeads ?></li>
-            <li>Pages published: <?= $pagesPublished ?></li>
-            <li>Pages draft: <?= $pagesDraft ?></li>
+            <li>Total leads: <?= (int)$totalLeads ?></li>
+            <li>Pages published: <?= (int)$pagesPublished ?></li>
+            <li>Pages draft: <?= (int)$pagesDraft ?></li>
         </ul>
 
         <h2>Last 5 Leads</h2>
@@ -111,11 +103,11 @@ body { font-family: Arial, sans-serif; margin:0; background:#f7f8fc; }
             <tbody>
                 <?php foreach ($leads as $lead): ?>
                 <tr>
-                    <td><?= htmlspecialchars($lead['name']) ?></td>
-                    <td><?= htmlspecialchars($lead['email']) ?></td>
-                    <td><?= htmlspecialchars($lead['message']) ?></td>
-                    <td><?= htmlspecialchars($lead['created_at']) ?></td>
-                    <td><?= htmlspecialchars($lead['ip']) ?></td>
+                    <td><?= htmlspecialchars((string)($lead['name'] ?? '')) ?></td>
+                    <td><?= htmlspecialchars((string)($lead['email'] ?? '')) ?></td>
+                    <td><?= htmlspecialchars((string)($lead['message'] ?? '')) ?></td>
+                    <td><?= htmlspecialchars((string)($lead['created_at'] ?? '')) ?></td>
+                    <td><?= htmlspecialchars((string)($lead['ip'] ?? '')) ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

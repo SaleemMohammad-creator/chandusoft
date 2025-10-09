@@ -71,6 +71,8 @@ if ($pageSlug && $pageSlug !== 'home') {
 <!-- The "Back to Top" button -->
     <button id="back-to-top" title="Back to Top">↑</button>
 
+    <script src="include.js"> </script>
+
 <?php include("footer.php"); ?>
 </body>
 </html>

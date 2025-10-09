@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/../app/config.php';
 
 // Redirect if not logged in
@@ -49,7 +50,7 @@ if ($search !== '') {
 $query .= " ORDER BY id DESC";
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
-$pages = $stmt->fetchAll();
+$pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -85,10 +86,20 @@ th { background:#3498db; color:#fff; }
 tr:nth-child(even){background:#f9f9f9;}
 tr:hover{background:#eef7ff;}
 
-.actions button { margin-right:5px; padding:6px 14px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px; }
+.actions button { margin-right:5px; padding:6px 14px; border:none; border-radius:4px; font-weight:bold; font-size:14px; cursor:pointer; }
 .edit-btn { background:#23b07d; color:#fff; }
 .archive-btn { background:#f39c12; color:#fff; }
-.delete-btn { background:#c0392b; color:#fff; }
+
+.delete-btn { 
+    background:#c0392b; 
+    color:#fff; 
+    cursor:block;         /* Cursor stays default, not pointer */
+    pointer-events:auto;    /* Only actual click triggers action */
+}
+.delete-btn:hover { background:#c0392b; } /* No hover effect */
+.message { padding:10px; border-radius:4px; margin-bottom:20px; font-weight:bold; }
+.success { background:#d4edda; color:#155724; }
+.error { background:#f8d7da; color:#721c24; }
 </style>
 </head>
 <body>
@@ -96,7 +107,7 @@ tr:hover{background:#eef7ff;}
 <div class="navbar">
     <div><strong>Chandusoft Admin</strong></div>
     <div>
-        Welcome <?= htmlspecialchars($user_role) ?>, <?= htmlspecialchars($user_name) ?>!
+        Welcome <?= htmlspecialchars($user_role) ?>!
         <a href="dashboard.php">Dashboard</a>
         <a href="pages.php">Pages</a>
         <a href="admin-leads.php">Leads</a>
@@ -105,8 +116,20 @@ tr:hover{background:#eef7ff;}
 </div>
 
 <div class="container">
+
+    <!-- Messages -->
+    <?php
+    if (!empty($_SESSION['success_message'])) {
+        echo '<div class="message success">'.htmlspecialchars($_SESSION['success_message']).'</div>';
+        unset($_SESSION['success_message']);
+    }
+    if (!empty($_SESSION['error_message'])) {
+        echo '<div class="message error">'.htmlspecialchars($_SESSION['error_message']).'</div>';
+        unset($_SESSION['error_message']);
+    }
+    ?>
+
     <div class="top-bar">
-        <!-- Filters on left -->
         <div class="filters">
             <a href="pages.php?filter=all" class="<?= $filter==='all'?'active':'' ?>">All (<?= count($pages) ?>)</a>
             <a href="pages.php?filter=published" class="<?= $filter==='published'?'active':'' ?>">Published (<?= count(array_filter($pages, fn($p)=>$p['status']==='published')) ?>)</a>
@@ -114,10 +137,9 @@ tr:hover{background:#eef7ff;}
             <a href="pages.php?filter=archived" class="<?= $filter==='archived'?'active':'' ?>">Archived (<?= count(array_filter($pages, fn($p)=>$p['status']==='archived')) ?>)</a>
         </div>
 
-        <!-- Search bar in middle -->
         <div class="right-side">
             <form class="search-form" method="get">
-                <input type="text" name="search" placeholder="Search title or slug" value="<?= htmlspecialchars($search ?? '') ?>">
+                <input type="text" name="search" placeholder="Search title or slug" value="<?= htmlspecialchars($search) ?>">
                 <button type="submit">Search</button>
             </form>
             <a class="create-btn" href="create.php">+ Create New Page</a>
@@ -148,7 +170,10 @@ tr:hover{background:#eef7ff;}
                         <button class="archive-btn" onclick="if(confirm('Archive this page?')) window.location.href='pages.php?archive_id=<?= $page['id'] ?>'">Archive</button>
                     <?php endif; ?>
                     <?php if($user_role === 'admin'): ?>
-                        <button class="delete-btn" onclick="if(confirm('Delete this page?')) window.location.href='delete.php?id=<?= $page['id'] ?>'">Delete</button>
+                        <button class="delete-btn" 
+                            onclick="if(confirm('Delete this page?')) window.location.href='delete.php?delete_id=<?= $page['id'] ?>'">
+                            Delete
+                        </button>
                     <?php endif; ?>
                 </td>
             </tr>
@@ -158,6 +183,7 @@ tr:hover{background:#eef7ff;}
         <?php endif; ?>
         </tbody>
     </table>
+
 </div>
 
 </body>

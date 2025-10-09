@@ -79,21 +79,21 @@ tr:hover { background:#e6f7ff; }
             </tr>
         </thead>
         <tbody>
-        <?php if (!empty($leads)): ?>
-            <?php foreach ($leads as $row): ?>
-            <tr>
-                <td><?= $row['id'] ?></td>
-                <td><?= htmlspecialchars($row['name']) ?></td>
-                <td><?= htmlspecialchars($row['email']) ?></td>
-                <td><?= htmlspecialchars($row['message']) ?></td>
-                <td><?= htmlspecialchars($row['created_at']) ?></td>
-                <td><?= htmlspecialchars($row['ip']) ?></td>
-            </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr><td colspan="6" style="text-align:center;">No leads found.</td></tr>
-        <?php endif; ?>
-        </tbody>
+            <?php if (!empty($leads)): ?>
+      <?php foreach ($leads as $row): ?>
+    <tr>
+        <td><?= (int)($row['id'] ?? 0) ?></td>
+        <td><?= htmlspecialchars((string)($row['name'] ?? '')) ?></td>
+        <td><?= htmlspecialchars((string)($row['email'] ?? '')) ?></td>
+        <td><?= htmlspecialchars((string)($row['message'] ?? '')) ?></td>
+        <td><?= htmlspecialchars((string)($row['created_at'] ?? '')) ?></td>
+        <td><?= htmlspecialchars((string)($row['ip'] ?? '')) ?></td>
+    </tr>
+    <?php endforeach; ?>
+<?php else: ?>
+    <tr><td colspan="6" style="text-align:center;">No leads found.</td></tr>
+<?php endif; ?>
+</tbody>
     </table>
 </div>
 

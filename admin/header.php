@@ -56,5 +56,3 @@ if (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) {
 </header>
 
 
-<!-- Back to Top Button -->
-<button id="back-to-top" title="Back to Top">↑</button>
