@@ -80,32 +80,81 @@ $_SESSION['flash_message'] = '';
 <meta charset="UTF-8">
 <title>Admin Login</title>
 <style>
-body { font-family: Arial; background:#f7f7f7; display:flex; justify-content:center; align-items:center; height:100vh; }
-.container { background:#fff; padding:40px 50px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); width:400px; max-width:90%; position:relative; }
-h2 { text-align:center; margin-bottom:20px; }
-label { display:block; margin-bottom:8px; font-weight:bold; }
-input { width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px; }
-button { width:100%; padding:10px; background:#1E90FF; color:#fff; border:none; border-radius:4px; font-weight:bold; cursor:pointer; }
-button:hover { background:#1C86EE; }
+body {
+    font-family: Arial;
+    background: #f7f7f7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background: #fff;
+    padding: 40px; /* Equal padding on all sides */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 400px;
+    max-width: 90%;
+    box-sizing: border-box; /* Includes padding in width */
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensures full width includes padding */
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background: #1E90FF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1C86EE;
+}
+
 p.message {
-    padding:10px;
-    border-radius:4px;
-    text-align:center;
-    margin-bottom:15px;
-    background:#f8d7da;
-    color:#721c24;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 15px;
+    background: #f8d7da;
+    color: #721c24;
     animation: fadeout 5s forwards;
 }
+
 @keyframes fadeout {
-    0% {opacity:1;}
-    80% {opacity:1;}
-    100% {opacity:0; display:none;}
+    0% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; display: none; }
 }
 </style>
 </head>
 <body>
 <div class="container">
-    <h2>Admin Login</h2>
+    <h2>Login</h2>
     <?php if ($message): ?>
         <p class="message"><?= htmlspecialchars($message) ?></p>
     <?php endif; ?>
