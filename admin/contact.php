@@ -2,7 +2,6 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 require '../vendor/autoload.php';
-
 $success = "";
 $name = "";
 $email = "";
@@ -74,7 +73,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo json_encode($response);
     exit;
 }
-
 // Function to log email events (success or error) to emails.log
 function logEmail($status, $name, $email, $subject, $errorMessage) {
     // Open the log file in append mode
@@ -82,18 +80,13 @@ function logEmail($status, $name, $email, $subject, $errorMessage) {
     if (!file_exists(dirname($logFile))) {
         mkdir(dirname($logFile), 0777, true);
     }
-
-    // Prepare the log entry
+// Prepare the log entry
     $timestamp = date("Y-m-d H:i:s");
     $logEntry = "[$timestamp] - Status: $status - Name: $name - Email: $email - Subject: $subject - Error: $errorMessage" . PHP_EOL;
-
-    // Append the log entry to the file
+// Append the log entry to the file
     file_put_contents($logFile, $logEntry, FILE_APPEND);
 }
-
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

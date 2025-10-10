@@ -1,24 +1,19 @@
 <?php
 session_start();
 require_once __DIR__ . '/../app/config.php'; // PDO connection + verify_csrf()
-
 // Redirect if not logged in
 if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
     header("Location: login.php");
     exit;
 }
-
 // Safe user info
 $user_role = $_SESSION['user_role'] ?? 'Admin';
 $user_name = $_SESSION['user_name'] ?? 'User';
-
 // CSRF token
 $csrf_token = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
 $_SESSION['csrf_token'] = $csrf_token;
-
 $errors = [];
 $success = "";
-
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title        = trim($_POST['title'] ?? '');

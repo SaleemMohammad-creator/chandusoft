@@ -1,16 +1,13 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
-
 // Check login
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
-
 // Safe user info
 $role = $_SESSION['user_role'] ?? 'Admin';
 $username = $_SESSION['user_name'] ?? 'User';
-
 // Handle search
 $search = trim($_GET['search'] ?? '');
 if ($search !== '') {
@@ -46,8 +43,7 @@ tr:hover { background:#e6f7ff; }
 </style>
 </head>
 <body>
-
-<div class="navbar">
+ <div class="navbar">
     <div><strong>Chandusoft Admin</strong></div>
     <div>
         Welcome <?= htmlspecialchars($role) ?>!
@@ -60,13 +56,11 @@ tr:hover { background:#e6f7ff; }
 
 <div class="container">
     <h1>Leads</h1>
-    
-    <!-- Search form -->
+     <!-- Search form -->
     <form class="search-form" method="GET" action="">
         <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search name/email">
         <button type="submit">Search</button>
     </form>
-
     <table>
         <thead>
             <tr>
