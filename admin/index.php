@@ -1,4 +1,48 @@
 <?php
+// ------------------------
+// Logging Setup
+// ------------------------
+define('LOG_FILE', __DIR__ . '/../storage/logs/app.log');
+
+
+/**
+ * Log messages with timestamp
+ */
+function logMessage($message) {
+    $date = date('Y-m-d H:i:s');
+    file_put_contents(LOG_FILE, "[$date] $message" . PHP_EOL, FILE_APPEND);
+}
+
+// General PHP errors
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    $msg = "Error [$errno] in $errfile at line $errline: $errstr";
+    logMessage($msg);
+});
+
+// Uncaught exceptions
+set_exception_handler(function($exception) {
+    $msg = "Uncaught Exception: " . $exception->getMessage() .
+           " in " . $exception->getFile() .
+           " at line " . $exception->getLine();
+    logMessage($msg);
+});
+
+// Mail sending function with logging
+function sendEmail($to, $subject, $body) {
+    try {
+        $success = mail($to, $subject, $body);
+        if (!$success) {
+            throw new Exception("Mail sending failed to: $to, Subject: $subject");
+        }
+        logMessage("Mail sent successfully to $to with subject '$subject'");
+    } catch (Exception $e) {
+        logMessage("Mail Error: " . $e->getMessage());
+    }
+}
+
+// ------------------------
+// App Setup
+// ------------------------
 require_once __DIR__ . '/../app/config.php';
 ?>
 
@@ -19,27 +63,30 @@ require_once __DIR__ . '/../app/config.php';
 $pageSlug = $_GET['page'] ?? 'home';
 
 if ($pageSlug !== 'home') {
-    // Fetch CMS page content
-    $stmt = $pdo->prepare("SELECT * FROM pages WHERE slug=:slug AND status='published'");
-    $stmt->execute(['slug' => $pageSlug]);
-    $page = $stmt->fetch();
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM pages WHERE slug=:slug AND status='published'");
+        $stmt->execute(['slug' => $pageSlug]);
+        $page = $stmt->fetch();
 
-    if ($page) {
-        echo "<section class='page-content'>";
-        echo "<h1>" . htmlspecialchars($page['title']) . "</h1>";
-        echo "<div>" . $page['content_html'] . "</div>";
-        echo "</section>";
-    } else {
-        // Fallback to static page if exists
-        $staticFile = $pageSlug . ".php";
-        if (file_exists($staticFile)) {
-            include $staticFile;
+        if ($page) {
+            echo "<section class='page-content'>";
+            echo "<h1>" . htmlspecialchars($page['title']) . "</h1>";
+            echo "<div>" . $page['content_html'] . "</div>";
+            echo "</section>";
         } else {
-            echo "<section><h2>Page not found</h2></section>";
+            $staticFile = $pageSlug . ".php";
+            if (file_exists($staticFile)) {
+                include $staticFile;
+            } else {
+                echo "<section><h2>Page not found</h2></section>";
+                logMessage("Page not found: $pageSlug");
+            }
         }
+    } catch (Exception $e) {
+        logMessage("Database/Query Error for page '$pageSlug': " . $e->getMessage());
+        echo "<section><h2>Something went wrong. Please try again later.</h2></section>";
     }
 } else {
-    // Home page content
     ?>
     <section class="hero">
         <div class="hero-content">
@@ -74,7 +121,6 @@ if ($pageSlug !== 'home') {
 ?>
 </main>
 
-<!-- Back to Top button -->
 <button id="back-to-top" title="Back to Top">↑</button>
 <script src="include.js"></script>
 
