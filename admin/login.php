@@ -100,7 +100,10 @@ p.message {
         <label>Password</label>
         <input type="password" name="password" required>
         <button type="submit">Login</button>
-    </form>
+    </form>  
+     <div class="register-link">
+        Don’t have an account? <a href="register.php">Register Here</a>
+    </div>
 </div>
 </body>
 </html>

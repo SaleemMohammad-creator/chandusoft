@@ -6,21 +6,21 @@ require_once __DIR__ . '/../app/config.php';
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chandusoft</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-
 <?php include("header.php"); ?>
 
 <main>
 <?php
-$pageSlug = $_GET['page'] ?? '';
+$pageSlug = $_GET['page'] ?? 'home';
 
-if ($pageSlug && $pageSlug !== 'home') {
-    // Fetch the clicked page content
-    $stmt = $pdo->prepare("SELECT * FROM pages WHERE slug = :slug AND status = 'published'");
+if ($pageSlug !== 'home') {
+    // Fetch CMS page content
+    $stmt = $pdo->prepare("SELECT * FROM pages WHERE slug=:slug AND status='published'");
     $stmt->execute(['slug' => $pageSlug]);
     $page = $stmt->fetch();
 
@@ -30,7 +30,13 @@ if ($pageSlug && $pageSlug !== 'home') {
         echo "<div>" . $page['content_html'] . "</div>";
         echo "</section>";
     } else {
-        echo "<section><h2>Page not found</h2></section>";
+        // Fallback to static page if exists
+        $staticFile = $pageSlug . ".php";
+        if (file_exists($staticFile)) {
+            include $staticFile;
+        } else {
+            echo "<section><h2>Page not found</h2></section>";
+        }
     }
 } else {
     // Home page content
@@ -39,7 +45,7 @@ if ($pageSlug && $pageSlug !== 'home') {
         <div class="hero-content">
             <h1>Welcome to Chandusoft</h1>
             <p>Delivering IT & BPO solutions for over 15 years.</p>
-            <a href="services.php" class="btn-hero"><b>Explore Services</b></a>
+            <a href="<?= $cmsService ? "index.php?page=services" : "services.php" ?>" class="btn-hero"><b>Explore Services</b></a>
         </div>
     </section>
 
@@ -68,10 +74,9 @@ if ($pageSlug && $pageSlug !== 'home') {
 ?>
 </main>
 
-<!-- The "Back to Top" button -->
-    <button id="back-to-top" title="Back to Top">↑</button>
-
-    <script src="include.js"> </script>
+<!-- Back to Top button -->
+<button id="back-to-top" title="Back to Top">↑</button>
+<script src="include.js"></script>
 
 <?php include("footer.php"); ?>
 </body>
