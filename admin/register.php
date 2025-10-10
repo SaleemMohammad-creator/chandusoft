@@ -47,27 +47,60 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <title>Register</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .form-container {
-            background: white;
-            padding: 25px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            width: 350px;
-        }
-        h2 { text-align: center; }
-        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { width: 100%; padding: 10px; background: #3498db; border: none; color: white; font-size: 16px; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #2980b9; }
-        .message { margin-top: 10px; text-align: center; font-size: 14px; }
+       body {
+    font-family: Arial, sans-serif;
+    background: #f5f6fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.form-container {
+    background: white;
+    padding: 30px; /* Equal padding all sides */
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    width: 350px;
+    box-sizing: border-box; /* Ensure padding included in width */
+}
+
+h2 { 
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;  /* slightly more padding for better look */
+    margin: 10px 0; /* equal top & bottom spacing */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* ensure full width includes padding */
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #3498db;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #2980b9;
+}
+
+.message {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #e74c3c; /* optional: red for errors */
+}
     </style>
 </head>
 <body>

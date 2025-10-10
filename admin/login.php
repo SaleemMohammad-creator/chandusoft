@@ -52,6 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_role'] = $user['role'] ?? 'Admin';
             $_SESSION['user_name'] = $user['name'] ?? 'User';
 
+           
+
             header("Location: dashboard.php");
             exit;
         } else {
@@ -72,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $message = $_SESSION['flash_message'] ?? '';
 $_SESSION['flash_message'] = '';
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
