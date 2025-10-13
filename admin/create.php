@@ -63,8 +63,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     body { font-family: Arial; padding:20px; background:#f4f4f4; }
     .container { max-width:800px; margin:auto; background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
     input[type=text], select, textarea { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:4px; }
-    button { padding:10px 20px; border:none; background:#27ae60; color:#fff; cursor:pointer; border-radius:4px; font-weight:bold; }
-    button:hover { background:#1d6fa5; }
+
+    /* Buttons container */
+    .form-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+    }
+
+    button {
+        padding:10px 20px;
+        border:none;
+        background:#3498db;
+        color:#fff;
+        cursor:pointer;
+        border-radius:4px;
+        font-weight:bold;
+        transition: background 0.3s;
+    }
+
+
     .error { color:#c0392b; margin-bottom:15px; }
     .success { color:#27ae60; margin-bottom:15px; }
 </style>
@@ -100,10 +118,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <option value="archived" <?= ($status ?? '') === 'archived' ? 'selected' : '' ?>>Archived</option>
         </select>
 
-        <button type="submit">Create Page</button>
+        <!-- Buttons on same line -->
+        <div class="form-buttons">
+            <button type="submit">Create Page</button>
+            <a href="pages.php"><button type="button">← Back to Pages</button></a>
+        </div>
     </form>
-
-    <p><a href="pages.php">&laquo; Back to Pages</a></p>
 </div>
 </body>
 </html>

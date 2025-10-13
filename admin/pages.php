@@ -73,10 +73,36 @@ body { font-family: Arial; background:#f4f4f4; margin:0; padding:0; }
 
 .right-side { display:flex; align-items:center; gap:10px; }
 
-.search-form { display:flex; align-items:center; gap:5px; }
-.search-form input[type="text"] { padding:8px 12px; width:250px; border:1px solid #ccc; border-radius:4px; font-size:14px; }
-.search-form button { padding:8px 16px; border:none; border-radius:4px; background:#3498db; color:#fff; font-weight:bold; cursor:pointer; font-size:14px; transition:0.3s; }
-.search-form button:hover { background:#1d6fa5; }
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center; /* center horizontally */
+    margin: 0 auto 20px;      /* center container and add bottom margin */
+    transform: translateX(-20px); /* move slightly left */
+}
+.search-form input[type="text"] {
+    padding: 8px 12px;
+    width: 250px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.search-form button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background: #3498db;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+.search-form button:hover {
+    background: #1d6fa5;
+}
 
 .create-btn { background:#27ae60; color:#fff; padding:8px 18px; border-radius:4px; font-weight:bold; text-decoration:none; white-space:nowrap; }
 

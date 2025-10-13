@@ -1,3 +1,6 @@
 [2025-10-10 09:19:13] Page not found: server
 [2025-10-10 09:19:26] Page not found: server
 [2025-10-10 10:40:12] Page not found: server
+[2025-10-13 04:32:54] Page not found: server
+[2025-10-13 04:33:01] Page not found: server
+[2025-10-13 04:59:13] Error [2] in C:\laragon\www\chandusoft\admin\header.php at line 5: Constant SITE_HOME already defined
