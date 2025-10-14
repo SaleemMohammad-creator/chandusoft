@@ -1,17 +1,39 @@
+<?php
+require_once __DIR__ . '/../app/config.php';
+
+// Fetch recent CMS pages for header
+$navStmt = $pdo->prepare("
+    SELECT title, slug
+    FROM pages
+    WHERE status='published'
+    ORDER BY created_at DESC
+    LIMIT 5
+");
+$navStmt->execute();
+$recentPages = $navStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Current page slug
+$pageSlug = 'about';
+$servicesLink = "/admin/services"; // Pretty URL
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chandusoft</title>
-    <!-- Only one link to styles.css -->
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us - Chandusoft</title>
+<link rel="stylesheet" href="/admin/styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <!-- Placeholder for dynamic header -->
+<div class="page-wrapper">
+
+    <!-- Header -->
     
-<main>
+
+    <!-- Main Content -->
+    <main>
         <h4><span class="section-title">About Us</span></h4>
         <p>
             <span class="highlight">Chandusoft</span> is a well-established company with over
@@ -25,8 +47,9 @@
         </p>
     </main>
 
-    <!-- Placeholder for dynamic footer -->
-    <div id="footer"></div>
-     <?php include("footer.php"); ?>
+    <!-- Footer -->
+    <?php include("footer.php"); ?>
+
+</div>
 </body>
 </html>

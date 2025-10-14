@@ -1,6 +1,14 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
-session_start();
+
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start([
+        'cookie_httponly' => true,
+        'cookie_secure' => false, // true if HTTPS
+        'cookie_samesite' => 'Strict'
+    ]);
+}
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -20,6 +28,7 @@ $leads = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $totalLeadsStmt = $pdo->query("SELECT COUNT(*) AS total FROM leads");
 $totalLeads = $totalLeadsStmt->fetch()['total'] ?? 0;
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,7 +56,7 @@ body { font-family: Arial; margin:0; background:#f7f8fc; }
 <div class="navbar">
     <div class="navbar-left">Chandusoft Admin</div>
     <div class="navbar-right">
-        <span>Welcome <?= htmlspecialchars($user_name) ?>!</span>
+        <span>Welcome <?= htmlspecialchars($user_role) ?>!</span>
         <a href="dashboard.php" class="nav-btn">Dashboard</a>
         <a href="pages.php" class="nav-btn">Pages</a>
         <a href="admin-leads.php" class="nav-btn">Leads</a>
