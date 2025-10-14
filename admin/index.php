@@ -1,98 +1,95 @@
 <?php
 // ------------------------
-// Logging Setup
+// Logging Setup (only once)
 // ------------------------
 define('LOG_FILE', __DIR__ . '/../storage/logs/app.log');
 
-
-/**
- * Log messages with timestamp
- */
-function logMessage($message) {
-    $date = date('Y-m-d H:i:s');
-    file_put_contents(LOG_FILE, "[$date] $message" . PHP_EOL, FILE_APPEND);
-}
-
-// General PHP errors
-set_error_handler(function($errno, $errstr, $errfile, $errline) {
-    $msg = "Error [$errno] in $errfile at line $errline: $errstr";
-    logMessage($msg);
-});
-
-// Uncaught exceptions
-set_exception_handler(function($exception) {
-    $msg = "Uncaught Exception: " . $exception->getMessage() .
-           " in " . $exception->getFile() .
-           " at line " . $exception->getLine();
-    logMessage($msg);
-});
-
-// Mail sending function with logging
-function sendEmail($to, $subject, $body) {
-    try {
-        $success = mail($to, $subject, $body);
-        if (!$success) {
-            throw new Exception("Mail sending failed to: $to, Subject: $subject");
-        }
-        logMessage("Mail sent successfully to $to with subject '$subject'");
-    } catch (Exception $e) {
-        logMessage("Mail Error: " . $e->getMessage());
+if (!function_exists('logMessage')) {
+    function logMessage($message) {
+        $date = date('Y-m-d H:i:s');
+        file_put_contents(LOG_FILE, "[$date] $message" . PHP_EOL, FILE_APPEND);
     }
 }
+
+// Handle PHP errors
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    logMessage("Error [$errno] in $errfile at line $errline: $errstr");
+});
+
+// Handle uncaught exceptions
+set_exception_handler(function($exception) {
+    logMessage("Uncaught Exception: " . $exception->getMessage() .
+               " in " . $exception->getFile() .
+               " at line " . $exception->getLine());
+});
 
 // ------------------------
 // App Setup
 // ------------------------
 require_once __DIR__ . '/../app/config.php';
+
+// --- Define site home page ---
+define('SITE_HOME', '/admin/index');
+
+// Fetch 5 most recent published pages for header nav
+$navStmt = $pdo->prepare("
+    SELECT title, slug
+    FROM pages
+    WHERE status = 'published'
+    ORDER BY created_at DESC
+    LIMIT 5
+");
+$navStmt->execute();
+$recentPages = $navStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ------------------------
+// Determine current page slug (pretty URL support)
+// ------------------------
+$pageSlug = $_GET['page'] ?? null;
+
+if (!$pageSlug) {
+    $uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+    $segments = explode('/', $uri);
+
+    if ($segments[0] === 'admin') {
+        $pageSlug = $segments[1] ?? 'index';
+    } else {
+        $pageSlug = 'index';
+    }
+}
+
+// Base path for images/links
+$basePath = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '' : 'admin/';
+
+// Check if CMS Services page exists
+$stmt = $pdo->prepare("SELECT slug FROM pages WHERE slug='services' AND status='published'");
+$stmt->execute();
+$cmsService = $stmt->fetch();
+$servicesLink = $cmsService ? "/admin/services" : "/admin/services.php";
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chandusoft</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chandusoft Admin</title>
+<link rel="stylesheet" href="<?= $basePath ?>styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-<?php include("header.php"); ?>
+
+<?php include_once("header.php"); ?>
 
 <main>
-<?php
-$pageSlug = $_GET['page'] ?? 'home';
+<?php if ($pageSlug === 'index'): ?>
 
-if ($pageSlug !== 'home') {
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM pages WHERE slug=:slug AND status='published'");
-        $stmt->execute(['slug' => $pageSlug]);
-        $page = $stmt->fetch();
-
-        if ($page) {
-            echo "<section class='page-content'>";
-            echo "<h1>" . htmlspecialchars($page['title']) . "</h1>";
-            echo "<div>" . $page['content_html'] . "</div>";
-            echo "</section>";
-        } else {
-            $staticFile = $pageSlug . ".php";
-            if (file_exists($staticFile)) {
-                include $staticFile;
-            } else {
-                echo "<section><h2>Page not found</h2></section>";
-                logMessage("Page not found: $pageSlug");
-            }
-        }
-    } catch (Exception $e) {
-        logMessage("Database/Query Error for page '$pageSlug': " . $e->getMessage());
-        echo "<section><h2>Something went wrong. Please try again later.</h2></section>";
-    }
-} else {
-    ?>
+    <!-- Home Page Content -->
     <section class="hero">
         <div class="hero-content">
             <h1>Welcome to Chandusoft</h1>
             <p>Delivering IT & BPO solutions for over 15 years.</p>
-            <a href="<?= $cmsService ? "index.php?page=services" : "services.php" ?>" class="btn-hero"><b>Explore Services</b></a>
+            <a href="<?= $servicesLink ?>" class="btn-hero"><b>Explore Services</b></a>
         </div>
     </section>
 
@@ -116,14 +113,43 @@ if ($pageSlug !== 'home') {
             </div>
         </div>
     </section>
+
+<?php else: ?>
+
+    <!-- CMS or Static Page -->
     <?php
-}
-?>
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM pages WHERE slug = :slug AND status = 'published'");
+        $stmt->execute(['slug' => $pageSlug]);
+        $page = $stmt->fetch();
+
+        if ($page) {
+            echo "<section class='page-content'>";
+            echo "<h1>" . htmlspecialchars($page['title']) . "</h1>";
+            echo "<div>" . $page['content_html'] . "</div>";
+            echo "</section>";
+        } else {
+            $staticFile = $pageSlug . ".php";
+            if (file_exists($staticFile)) {
+                include $staticFile;
+            } else {
+                http_response_code(404);
+                echo "<section><h2>404 - Page Not Found</h2></section>";
+                logMessage("Page not found: $pageSlug");
+            }
+        }
+    } catch (Exception $e) {
+        logMessage("Database/Query Error for page '$pageSlug': " . $e->getMessage());
+        echo "<section><h2>Something went wrong. Please try again later.</h2></section>";
+    }
+    ?>
+
+<?php endif; ?>
 </main>
 
 <button id="back-to-top" title="Back to Top">↑</button>
-<script src="include.js"></script>
+<script src="<?= $basePath ?>include.js"></script>
 
-<?php include("footer.php"); ?>
+<?php include_once("footer.php"); ?>
 </body>
 </html>

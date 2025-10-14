@@ -1,11 +1,10 @@
 RewriteEngine On
 RewriteBase /admin/
-
-# If request is not a real file or directory
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-# Rewrite pretty URLs like admin/about.php → admin/index.php?page=about
-RewriteRule ^([a-zA-Z0-9_-]+)\.php$ index.php?page=$1 [QSA,L]
-
-
+ 
+# Skip existing files/folders
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+ 
+# Rewrite /admin/slug → index.php?page=slug
+RewriteRule ^([a-zA-Z0-9_-]+)$ index.php?page=$1 [QSA,L]

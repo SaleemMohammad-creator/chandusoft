@@ -10,10 +10,8 @@
 </head>
 <body>
     <!-- Placeholder for dynamic header -->
-    <div id="header"></div>
-    <?php include("header.php"); ?>
-
-    <main>
+    
+<main>
         <h4><span class="section-title">About Us</span></h4>
         <p>
             <span class="highlight">Chandusoft</span> is a well-established company with over

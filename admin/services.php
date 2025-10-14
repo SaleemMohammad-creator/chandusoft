@@ -1,14 +1,22 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 
-// Redirect to CMS Services page if published
-$stmt = $pdo->prepare("SELECT id FROM pages WHERE slug='services' AND status='published'");
-$stmt->execute();
+// ------------------------
+// Ensure $recentPages is defined for header
+// ------------------------
+$navStmt = $pdo->prepare("
+    SELECT title, slug
+    FROM pages
+    WHERE status='published'
+    ORDER BY created_at DESC
+    LIMIT 5
+");
+$navStmt->execute();
+$recentPages = $navStmt->fetchAll(PDO::FETCH_ASSOC);
 
-if ($stmt->fetch()) {
-    header("Location: index.php?page=services");
-    exit;
-}
+// Current page slug for header nav
+$pageSlug = 'services';
+$servicesLink = "/admin/services"; // Pretty URL
 ?>
 
 <!DOCTYPE html>
@@ -16,10 +24,11 @@ if ($stmt->fetch()) {
 <head>
     <meta charset="UTF-8">
     <title>Our Services - Chandusoft</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/admin/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+
 <?php include("header.php"); ?>
 
 <main>
@@ -61,6 +70,6 @@ if ($stmt->fetch()) {
 </main>
 
 <?php include("footer.php"); ?>
-<script src="include.js"></script>
+<script src="/admin/include.js"></script>
 </body>
 </html>
