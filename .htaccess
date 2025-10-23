@@ -1,0 +1,32 @@
+# Enable Rewrite Engine
+RewriteEngine On
+
+# ----------------------------------------
+# Prevent direct access to .htaccess itself
+# ----------------------------------------
+<Files .htaccess>
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# ----------------------------------------
+# Redirect root / to index.php
+# ----------------------------------------
+RewriteRule ^$ index.php [L]
+
+# ----------------------------------------
+# Redirect /admin URLs to admin folder
+# ----------------------------------------
+RewriteRule ^admin/(.*)$ admin/$1 [L]
+
+# ----------------------------------------
+# Dynamic page routing for all slugs
+# ----------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9\-_]+)/?$ page.php?slug=$1 [L,QSA]
+
+# ----------------------------------------
+# Handle 404
+# ----------------------------------------
+ErrorDocument 404 /404.php

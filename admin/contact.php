@@ -98,6 +98,8 @@ function logEmail($status, $name, $email, $subject, $errorMessage) {
 </head>
 <body>
     
+       <?php include("header.php"); ?>
+       
     <main>
         <h2>Contact Us</h2>
         <form id="contactForm" class="contact-form" action="contact.php" method="post" novalidate>

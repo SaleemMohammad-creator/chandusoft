@@ -1,10 +1,10 @@
 RewriteEngine On
 RewriteBase /admin/
- 
-# Skip existing files/folders
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
- 
-# Rewrite /admin/slug → index.php?page=slug
-RewriteRule ^([a-zA-Z0-9_-]+)$ index.php?page=$1 [QSA,L]
+
+# Redirect /admin/index to /admin/index.php internally
+RewriteRule ^index$ index.php [L]
+
+# Redirect other pretty URLs to corresponding PHP files if exist
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9_-]+)$ $1.php [L]

@@ -116,7 +116,7 @@ footer p b {
 /* Hero Section */
 .hero {
     height: 80vh;
-    background: url('images/cs.jpg') no-repeat center center/cover;
+    background: url('admin/images/cs.jpg') no-repeat center center/cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -211,14 +211,16 @@ footer p b {
     font-size: 32px;
     margin-bottom: 15px;
     display: block;
+    background-size: cover;
 }
 
-.icon-blue { color: #63b3cc; }
-.icon-green { color: #575a91; }
-.icon-black { color: #333; }
-.icon-yellow { color: #fbc02d; }
-.icon-purple { color: #27b092; }
-.icon-red { color: #eb1b0c; }
+/* Update all icons paths */
+.icon-blue { background-image: url('admin/images/icon-blue.png'); color: transparent; }
+.icon-green { background-image: url('admin/images/icon-green.png'); color: transparent; }
+.icon-black { background-image: url('admin/images/icon-black.png'); color: transparent; }
+.icon-yellow { background-image: url('admin/images/icon-yellow.png'); color: transparent; }
+.icon-purple { background-image: url('admin/images/icon-purple.png'); color: transparent; }
+.icon-red { background-image: url('admin/images/icon-red.png'); color: transparent; }
 
 .service-card h3 {
     font-size: 18px;
@@ -341,28 +343,6 @@ button[type="submit"]:disabled {
     cursor: not-allowed;
 }
 
-/* Validation & Messages */
-input:invalid, textarea:invalid {
-    border: 1px solid rgb(14, 13, 13);
-}
-
-input:invalid:focus, textarea:invalid:focus {
-    border-color: rgb(12, 12, 12);
-}
-
-input:required:valid, textarea:required:valid {
-    border-color: #1a1818;
-}
-
-input:invalid + label::after,
-textarea:invalid + label::after {
-    content: attr(title);
-    color: rgb(5, 5, 5);
-    font-size: 12px;
-    margin-top: 5px;
-    display: block;
-}
-
 /* Highlight class */
 .highlight {
     font-weight: bold;
@@ -372,22 +352,16 @@ textarea:invalid + label::after {
     border-radius: 4px;
 }
 
-/* Success & Error Messages */
-#successMessage {
-    color: green;
-    font-size: 16px;
-    margin-top: 20px;
-}
-
-.error-message {
-    color: red;
-    font-size: 12px;
-    margin-top: 5px;
-}
-
 /* Section Titles */
 .section-title {
     font-weight: bold;
     font-size: 1.5em;
     color: #2d5be3;
+}
+
+/* Error & Success messages */
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
 }
