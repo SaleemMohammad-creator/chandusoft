@@ -182,5 +182,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <?php include("admin/footer.php"); ?>
+<button id="back-to-top" title="Back to Top">↑</button>
+    <script src="include.js"></script>
 </body>
 </html>

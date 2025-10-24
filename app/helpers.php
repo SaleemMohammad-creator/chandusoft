@@ -153,3 +153,37 @@ if (!function_exists('uploadImage')) {
         return false;
     }
 }
+
+// -------------------------
+// Redirect helper
+// -------------------------
+if (!function_exists('redirect')) {
+    /**
+     * Redirect to a given path
+     * @param string $path - clean URL path, e.g., '/admin/login'
+     */
+    function redirect($path) {
+        // Ensure leading slash
+        $url = '/' . ltrim($path, '/');
+        header("Location: $url");
+        exit;
+    }
+}
+
+// -------------------------
+// Generate full URL (curl URL)
+// -------------------------
+if (!function_exists('base_url')) {
+    /**
+     * Generate full absolute URL for clean routing
+     * @param string $path - e.g., 'catalog-item/slug-name'
+     * @return string - full URL like http://example.com/catalog-item/slug-name
+     */
+    function base_url($path = '') {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' 
+                     || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+        $host = $_SERVER['HTTP_HOST'];
+        $path = ltrim($path, '/');
+        return $protocol . $host . '/' . $path;
+    }
+}

@@ -29,5 +29,7 @@ require_once __DIR__ . '/app/helpers.php';
 </main>
 
 <?php include __DIR__ . '/admin/footer.php'; ?>
+<button id="back-to-top" title="Back to Top">↑</button>
+    <script src="include.js"></script>
 </body>
 </html>

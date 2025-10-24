@@ -28,6 +28,16 @@ function logMessage($msg) {
 }
 
 // -------------------------
+// Base URL helper
+// -------------------------
+function base_url($path = '') {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
+                 || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    $host = $_SERVER['HTTP_HOST'];
+    return $protocol . $host . '/' . ltrim($path, '/');
+}
+
+// -------------------------
 // Get catalog item by slug
 // -------------------------
 $slug = $_GET['slug'] ?? '';
@@ -188,7 +198,7 @@ img { max-width:100%; border-radius:6px; display:block; margin-bottom:20px; }
 
             <div class="form-buttons">
                 <button type="submit">Submit Enquiry</button>
-                <a href="catalog.php">← Back to Catalog</a>
+                <a href="<?= base_url('catalog') ?>">← Back to Catalog</a>
             </div>
         </form>
     </div>
