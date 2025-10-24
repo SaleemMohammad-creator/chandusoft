@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 
@@ -17,7 +18,17 @@ if (empty($_SESSION['_csrf'])) {
 $csrf_token = $_SESSION['_csrf'];
 
 // -------------------------
-// Get catalog item
+// Logging function
+// -------------------------
+$logFile = __DIR__ . '/../storage/logs/catalog.logs';
+function logMessage($msg) {
+    global $logFile;
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$timestamp] $msg" . PHP_EOL, FILE_APPEND);
+}
+
+// -------------------------
+// Get catalog item by slug
 // -------------------------
 $slug = $_GET['slug'] ?? '';
 if (!$slug) die("No catalog item specified.");
@@ -40,10 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $csrf = $_POST['_csrf'] ?? '';
     $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
 
+    // CSRF check
     if (!$csrf || !hash_equals($_SESSION['_csrf'], $csrf)) {
         $errors[] = "Invalid CSRF token.";
     }
 
+    // Turnstile verification
     if ($turnstileToken) {
         $verify = curl_init("https://challenges.cloudflare.com/turnstile/v0/siteverify");
         curl_setopt_array($verify, [
@@ -65,20 +78,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Please complete CAPTCHA.";
     }
 
+    // Form validation
     if (!$name) $errors[] = "Name is required.";
     if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email is required.";
     if (!$message) $errors[] = "Message is required.";
 
+    // Log errors if any
+    if (!empty($errors)) {
+        logMessage("ERROR: Enquiry submission for item #{$item['id']} by {$email}. Errors: " . implode(" | ", $errors));
+    }
+
+    // Insert enquiry
     if (empty($errors)) {
-        $stmt = $pdo->prepare("INSERT INTO enquiries (catalog_id, name, email, message, created_at) VALUES (:catalog_id, :name, :email, :message, NOW())");
-        $stmt->execute([
-            ':catalog_id' => $item['id'],
-            ':name' => $name,
-            ':email' => $email,
-            ':message' => $message
-        ]);
-        $enquirySuccess = true;
-        logMessage("Enquiry submitted for item #{$item['id']} by $email");
+        try {
+            $stmt = $pdo->prepare("INSERT INTO enquiries (catalog_id, name, email, message, created_at) VALUES (:catalog_id, :name, :email, :message, NOW())");
+            $stmt->execute([
+                ':catalog_id' => $item['id'],
+                ':name' => $name,
+                ':email' => $email,
+                ':message' => $message
+            ]);
+            $enquirySuccess = true;
+            logMessage("SUCCESS: Enquiry submitted for item #{$item['id']} by {$email}");
+        } catch (Exception $e) {
+            $errors[] = "Failed to submit enquiry. Please try again.";
+            logMessage("ERROR: Database failed for item #{$item['id']} by {$email}. Error: " . $e->getMessage());
+        }
     }
 }
 
@@ -134,7 +159,7 @@ img { max-width:100%; border-radius:6px; display:block; margin-bottom:20px; }
 <body>
 <div class="container">
     <h1><?= htmlspecialchars($item['title']) ?></h1>
-    <div class="price">Price: $<?= $item['price'] ?></div>
+    <div class="price">Price: $<?= htmlspecialchars($item['price']) ?></div>
     <div class="description"><?= nl2br(htmlspecialchars($item['short_desc'])) ?></div>
 
     <?php if ($item['image']): ?>
@@ -155,9 +180,9 @@ img { max-width:100%; border-radius:6px; display:block; margin-bottom:20px; }
         <?php endif; ?>
         <form method="post">
             <input type="hidden" name="_csrf" value="<?= $csrf_token ?>">
-            <input type="text" name="name" placeholder="Your Name" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>">
-            <input type="email" name="email" placeholder="Your Email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
-            <textarea name="message" rows="5" placeholder="Your Message"><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
+            <input type="text" name="name" placeholder="Your Name" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
+            <input type="email" name="email" placeholder="Your Email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+            <textarea name="message" rows="5" placeholder="Your Message" required><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
 
             <div class="cf-turnstile" data-sitekey="<?= $siteKey ?>" data-action="submit"></div>
 
