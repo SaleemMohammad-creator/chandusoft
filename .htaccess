@@ -1,32 +1,50 @@
-# Enable Rewrite Engine
+# ------------------ ENABLE REWRITE ------------------
 RewriteEngine On
+RewriteBase /
 
-# ----------------------------------------
-# Prevent direct access to .htaccess itself
-# ----------------------------------------
-<Files .htaccess>
-    Order Allow,Deny
-    Deny from all
+# ------------------ SECURITY ------------------
+# Prevent direct access to this file
+<Files ".htaccess">
+    Require all denied
 </Files>
 
-# ----------------------------------------
-# Redirect root / to index.php
-# ----------------------------------------
-RewriteRule ^$ index.php [L]
+# Serve existing files/folders directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-# ----------------------------------------
-# Redirect /admin URLs to admin folder
-# ----------------------------------------
-RewriteRule ^admin/(.*)$ admin/$1 [L]
+# ------------------ ROOT REDIRECT ------------------
+# Redirect root / → /index
+RewriteRule ^$ /index [R=301,L]
 
-# ----------------------------------------
-# Dynamic page routing for all slugs
-# ----------------------------------------
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^([a-zA-Z0-9\-_]+)/?$ page.php?slug=$1 [L,QSA]
+# ------------------ CANONICAL URLS (.php → clean URL) ------------------
+# Redirect /index.php → /index
+RewriteCond %{THE_REQUEST} \s/index\.php[\s?] [NC]
+RewriteRule ^index\.php$ /index [R=301,L]
 
-# ----------------------------------------
-# Handle 404
-# ----------------------------------------
+# Redirect other public pages like about.php → /about, services.php → /services
+RewriteCond %{THE_REQUEST} \s/([a-zA-Z0-9\-_]+)\.php[\s?] [NC]
+RewriteRule ^ %1 [R=301,L]
+
+# ------------------ STATIC PUBLIC PAGES ------------------
+RewriteRule ^index/?$ index.php [L,QSA,NC]
+RewriteRule ^about/?$ about.php [L,QSA,NC]
+RewriteRule ^services/?$ services.php [L,QSA,NC]
+RewriteRule ^contact/?$ contact.php [L,QSA,NC]
+
+# ------------------ ADMIN PAGES ------------------
+# /admin/login → /admin/login.php
+RewriteRule ^admin/([a-zA-Z0-9\-_]+)/?$ admin/$1.php [L,QSA,NC]
+
+# ------------------ PUBLIC FOLDER PAGES (optional) ------------------
+RewriteRule ^catalog/?$ public/catalog.php [L,QSA,NC]
+RewriteRule ^catalog-item/([a-zA-Z0-9\-_]+)/?$ public/catalog-item.php?slug=$1 [L,QSA,NC]
+
+# ------------------ DYNAMIC CMS SLUG HANDLING ------------------
+RewriteRule ^([a-zA-Z0-9\-_]+)/?$ index.php?slug=$1 [L,QSA,NC]
+
+# ------------------ DEFAULT PAGE ------------------
+DirectoryIndex index.php
+
+# ------------------ CUSTOM 404 ------------------
 ErrorDocument 404 /404.php

@@ -3,7 +3,7 @@ require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 
 // Pagination
-$limit = 10;
+$limit = 12;
 $page_no = max(1, intval($_GET['page_no'] ?? 1));
 $offset = ($page_no - 1) * $limit;
 

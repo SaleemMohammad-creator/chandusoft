@@ -47,10 +47,10 @@ tr:hover { background:#e6f7ff; }
     <div><strong>Chandusoft Admin</strong></div>
     <div>
         Welcome <?= htmlspecialchars($role) ?>!
-        <a href="dashboard.php">Dashboard</a>
-        <a href="pages.php">Pages</a>
-        <a href="admin-leads.php">Leads</a>
-        <a href="logout.php">Logout</a>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/pages">Pages</a>
+        <a href="admin/admin-leads">Leads</a>
+        <a href="admin/logout">Logout</a>
     </div>
 </div>
 

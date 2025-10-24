@@ -73,14 +73,13 @@ body { font-family: Arial; background:#f4f4f4; margin:0; padding:0; }
 
 .right-side { display:flex; align-items:center; gap:10px; }
 
-
 .search-form {
     display: flex;
     align-items: center;
     gap: 5px;
-    justify-content: center; /* center horizontally */
-    margin: 0 auto 20px;      /* center container and add bottom margin */
-    transform: translateX(-20px); /* move slightly left */
+    justify-content: center;
+    margin: 0 auto 20px;
+    transform: translateX(-20px);
 }
 .search-form input[type="text"] {
     padding: 8px 12px;
@@ -100,9 +99,7 @@ body { font-family: Arial; background:#f4f4f4; margin:0; padding:0; }
     font-size: 14px;
     transition: 0.3s;
 }
-.search-form button:hover {
-    background: #1d6fa5;
-}
+.search-form button:hover { background: #1d6fa5; }
 
 .create-btn { background:#27ae60; color:#fff; padding:8px 18px; border-radius:4px; font-weight:bold; text-decoration:none; white-space:nowrap; }
 
@@ -119,18 +116,16 @@ tr:hover{background:#eef7ff;}
 .delete-btn { 
     background: #c0392b; 
     color: #fff; 
-    cursor: not-allowed !important;   /* 🚫 shows blocked cursor */
-    pointer-events: none;             /* disables click */
-    opacity: 0.6;                     /* visually show disabled */
+    cursor: not-allowed !important;
+    pointer-events: none;
+    opacity: 0.6;
     border: none;
     padding: 6px 14px;
     border-radius: 4px;
     font-weight: bold;
     font-size: 14px;
 }
-.delete-btn:hover { 
-    background: #c0392b;              /* keep same color on hover */
-}
+.delete-btn:hover { background: #c0392b; }
 </style>
 </head>
 <body>
@@ -206,6 +201,7 @@ tr:hover{background:#eef7ff;}
                             Delete
                         </button>
                     <?php endif; ?>
+                
                 </td>
             </tr>
             <?php endforeach; ?>

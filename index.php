@@ -1,8 +1,9 @@
 <?php
 require_once __DIR__ . '/app/config.php';
+require_once __DIR__ . '/app/helpers.php';
 $pageSlug = 'index';
 
-// Fetch recent pages for nav
+// Fetch recent CMS pages for nav (optional)
 $navStmt = $pdo->prepare("SELECT title, slug FROM pages WHERE status='published' ORDER BY created_at DESC LIMIT 5");
 $navStmt->execute();
 $recentPages = $navStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -17,6 +18,7 @@ $recentPages = $navStmt->fetchAll(PDO::FETCH_ASSOC);
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+
 <?php include __DIR__ . '/admin/header.php'; ?>
 
 <main>
@@ -24,7 +26,7 @@ $recentPages = $navStmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="hero-content">
             <h1>Welcome to Chandusoft</h1>
             <p>Delivering IT & BPO solutions for over 15 years.</p>
-            <a href="/services" class="btn-hero"><b>Explore Services</b></a>
+            <a href="/services.php" class="btn-hero"><b>Explore Services</b></a>
         </div>
     </section>
 
