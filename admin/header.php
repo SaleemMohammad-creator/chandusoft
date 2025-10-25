@@ -7,7 +7,6 @@ $currentPage = $currentPage ?? 'index';
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 
-
 // Site settings
 $site_name = get_setting('site_name') ?? 'Chandusoft Technologies';
 $site_logo = get_setting('site_logo') ?? 'default-logo.png';

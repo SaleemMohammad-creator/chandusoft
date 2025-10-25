@@ -2,17 +2,17 @@
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 
-// Helper for clean URLs
+// Helper for clean URLs (fixed to include /public/)
 function base_url($path = '') {
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
                  || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
     $host = $_SERVER['HTTP_HOST'];
     $path = ltrim($path, '/');
-    return $protocol . $host . '/' . $path;
+    return $protocol . $host . '/public/' . $path; // <-- Added /public/ to match folder
 }
 
 // Pagination
-$limit = 12;
+$limit = 10;
 $page_no = max(1, intval($_GET['page_no'] ?? 1));
 $offset = ($page_no - 1) * $limit;
 
@@ -95,7 +95,7 @@ h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
         <?php endif; ?>
         <h3><?= htmlspecialchars($item['title']) ?></h3>
         <p>Price: $<?= number_format($item['price'], 2) ?></p>
-        <a href="<?= base_url('public/catalog-item/' . urlencode($item['slug'])) ?>">View Details</a>
+        <a href="<?= base_url('catalog-item/' . urlencode($item['slug'])) ?>">View Details</a>
     </div>
     <?php endforeach; ?>
 <?php else: ?>
@@ -105,7 +105,7 @@ h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
 
 <div class="pagination">
 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-    <a href="<?= base_url('catalog?page_no=' . $i . '&search=' . urlencode($search)) ?>" class="<?= $page_no == $i ? 'active' : '' ?>"><?= $i ?></a>
+    <a href="<?= base_url('catalog.php?page_no=' . $i . '&search=' . urlencode($search)) ?>" class="<?= $page_no == $i ? 'active' : '' ?>"><?= $i ?></a>
 <?php endfor; ?>
 </div>
 
