@@ -10,6 +10,12 @@ require_once __DIR__ . '/../app/helpers.php';
 // Site settings
 $site_name = get_setting('site_name') ?? 'Chandusoft Technologies';
 $site_logo = get_setting('site_logo') ?? 'default-logo.png';
+
+// Fetch dynamic CMS pages if $recentPages is empty
+if (empty($recentPages)) {
+    $stmt = $pdo->query("SELECT title, slug FROM pages WHERE status='published' ORDER BY id ASC");
+    $recentPages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 
 <header>
@@ -29,9 +35,10 @@ $site_logo = get_setting('site_logo') ?? 'default-logo.png';
 
         <!-- Dynamic CMS pages -->
         <?php foreach ($recentPages as $page): ?>
-            <a href="/<?= htmlspecialchars($page['slug']) ?>" 
-               class="<?= ($currentPage === $page['slug']) ? 'active' : '' ?>">
-               <?= htmlspecialchars($page['title']) ?>
+            <?php $slug = htmlspecialchars($page['slug']); ?>
+            <?php $title = htmlspecialchars($page['title']); ?>
+            <a href="/<?= $slug ?>" class="<?= ($currentPage === $slug) ? 'active' : '' ?>">
+                <?= $title ?>
             </a>
         <?php endforeach; ?>
 
