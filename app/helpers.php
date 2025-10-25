@@ -158,12 +158,7 @@ if (!function_exists('uploadImage')) {
 // Redirect helper
 // -------------------------
 if (!function_exists('redirect')) {
-    /**
-     * Redirect to a given path
-     * @param string $path - clean URL path, e.g., '/admin/login'
-     */
     function redirect($path) {
-        // Ensure leading slash
         $url = '/' . ltrim($path, '/');
         header("Location: $url");
         exit;
@@ -174,16 +169,27 @@ if (!function_exists('redirect')) {
 // Generate full URL (curl URL)
 // -------------------------
 if (!function_exists('base_url')) {
-    /**
-     * Generate full absolute URL for clean routing
-     * @param string $path - e.g., 'catalog-item/slug-name'
-     * @return string - full URL like http://example.com/catalog-item/slug-name
-     */
     function base_url($path = '') {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' 
                      || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         $host = $_SERVER['HTTP_HOST'];
         $path = ltrim($path, '/');
         return $protocol . $host . '/' . $path;
+    }
+}
+
+// -------------------------
+// Get all CMS pages (for dynamic header)
+// -------------------------
+if (!function_exists('get_recent_pages')) {
+    function get_recent_pages() {
+        global $pdo; // PDO connection from config.php
+        try {
+            $stmt = $pdo->query("SELECT slug, title FROM cms_pages ORDER BY created_at ASC");
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("get_recent_pages() error: " . $e->getMessage());
+            return [];
+        }
     }
 }

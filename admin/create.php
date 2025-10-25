@@ -1,11 +1,13 @@
 <?php
 session_start();
 require_once __DIR__ . '/../app/config.php'; // PDO connection + verify_csrf()
-// Redirect if not logged in
-if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
-    header("Location: login.php");
+
+// Allow both admin and editor
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'])) {
+    header("Location: login.php"); // Or dashboard.php
     exit;
 }
+
 // Safe user info
 $user_role = $_SESSION['user_role'] ?? 'Admin';
 $user_name = $_SESSION['user_name'] ?? 'User';

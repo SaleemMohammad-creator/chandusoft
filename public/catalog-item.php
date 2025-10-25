@@ -198,7 +198,7 @@ img { max-width:100%; border-radius:6px; display:block; margin-bottom:20px; }
 
             <div class="form-buttons">
                 <button type="submit">Submit Enquiry</button>
-                <a href="<?= base_url('catalog') ?>">← Back to Catalog</a>
+                <a href="<?= base_url('public/catalog') ?>">← Back to Catalog</a>
             </div>
         </form>
     </div>

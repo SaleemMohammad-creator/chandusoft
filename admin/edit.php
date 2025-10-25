@@ -2,8 +2,8 @@
 session_start();
 require_once __DIR__ . '/../app/config.php'; // PDO connection
 
-// Redirect if not logged in or not admin
-if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
+// Redirect if not logged in or not admin/editor
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'])) {
     header("Location: login.php");
     exit;
 }

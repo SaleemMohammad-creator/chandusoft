@@ -7,6 +7,15 @@ RewriteEngine On
 RewriteBase /
 
 # ------------------------------------------------------------
+# 🔗 0. FIX /index HTTPS ISSUE (Internal rewrite, no redirect)
+# ------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  # Only rewrite root / to index.php internally if HTTPS
+  RewriteCond %{HTTPS} on
+  RewriteRule ^$ index.php [L,QSA,NC]
+</IfModule>
+
+# ------------------------------------------------------------
 # 🔒 1. SECURITY & ACCESS CONTROL
 # ------------------------------------------------------------
 # Hide sensitive files
@@ -43,23 +52,14 @@ RewriteRule ^contact/?$ contact.php [L,QSA,NC]
 # ------------------------------------------------------------
 # 🧭 4. PUBLIC FOLDER PAGES (direct access)
 # ------------------------------------------------------------
-# Serve /public/catalog directly
 RewriteRule ^public/catalog/?$ public/catalog.php [L,QSA,NC]
-
-# Catalog pagination
 RewriteRule ^public/catalog/page/([0-9]+)$ public/catalog.php?page_no=$1 [L,QSA,NC]
-
-# Serve /public/catalog-item directly
 RewriteRule ^public/catalog-item/?$ public/catalog-item.php [L,QSA,NC]
-
-# Serve /public/catalog-item/{slug} if needed
 RewriteRule ^public/catalog-item/([a-zA-Z0-9\-_]+)/?$ public/catalog-item.php?slug=$1 [L,QSA,NC]
-
 
 # ------------------------------------------------------------
 # 🧭 5. ADMIN PANEL PAGES
 # ------------------------------------------------------------
-# Specific admin pages
 RewriteRule ^admin/login/?$ admin/login.php [L,QSA,NC]
 RewriteRule ^admin/catalog-list/?$ admin/catalog-list.php [L,QSA,NC]
 RewriteRule ^admin/catalog-create/?$ admin/catalog-create.php [L,QSA,NC]
@@ -137,3 +137,9 @@ ErrorDocument 500 /500.php
 # 10. DEFAULT PAGE
 # ------------------------------------------------------------
 DirectoryIndex index.php
+
+# ------------------------------------------------------------
+# 🔗 11. OPTIONAL HTTPS ENFORCEMENT (UNCOMMENT IF SSL AVAILABLE)
+# ------------------------------------------------------------
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]

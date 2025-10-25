@@ -58,12 +58,13 @@ body {
 }
 
 .contact-page {
-    max-width: 600px;
-    margin: 50px auto;
+    max-width: 500px;
+    margin: 40px auto;
     background-color: #fff;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 2px rgba(0,0,0,0.1);
+    transform: translateX(-20px); /* Move slightly left */
 }
 
 .contact-page h2 {
@@ -83,7 +84,7 @@ body {
 .contact-form input[type="email"],
 .contact-form textarea {
     width: 100%;
-    padding: 12px;
+    padding: 5px;
     margin-bottom: 20px;
     border-radius: 6px;
     border: 1px solid #ccc;

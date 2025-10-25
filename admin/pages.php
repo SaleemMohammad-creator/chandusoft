@@ -37,14 +37,16 @@ if ($filter === 'published') {
     $query .= " WHERE status='archived'";
 }
 
+// Search by title or slug
 if ($search !== '') {
-    $searchQuery = "title LIKE :s OR slug LIKE :s";
+    $searchQuery = "title LIKE :s1 OR slug LIKE :s2";
     if (strpos($query, 'WHERE') !== false) {
         $query .= " AND ($searchQuery)";
     } else {
         $query .= " WHERE $searchQuery";
     }
-    $params['s'] = "%$search%";
+    $params['s1'] = "%$search%";
+    $params['s2'] = "%$search%";
 }
 
 $query .= " ORDER BY id DESC";
@@ -52,6 +54,7 @@ $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

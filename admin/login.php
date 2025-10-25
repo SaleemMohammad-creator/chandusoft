@@ -14,9 +14,10 @@ if (session_status() === PHP_SESSION_NONE) {
     ]);
 }
 
-// Redirect if already logged in
+// Redirect to dashboard if already logged in
 if (!empty($_SESSION['user_id'])) {
-    redirect('dashboard.php');
+    header("Location: dashboard.php");
+    exit;
 }
 
 // Flash message
@@ -45,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!hash_equals($_SESSION['csrf_token'], $csrf)) {
         $_SESSION['flash_message'] = "Invalid CSRF token";
-        redirect('login.php');
+        header("Location: login.php");
+        exit;
     }
 
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
@@ -58,12 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_name'] = $user['name'] ?? 'User';
         $_SESSION['user_role'] = $user['role'] ?? 'Admin';
 
-        logMessage("✅ Successful login: {$email}");
-        redirect('dashboard.php');
+        file_put_contents($logFile, "[{$timestamp}] ✅ SUCCESS login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
+        header("Location: dashboard.php");
+        exit;
     } else {
         file_put_contents($logFile, "[{$timestamp}] ❌ FAILED login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
         $_SESSION['flash_message'] = "Invalid email or password";
-        redirect('login.php');
+        header("Location: login.php");
+        exit;
     }
 }
 ?>

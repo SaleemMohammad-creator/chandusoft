@@ -8,17 +8,22 @@ if (!isset($_SESSION['user_id'])) {
 // Safe user info
 $role = $_SESSION['user_role'] ?? 'Admin';
 $username = $_SESSION['user_name'] ?? 'User';
+
 // Handle search
 $search = trim($_GET['search'] ?? '');
 if ($search !== '') {
-    $stmt = $pdo->prepare("SELECT * FROM leads WHERE name LIKE :s OR email LIKE :s ORDER BY id DESC");
-    $stmt->execute(['s' => "%$search%"]);
+    $stmt = $pdo->prepare("SELECT * FROM leads WHERE name LIKE :s1 OR email LIKE :s2 ORDER BY id DESC");
+    $stmt->execute([
+        's1' => "%$search%",
+        's2' => "%$search%"
+    ]);
     $leads = $stmt->fetchAll();
 } else {
     $stmt = $pdo->query("SELECT * FROM leads ORDER BY id DESC");
     $leads = $stmt->fetchAll();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,10 +52,10 @@ tr:hover { background:#e6f7ff; }
     <div><strong>Chandusoft Admin</strong></div>
     <div>
         Welcome <?= htmlspecialchars($role) ?>!
-        <a href="/admin/dashboard">Dashboard</a>
-        <a href="/admin/pages">Pages</a>
-        <a href="admin/admin-leads">Leads</a>
-        <a href="admin/logout">Logout</a>
+        <a href="/admin/dashboard.php">Dashboard</a>
+        <a href="/admin/pages.php">Pages</a>
+        <a href="/admin/admin-leads.php">Leads</a>
+        <a href="/admin/logout.php">Logout</a>
     </div>
 </div>
 

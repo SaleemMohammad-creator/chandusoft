@@ -21,10 +21,12 @@ $search = trim($_GET['search'] ?? '');
 $params = [];
 $where = "WHERE status='published'";
 
-if ($search) {
-    $where .= " AND (title LIKE ? OR short_desc LIKE ?)";
-    $params[] = "%$search%";
-    $params[] = "%$search%";
+if ($search !== '') {
+    // Escape special characters for LIKE query
+    $search_escaped = str_replace(['%', '_'], ['\%', '\_'], $search);
+    $where .= " AND (title LIKE ? ESCAPE '\\\\' OR short_desc LIKE ? ESCAPE '\\\\')";
+    $params[] = "%$search_escaped%";
+    $params[] = "%$search_escaped%";
 }
 
 // Count total items

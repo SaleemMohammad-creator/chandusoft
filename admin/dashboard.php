@@ -29,6 +29,8 @@ $totalLeadsStmt = $pdo->query("SELECT COUNT(*) AS total FROM leads");
 $totalLeads = $totalLeadsStmt->fetch()['total'] ?? 0;
 ?>
 
+<!-- Your existing HTML for dashboard here -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

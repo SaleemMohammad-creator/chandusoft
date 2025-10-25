@@ -85,7 +85,6 @@ function uploadOriginalAndWebP($file, $max_size_bytes = 2*1024*1024, $webp_max_w
     $resizedImg = imagecreatetruecolor($new_width, $new_height);
     imagealphablending($resizedImg, false);
     imagesavealpha($resizedImg, true);
-
     imagecopyresampled($resizedImg, $img, 0,0,0,0, $new_width, $new_height, $orig_width, $orig_height);
     imagedestroy($img);
 
@@ -99,6 +98,15 @@ function uploadOriginalAndWebP($file, $max_size_bytes = 2*1024*1024, $webp_max_w
         'original' => "$year/$month/$baseName.$ext",
         'webp'     => file_exists($webpFile) ? "$year/$month/$baseName.webp" : null
     ];
+}
+
+// ----------------------------
+// Helper: log errors to storage/logs/catalog.logs
+// ----------------------------
+function log_catalog_error($message) {
+    $logFile = __DIR__ . '/../storage/logs/catalog.logs';
+    $date = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$date] $message\n", FILE_APPEND);
 }
 
 // ----------------------------
@@ -147,7 +155,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('catalog.php');
 
     } catch (Exception $e) {
-        $errors[] = $e->getMessage(); // Friendly error message
+        $errors[] = $e->getMessage(); // Display friendly error
+        log_catalog_error($e->getMessage()); // Log error to catalog.logs
     }
 }
 ?>
