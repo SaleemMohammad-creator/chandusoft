@@ -54,6 +54,7 @@ tr:hover { background:#e6f7ff; }
         Welcome <?= htmlspecialchars($role) ?>!
         <a href="/admin/dashboard.php">Dashboard</a>
         <a href="/admin/pages.php">Pages</a>
+        <a href="catalog.php" class="nav-btn">Catalog</a>
         <a href="/admin/admin-leads.php">Leads</a>
         <a href="/admin/logout.php">Logout</a>
     </div>

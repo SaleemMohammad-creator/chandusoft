@@ -139,6 +139,7 @@ tr:hover{background:#eef7ff;}
         Welcome <?= htmlspecialchars($user_role) ?>!
         <a href="dashboard.php">Dashboard</a>
         <a href="pages.php">Pages</a>
+        <a href="catalog.php" class="nav-btn">Catalog</a>
         <a href="admin-leads.php">Leads</a>
         <a href="logout.php">Logout</a>
     </div>

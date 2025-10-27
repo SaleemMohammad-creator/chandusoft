@@ -17,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // ---------------------------
 // Redirect if already logged in
 // ---------------------------
-if (!empty($_SESSION['user_id'])) {
+    if (isset($_SESSION['user_id']) && basename($_SERVER['PHP_SELF']) !== 'login.php') {
     // Set flash message
     $_SESSION['flash_message'] = "You are already logged in!";
     header("Location: dashboard.php");
