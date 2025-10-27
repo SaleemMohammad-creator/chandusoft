@@ -166,5 +166,19 @@ button:hover {
     </main>
 </div>
 
+<script>
+window.addEventListener('DOMContentLoaded', (event) => {
+    const message = document.querySelector('.success-message');
+    if (message) {
+        // Show message for 3 seconds, then fade out
+        setTimeout(() => {
+            message.style.transition = 'opacity 0.6s';
+            message.style.opacity = '0';
+            setTimeout(() => message.remove(), 600); // remove element after fade
+        }, 3000); // 3 seconds
+    }
+});
+</script>
+
 </body>
 </html>
