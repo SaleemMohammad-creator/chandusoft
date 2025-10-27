@@ -61,6 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $csrf = $_POST['_csrf'] ?? '';
     $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
 
+    // ✅ NEW: Log enquiry attempt
+    logMessage("ATTEMPT: Enquiry initiated for item #{$item['id']} | Name: {$name} | Email: {$email} | Message: {$message}");
+
     // CSRF check
     if (!$csrf || !hash_equals($_SESSION['_csrf'], $csrf)) {
         $errors[] = "Invalid CSRF token.";
@@ -95,7 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Log errors if any
     if (!empty($errors)) {
-        logMessage("ERROR: Enquiry submission for item #{$item['id']} by {$email}. Errors: " . implode(" | ", $errors));
+        // ✅ Upgraded: Log details for better traceability
+        logMessage("ERROR: Enquiry Failed | Item: {$item['id']} | Name: {$name} | Email: {$email} | Message: {$message} | ERRORS: " . implode(" | ", $errors));
     }
 
     // Insert enquiry
@@ -109,10 +113,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':message' => $message
             ]);
             $enquirySuccess = true;
-            logMessage("SUCCESS: Enquiry submitted for item #{$item['id']} by {$email}");
+
+            // ✅ Upgraded: Log full enquiry successfully stored
+            logMessage("SUCCESS: Enquiry Stored | Item: {$item['id']} | Name: {$name} | Email: {$email} | Message: {$message}");
+
         } catch (Exception $e) {
             $errors[] = "Failed to submit enquiry. Please try again.";
-            logMessage("ERROR: Database failed for item #{$item['id']} by {$email}. Error: " . $e->getMessage());
+            logMessage("ERROR: Database Error for Item: {$item['id']} | {$email} | " . $e->getMessage());
         }
     }
 }
@@ -139,6 +146,8 @@ $originalImage = '/uploads/' . htmlspecialchars($item['image']);
 $webpImage = preg_replace('/\.(jpg|jpeg|png)$/i', '.webp', $originalImage);
 $webpExists = file_exists(__DIR__ . '/../' . ltrim($webpImage, '/'));
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
