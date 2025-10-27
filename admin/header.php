@@ -40,24 +40,27 @@ $staticPages = [
     </div>
 
     <nav>
-        <!-- Static pages -->
-        <?php foreach ($staticPages as $slug => $title): ?>
+        <!-- Static pages BEFORE CMS -->
+        <?php foreach (['index', 'about', 'services'] as $slug): ?>
             <a href="/<?= $slug ?>" class="<?= ($currentPage === $slug) ? 'active' : '' ?>">
-                <?= htmlspecialchars($title) ?>
+                <?= htmlspecialchars($staticPages[$slug]) ?>
             </a>
         <?php endforeach; ?>
 
-        <!-- Dynamic CMS pages (exclude duplicates of static pages) -->
+        <!-- Dynamic CMS pages -->
         <?php foreach ($recentPages as $page): ?>
             <?php
                 $slug = htmlspecialchars($page['slug']);
                 $title = htmlspecialchars($page['title']);
             ?>
-            <?php if (!array_key_exists($slug, $staticPages)): ?>
+            <?php if (!in_array($slug, ['index', 'about', 'services', 'contact'])): ?>
                 <a href="/<?= $slug ?>" class="<?= ($currentPage === $slug) ? 'active' : '' ?>">
                     <?= $title ?>
                 </a>
             <?php endif; ?>
         <?php endforeach; ?>
+
+        <!-- Static page AFTER CMS -->
+        <a href="/contact" class="<?= ($currentPage === 'contact') ? 'active' : '' ?>">Contact</a>
     </nav>
 </header>
