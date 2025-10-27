@@ -13,9 +13,21 @@ $site_logo = get_setting('site_logo') ?? 'default-logo.png';
 
 // Fetch dynamic CMS pages if $recentPages is empty
 if (empty($recentPages)) {
-    $stmt = $pdo->query("SELECT title, slug FROM pages WHERE status='published' ORDER BY id ASC");
-    $recentPages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    try {
+        $stmt = $pdo->query("SELECT title, slug FROM pages WHERE status='published' ORDER BY id ASC");
+        $recentPages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        $recentPages = [];
+    }
 }
+
+// Define static pages for navigation
+$staticPages = [
+    'index'    => 'Home',
+    'about'    => 'About',
+    'services' => 'Services',
+    'contact'  => 'Contact'
+];
 ?>
 
 <header>
@@ -29,19 +41,23 @@ if (empty($recentPages)) {
 
     <nav>
         <!-- Static pages -->
-        <a href="/index" class="<?= ($currentPage === 'index') ? 'active' : '' ?>">Home</a>
-        <a href="/about" class="<?= ($currentPage === 'about') ? 'active' : '' ?>">About</a>
-        <a href="/services" class="<?= ($currentPage === 'services') ? 'active' : '' ?>">Services</a>
-
-        <!-- Dynamic CMS pages -->
-        <?php foreach ($recentPages as $page): ?>
-            <?php $slug = htmlspecialchars($page['slug']); ?>
-            <?php $title = htmlspecialchars($page['title']); ?>
+        <?php foreach ($staticPages as $slug => $title): ?>
             <a href="/<?= $slug ?>" class="<?= ($currentPage === $slug) ? 'active' : '' ?>">
-                <?= $title ?>
+                <?= htmlspecialchars($title) ?>
             </a>
         <?php endforeach; ?>
 
-        <a href="/contact" class="<?= ($currentPage === 'contact') ? 'active' : '' ?>">Contact</a>
+        <!-- Dynamic CMS pages (exclude duplicates of static pages) -->
+        <?php foreach ($recentPages as $page): ?>
+            <?php
+                $slug = htmlspecialchars($page['slug']);
+                $title = htmlspecialchars($page['title']);
+            ?>
+            <?php if (!array_key_exists($slug, $staticPages)): ?>
+                <a href="/<?= $slug ?>" class="<?= ($currentPage === $slug) ? 'active' : '' ?>">
+                    <?= $title ?>
+                </a>
+            <?php endif; ?>
+        <?php endforeach; ?>
     </nav>
 </header>
