@@ -20,6 +20,10 @@ if (isset($_GET['archive_id'])) {
     $archive_id = (int)$_GET['archive_id'];
     $stmt = $pdo->prepare("UPDATE catalog SET status='archived' WHERE id=:id");
     $stmt->execute(['id' => $archive_id]);
+
+    // ✅ Log archive action
+    logCatalogAction("Item ID $archive_id archived by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'));
+
     $_SESSION['success_message'] = "Item archived successfully.";
     header("Location: catalog.php");
     exit;
@@ -40,13 +44,11 @@ $params = [];
 $where = "WHERE status != 'archived'";
 
 if ($search !== '') {
-    // Escape special characters for LIKE query
     $search_escaped = str_replace(['%', '_'], ['\%', '\_'], $search);
     $where .= " AND (title LIKE ? ESCAPE '\\\\' OR short_desc LIKE ? ESCAPE '\\\\')";
     $params[] = "%$search_escaped%";
     $params[] = "%$search_escaped%";
 }
-
 
 // -------------------------
 // Count total items
@@ -64,7 +66,12 @@ $sql = "SELECT * FROM catalog $where ORDER BY created_at DESC LIMIT $offset, $li
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ✅ Log view action
+logCatalogAction("Catalog list viewed by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'));
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

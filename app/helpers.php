@@ -193,3 +193,17 @@ if (!function_exists('get_recent_pages')) {
         }
     }
 }
+
+// -------------------------
+// Catalog Action Logging (Separate Log File)
+// -------------------------
+function logCatalogAction($message) {
+    $logFile = __DIR__ . '/../storage/logs/catalog.logs';
+    
+    if (!file_exists(dirname($logFile))) {
+        mkdir(dirname($logFile), 0755, true);
+    }
+
+    $date = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$date] $message\n", FILE_APPEND);
+}

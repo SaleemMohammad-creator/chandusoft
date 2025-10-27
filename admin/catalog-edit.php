@@ -23,36 +23,48 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $imageName = $item['image'];
 
     if($imageFile && $imageFile['error'] !== 4){
-        if($imageFile['error'] === UPLOAD_ERR_INI_SIZE || $imageFile['error'] === UPLOAD_ERR_FORM_SIZE){
-            $message = "File too large! Maximum 2MB allowed.";
-        } elseif(!validateImageSize($imageFile)) {
-            $message = "File too large! Maximum 2MB allowed.";
-        } elseif(!validateImageType($imageFile)) {
-            $message = "Invalid file type! Only JPG, PNG, WebP allowed.";
-        } else {
+        try {
             if($item['image'] && file_exists(UPLOAD_DIR . $item['image'])){
                 unlink(UPLOAD_DIR . $item['image']);
             }
-            $newImage = uploadImage($imageFile);
-            if(!$newImage){
-                $message = "Image upload failed!";
-            } else {
-                $imageName = $newImage;
+
+            $extCheck = pathinfo($item['image'], PATHINFO_EXTENSION);
+            if (in_array(strtolower($extCheck), ['jpg','jpeg','png'])) {
+                $oldWebp = preg_replace('/\.(jpg|jpeg|png)$/i', '.webp', $item['image']);
+                if(file_exists(UPLOAD_DIR . $oldWebp)){
+                    unlink(UPLOAD_DIR . $oldWebp);
+                }
             }
+
+            $uploaded = uploadOriginalAndWebP($imageFile);
+            $imageName = $uploaded['original'];
+
+        } catch (Exception $e) {
+            $message = $e->getMessage();
         }
     }
 
     if(!$message){
         $stmtUpdate = $pdo->prepare("UPDATE catalog SET title=?, slug=?, price=?, image=?, short_desc=?, status=? WHERE id=?");
+
         try{
             $stmtUpdate->execute([$title, $slug, $price, $imageName, $short_desc, $status, $id]);
             $message = "Catalog item updated successfully!";
-            logMessage("Catalog item updated: $title (ID: $id)");
+
+            // ✅ Single final correct log
+            logCatalogAction("Item ID $id updated: '$title' by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'));
+
             $item = array_merge($item, [
-                'title'=>$title,'slug'=>$slug,'price'=>$price,'image'=>$imageName,'short_desc'=>$short_desc,'status'=>$status
+                'title'=>$title,
+                'slug'=>$slug,
+                'price'=>$price,
+                'image'=>$imageName,
+                'short_desc'=>$short_desc,
+                'status'=>$status
             ]);
+
         } catch(PDOException $e){
-            if($e->getCode() === '23000'){ // duplicate slug
+            if($e->getCode() === '23000'){
                 $message = "Slug already exists. Choose another slug.";
             } else {
                 $message = "Database error: " . $e->getMessage();
@@ -61,6 +73,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     }
 }
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">

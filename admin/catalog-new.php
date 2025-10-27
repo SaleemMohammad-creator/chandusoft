@@ -143,16 +143,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             (title, slug, short_desc, price, image, status, created_at, updated_at) 
             VALUES (:title, :slug, :short_desc, :price, :image, 'published', NOW(), NOW())");
 
-        $stmt->execute([
-            'title'      => $title,
-            'slug'       => $slug,
-            'short_desc' => $short_desc,
-            'price'      => $price,
-            'image'      => $uploaded['original'] ?? null
-        ]);
+      $stmt->execute([
+    'title'      => $title,
+    'slug'       => $slug,
+    'short_desc' => $short_desc,
+    'price'      => $price,
+    'image'      => $uploaded['original'] ?? null
+]);
 
-        $_SESSION['success_message'] = "Catalog item added successfully.";
-        redirect('catalog.php');
+// ✅ Log add event
+logCatalogAction("New item added: '$title' (Slug: $slug) by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'));
+
+
+$_SESSION['success_message'] = "Catalog item added successfully.";
+redirect('catalog.php');
 
     } catch (Exception $e) {
         $errors[] = $e->getMessage(); // Display friendly error
@@ -160,6 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
