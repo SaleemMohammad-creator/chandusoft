@@ -14,7 +14,7 @@ $site_logo = get_setting('site_logo') ?? 'default-logo.png';
 // Fetch dynamic CMS pages if $recentPages is empty
 if (empty($recentPages)) {
     try {
-        $stmt = $pdo->query("SELECT title, slug FROM pages WHERE status='published' ORDER BY id ASC");
+        $stmt = $pdo->query("SELECT title, slug FROM pages WHERE status='published' ORDER BY title ASC");
         $recentPages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (Throwable $e) {
         $recentPages = [];
