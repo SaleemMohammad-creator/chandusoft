@@ -40,6 +40,10 @@ $sql = "SELECT * FROM catalog $where ORDER BY created_at DESC LIMIT $offset, $li
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ✅ Log view action
+logCatalogAction("Catalog listing viewed. Search: '$search', Page: $page_no");
+
 ?>
 
 <!DOCTYPE html>
