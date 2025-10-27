@@ -12,7 +12,7 @@ function base_url($path = '') {
 }
 
 // Pagination
-$limit = 10;
+$limit = 12;
 $page_no = max(1, intval($_GET['page_no'] ?? 1));
 $offset = ($page_no - 1) * $limit;
 
