@@ -31,12 +31,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $check = $pdo->prepare("SELECT email FROM users WHERE email = ?");
         $check->execute([$email]);
         if ($check->fetch()) {
-            $message = "⚠️ Email already registered!";
+            $message = "⚠️ Email Already Registered!";
         } else {
             // Insert new user
             $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
             $stmt->execute([$name, $email, $passwordHash]);
-            $message = "✅ Registration successful! <a href='login.php'>Login Now</a>";
+            $message = "✅ Registration Successful! <a href='login.php'>Login Now</a>";
         }
     }
 }

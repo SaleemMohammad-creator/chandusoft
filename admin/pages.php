@@ -66,9 +66,7 @@ body { font-family: Arial; background:#f4f4f4; margin:0; padding:0; }
 .navbar { background:#2c3e50; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
 .navbar a { color:#fff; text-decoration:none; margin-left:10px; font-weight:bold; padding:5px 10px; border-radius:4px; }
 .navbar a:hover { text-decoration:none; background:#1a2a38; }
-
 .container { max-width:1200px; margin:30px auto; background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-
 .top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
 .filters { display:flex; gap:10px; }
 .filters a { padding:8px 16px; text-decoration:none; color:#3498db; font-weight:bold; border-bottom:2px solid transparent; transition:0.3s; }
@@ -199,11 +197,11 @@ tr:hover{background:#eef7ff;}
                 <td><?= htmlspecialchars($page['slug'] ?? '') ?></td>
                 <td><?= htmlspecialchars($page['status'] ?? '') ?></td>
                 <td><?= htmlspecialchars($page['created_at'] ?? '') ?></td>
-               <td class="actions">
-    <button class="edit-btn" onclick="window.location.href='edit.php?id=<?= $page['id'] ?>'">Edit</button>
+                <td class="actions">
+                <button class="edit-btn" onclick="window.location.href='edit.php?id=<?= $page['id'] ?>'">Edit</button>
 
-    <?php if($user_role === 'admin'): ?>
-        <button class="archive-btn" onclick="if(confirm('Archive this page?')) window.location.href='pages.php?archive_id=<?= $page['id'] ?>'">
+       <?php if($user_role === 'admin'): ?>
+            <button class="archive-btn" onclick="if(confirm('Archive this page?')) window.location.href='pages.php?archive_id=<?= $page['id'] ?>'">
             Archive
         </button>
     <?php endif; ?>

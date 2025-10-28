@@ -82,8 +82,13 @@ logCatalogAction("Catalog list viewed by Admin ID: " . ($_SESSION['user_id'] ?? 
 <meta charset="UTF-8">
 <title>Catalog List - Admin</title>
 <style>
-body { font-family: Arial; margin:0; background:#f7f8fc; }
+body { 
+    font-family: Arial; 
+    margin:0; 
+    background:#f7f8fc; 
+}
 
+/* ✅ Navbar fixed + safe improvements */
 .navbar {
     background:#2c3e50;
     color:#fff;
@@ -91,8 +96,6 @@ body { font-family: Arial; margin:0; background:#f7f8fc; }
     display:flex;
     justify-content:space-between;
     align-items:center;
-
-    /* ✅ new lines */
     position: fixed;
     top: 0;
     left: 0;
@@ -101,39 +104,114 @@ body { font-family: Arial; margin:0; background:#f7f8fc; }
     box-sizing: border-box;
 }
 
-.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
+.navbar a { 
+    color:#fff; 
+    text-decoration:none; 
+    margin-left:15px; 
+    font-weight:bold; 
+}
 .navbar .navbar-left { font-weight:bold; font-size:22px; }
 .navbar .navbar-right { display:flex; align-items:center; }
 .navbar .navbar-right span { margin-right:10px; font-weight:bold; }
-.navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
+
+.navbar a.nav-btn {
+    color:#fff; 
+    text-decoration:none; 
+    margin-left:5px; 
+    font-weight:bold; 
+    padding:6px 12px; 
+    border-radius:4px; 
+    transition:background 0.3s; 
+}
 .navbar a.nav-btn:hover { background:#1C86EE; }
 
-/* ✅ Prevent overlap by pushing content down */
+/* ✅ Prevent content overlap with fixed header */
 .container {
     max-width:1000px;
-    margin:100px auto 40px auto; /* Keep your original spacing */
+    margin:100px auto 40px auto;
     background:#fff;
     border-radius:10px;
     box-shadow:0 4px 12px #0001;
     padding:30px 28px;
 }
-h2 { text-align:center; color:#007BFF; margin-bottom:20px;}
-.search-container { display:flex; justify-content:center; gap:5px; margin-bottom:20px; flex-wrap: wrap;}
-.search-container input[type="text"] { padding:8px; border-radius:5px; border:1px solid #ccc; width:250px; }
-.search-container button { padding:8px 16px; border-radius:5px; border:none; background:#007BFF; color:#fff; font-weight:bold; cursor:pointer; transition:0.3s;}
+
+h2 { text-align:center; color:#007BFF; margin-bottom:20px; }
+
+.search-container {
+    display:flex; 
+    justify-content:center; 
+    gap:5px; 
+    margin-bottom:20px; 
+    flex-wrap: wrap;
+}
+.search-container input[type="text"] { 
+    padding:8px; 
+    border-radius:5px; 
+    border:1px solid #ccc; 
+    width:250px; 
+}
+.search-container button { 
+    padding:8px 16px; 
+    border-radius:5px; 
+    border:none; 
+    background:#007BFF; 
+    color:#fff; 
+    font-weight:bold; 
+    cursor:pointer; 
+    transition:0.3s;
+}
 .search-container button:hover { background:#0056b3;}
-table { border-collapse:collapse; width:100%; max-width:1200px; margin:0 auto; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+
+table { 
+    border-collapse:collapse; 
+    width:100%; 
+    max-width:1200px; 
+    margin:0 auto; 
+    background:#fff; 
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
 th, td { border:1px solid #ccc; padding:10px 12px; text-align:left;}
 th { background:#007BFF; color:#fff; font-weight:bold;}
 tr:nth-child(even) { background:#f5f5f5;}
 tr:hover { background:#e3f0ff;}
+
 img { max-width:80px; display:block; border-radius:5px;}
+
 a { color:#007BFF; text-decoration:none; font-weight:bold; margin-right:8px;}
 a:hover { text-decoration:none;}
+
 .pagination { text-align:center; margin-top:15px;}
-.pagination a { padding:6px 12px; border:1px solid #007BFF; margin:0 3px; border-radius:5px; text-decoration:none; color:#007BFF; }
+.pagination a { 
+    padding:6px 12px; 
+    border:1px solid #007BFF; 
+    margin:0 3px; 
+    border-radius:5px; 
+    text-decoration:none; 
+    color:#007BFF; 
+}
 .pagination a.active { background:#007BFF; color:white; }
+
 .message { text-align:center; margin-bottom:15px; color:green; font-weight:bold; }
+
+/* ✅ New button styles added for actions */
+.actions button { margin-right:5px; padding:6px 14px; border:none; border-radius:4px; font-weight:bold; font-size:14px; cursor:pointer; }
+.edit-btn { background:#23b07d; color:#fff; }
+.archive-btn { background:#f39c12; color:#fff; }
+
+.delete-btn { 
+    background: #c0392b; 
+    color: #fff; 
+    cursor: not-allowed !important;
+    pointer-events: none;
+    opacity: 0.6;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;
+}
+.delete-btn:hover { background: #c0392b; }
+
 </style>
 </head>
 <body>
@@ -143,6 +221,7 @@ a:hover { text-decoration:none;}
     <div class="navbar-right">
         <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>
+
         <!-- Dynamic catalog link based on user role -->
     <?php if ($user_role === 'admin'): ?>
     <a href="/admin/catalog.php">Admin Catalog</a>
@@ -194,11 +273,23 @@ if(!empty($_SESSION['success_message'])) {
     </td>
     <td><?= number_format($item['price'], 2) ?></td>
     <td><?= htmlspecialchars($item['status']) ?></td>
-    <td>
-        <a href="catalog-edit.php?id=<?= $item['id'] ?>">Edit</a> |
-        <a href="?archive_id=<?= $item['id'] ?>" onclick="return confirm('Archive this item?')">Archive</a> |
-        <a href="?delete_id=<?= $item['id'] ?>" onclick="return confirm('Delete this item?')">Delete</a>
-    </td>
+
+    <td class="actions">
+    <button class="btn edit-btn" onclick="window.location.href='catalog-edit.php?id=<?= $item['id'] ?>'">
+        Edit
+    </button>
+
+    <button class="btn archive-btn"
+        onclick="if(confirm('Archive this item?')) window.location.href='?archive_id=<?= $item['id'] ?>'">
+        Archive
+    </button>
+
+    <button class="btn delete-btn"
+        onclick="if(confirm('Delete this item?')) window.location.href='?delete_id=<?= $item['id'] ?>'">
+        Delete
+    </button>
+</td>
+
 
 </tr>
 <?php endforeach; ?>
