@@ -68,6 +68,7 @@ h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
 .pagination { text-align: center; margin-top: 20px; }
 .pagination a { padding: 6px 12px; border: 1px solid #007BFF; margin: 0 3px; border-radius: 5px; text-decoration: none; color: #007BFF; }
 .pagination a.active { background: #007BFF; color: #fff; }
+
 </style>
 </head>
 <body>
@@ -111,6 +112,8 @@ h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
     <a href="<?= base_url('catalog.php?page_no=' . $i . '&search=' . urlencode($search)) ?>" class="<?= $page_no == $i ? 'active' : '' ?>"><?= $i ?></a>
 <?php endfor; ?>
+
+  
 </div>
 
 </body>

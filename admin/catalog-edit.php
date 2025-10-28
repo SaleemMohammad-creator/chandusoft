@@ -49,9 +49,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
         try{
             $stmtUpdate->execute([$title, $slug, $price, $imageName, $short_desc, $status, $id]);
-            $message = "Catalog item updated successfully!";
+            $message = "success: Catalog item updated successfully!";
 
-            // ✅ Single final correct log
             logCatalogAction("Item ID $id updated: '$title' by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'));
 
             $item = array_merge($item, [
@@ -65,16 +64,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
         } catch(PDOException $e){
             if($e->getCode() === '23000'){
-                $message = "Slug already exists. Choose another slug.";
+                $message = "error: Slug already exists. Choose another slug.";
             } else {
-                $message = "Database error: " . $e->getMessage();
+                $message = "error: Database error: " . $e->getMessage();
             }
         }
     }
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -87,17 +84,64 @@ body{font-family:Arial,sans-serif;background:#f9f9f9;padding:20px;}
 h2{text-align:center;color:#007BFF;margin-bottom:25px;}
 label{display:block;margin-top:15px;font-weight:bold;}
 input,textarea,select{width:100%;padding:12px;border-radius:6px;border:1px solid #ccc;margin-top:5px;box-sizing:border-box;}
-button{margin-top:20px;width:100%;padding:15px;background:#007BFF;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer;}
-button:hover{background:#0056b3;}
-p.message{text-align:center;font-weight:bold;color:red;}
 img.current-image{max-width:150px;margin-top:10px;border-radius:6px;}
+
+/* ✅ Success + Error messages */
+.message{
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:10px;
+    padding:12px;
+    border-radius:6px;
+}
+.message-success{
+    background:#d4edda;
+    color:#155724;
+    border:1px solid #c3e6cb;
+}
+.message-error{
+    background:#f8d7da;
+    color:#721c24;
+    border:1px solid #f5c6cb;
+}
+
+/* ✅ Buttons same style, side by side */
+.button-row{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+.btn{
+    flex:1;
+    display:inline-block;
+    padding:15px;
+    font-weight:bold;
+    text-align:center;
+    border-radius:8px;
+    cursor:pointer;
+    text-decoration:none;
+    border:none;
+    color:#fff;
+    background:#007BFF;
+    transition:0.3s;
+}
+.btn:hover{
+    background:#0056b3;
+}
 </style>
 </head>
 <body>
 
 <div class="container">
 <h2>Edit Catalog Item</h2>
-<?php if($message): ?><p class="message"><?= $message ?></p><?php endif; ?>
+
+<?php if($message): ?>
+    <?php if(strpos($message, 'success:') === 0): ?>
+        <p class="message message-success"><?= str_replace('success:','',$message) ?></p>
+    <?php else: ?>
+        <p class="message message-error"><?= str_replace('error:','',$message) ?></p>
+    <?php endif; ?>
+<?php endif; ?>
 
 <form method="post" enctype="multipart/form-data">
     <label>Title</label>
@@ -129,7 +173,12 @@ img.current-image{max-width:150px;margin-top:10px;border-radius:6px;}
         <option value="archived" <?= $item['status']==='archived'?'selected':'' ?>>Archived</option>
     </select>
 
-    <button type="submit">Update</button>
+    <!-- ✅ Same color + width buttons -->
+    <div class="button-row">
+        <button type="submit" class="btn">Update</button>
+        <a href="/admin/catalog" class="btn">Back to Catalog</a>
+    </div>
+
 </form>
 </div>
 

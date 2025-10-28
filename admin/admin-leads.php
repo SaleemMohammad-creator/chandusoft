@@ -1,13 +1,16 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
+require_once __DIR__ . '/../app/helpers.php';
+
 // Check login
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
 // Safe user info
-$role = $_SESSION['user_role'] ?? 'Admin';
-$username = $_SESSION['user_name'] ?? 'User';
+$user_name = $_SESSION['user_name'] ?? 'User';
+$user_role = $_SESSION['user_role'] ?? 'Admin';
+
 
 // Handle search
 $search = trim($_GET['search'] ?? '');
@@ -51,10 +54,14 @@ tr:hover { background:#e6f7ff; }
  <div class="navbar">
     <div><strong>Chandusoft Admin</strong></div>
     <div>
-        Welcome <?= htmlspecialchars($role) ?>!
+        Welcome <?= htmlspecialchars($user_role) ?>!
         <a href="/admin/dashboard.php">Dashboard</a>
+        <!-- Dynamic catalog link based on user role -->
+    <?php if ($user_role === 'admin'): ?>
+    <a href="/admin/catalog.php">Admin Catalog</a>
+    <?php endif; ?>
+    <a href="/public/catalog.php">Public Catalog</a>
         <a href="/admin/pages.php">Pages</a>
-        <a href="catalog.php" class="nav-btn">Catalog</a>
         <a href="/admin/admin-leads.php">Leads</a>
         <a href="/admin/logout.php">Logout</a>
     </div>

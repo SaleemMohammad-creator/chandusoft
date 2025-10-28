@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
+require_once __DIR__ . '/../app/helpers.php';
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
@@ -87,11 +88,15 @@ body { font-family: Arial; margin:0; background:#f7f8fc; }
     <div class="navbar-left">Chandusoft Admin</div>
     <div class="navbar-right">
         <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
-        <a href="dashboard.php" class="nav-btn">Dashboard</a>
-        <a href="pages.php" class="nav-btn">Pages</a>
-        <a href="catalog.php" class="nav-btn">Catalog</a>
-        <a href="admin-leads.php" class="nav-btn">Leads</a>
-        <a href="logout.php" class="nav-btn">Logout</a>
+        <a href="/admin/dashboard.php">Dashboard</a>
+        <!-- Dynamic catalog link based on user role -->
+    <?php if ($user_role === 'admin'): ?>
+    <a href="/admin/catalog.php">Admin Catalog</a>
+    <?php endif; ?>
+    <a href="/public/catalog.php">Public Catalog</a>
+        <a href="/admin/pages.php">Pages</a>
+        <a href="/admin/admin-leads.php">Leads</a>
+        <a href="/admin/logout.php">Logout</a>
     </div>
 </div>
 

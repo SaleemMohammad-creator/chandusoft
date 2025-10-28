@@ -1,11 +1,11 @@
 <?php
 require_once __DIR__ . '/app/config.php';
-require_once __DIR__ . '/app/helpers.php';
+require_once __DIR__ . '/vendor/autoload.php'; // ✅ PHPMailer Autoload
 
 $pageSlug = 'contact';
 $formData = ['name' => '', 'email' => '', 'message' => ''];
 
-// Flash messages (session already started in config.php)
+// Flash messages
 $successMessage = $_SESSION['successMessage'] ?? '';
 $errorMessage = $_SESSION['errorMessage'] ?? '';
 unset($_SESSION['successMessage'], $_SESSION['errorMessage']);
@@ -19,9 +19,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $formData = ['name' => $name, 'email' => $email, 'message' => $message];
 
     if ($name && $email && $message) {
+
         try {
+            // ✅ Database Insert
             $stmt = $pdo->prepare("INSERT INTO leads (name, email, message, created_at) VALUES (?, ?, ?, NOW())");
             $stmt->execute([$name, $email, $message]);
+
+            // ✅ Email Sending using PHPMailer
+            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+
+            try {
+                $mail->isSMTP();
+                $mail->Host       = 'smtp.gmail.com';
+                $mail->SMTPAuth   = true;
+                $mail->Username   = 'cstltest4@gmail.com';
+                $mail->Password   = 'vwrs cubq qpqg wfcg'; // ✅ App Password
+                $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port       = 587;
+
+                $mail->setFrom('cstltest4@gmail.com', 'Chandusoft Contact');
+                $mail->addAddress('saleem.mohammad@chandusoft.com'); // ✅ Admin email
+                $mail->addReplyTo($email, $name);
+
+                $mail->isHTML(true);
+                $mail->Subject = "New Contact Form Submission";
+                $mail->Body = "
+                    <h3>New Contact Form Message</h3>
+                    <p><strong>Name:</strong> {$name}</p>
+                    <p><strong>Email:</strong> {$email}</p>
+                    <p><strong>Message:</strong><br>" . nl2br($message) . "</p>
+                ";
+
+                $mail->send();
+            } catch (Exception $e) {
+                // Log mail error silently — don't break user success flow
+                error_log("Mail Error: " . $mail->ErrorInfo);
+            }
 
             $_SESSION['successMessage'] = "Your message has been sent successfully!";
             $formData = ['name' => '', 'email' => '', 'message' => ''];
@@ -41,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,7 +88,6 @@ body {
     margin: 0;
     padding: 0;
 }
-
 .contact-page {
     max-width: 500px;
     margin: 40px auto;
@@ -64,22 +95,19 @@ body {
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 10px 2px rgba(0,0,0,0.1);
-    transform: translateX(-20px); /* Move slightly left */
+    transform: translateX(-20px);
 }
-
 .contact-page h2 {
     text-align: center;
     color: #1E90FF;
     margin-bottom: 30px;
 }
-
 .contact-form label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
     color: #333;
 }
-
 .contact-form input[type="text"],
 .contact-form input[type="email"],
 .contact-form textarea {
@@ -91,14 +119,12 @@ body {
     font-size: 14px;
     transition: border-color 0.3s;
 }
-
 .contact-form input[type="text"]:focus,
 .contact-form input[type="email"]:focus,
 .contact-form textarea:focus {
     border-color: #1E90FF;
     outline: none;
 }
-
 .contact-form button {
     width: 100%;
     padding: 12px;
@@ -111,11 +137,9 @@ body {
     cursor: pointer;
     transition: background-color 0.3s;
 }
-
 .contact-form button:hover {
     background-color: #187bcd;
 }
-
 .alert {
     padding: 12px;
     border-radius: 6px;
@@ -125,17 +149,14 @@ body {
     opacity: 1;
     transition: opacity 0.5s, transform 0.5s;
 }
-
 .alert.success {
     background-color: #d4edda;
     color: #155724;
 }
-
 .alert.error {
     background-color: #f8d7da;
     color: #721c24;
 }
-
 .alert.show {
     transform: translateY(0);
     opacity: 1;
@@ -170,7 +191,6 @@ body {
 </main>
 
 <script>
-// Auto-hide message after 5 seconds
 window.addEventListener('DOMContentLoaded', () => {
     const msg = document.getElementById('formMessage');
     if(msg) {
@@ -184,6 +204,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
 <?php include("admin/footer.php"); ?>
 <button id="back-to-top" title="Back to Top">↑</button>
-    <script src="include.js"></script>
+<script src="include.js"></script>
 </body>
 </html>

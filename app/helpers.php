@@ -154,6 +154,7 @@ if (!function_exists('uploadImage')) {
     }
 }
 
+
 // -------------------------
 // Redirect helper
 // -------------------------
@@ -166,17 +167,20 @@ if (!function_exists('redirect')) {
 }
 
 // -------------------------
-// Generate full URL (curl URL)
+// Generate full URL (correct public path always)
 // -------------------------
 if (!function_exists('base_url')) {
     function base_url($path = '') {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' 
-                     || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
+            || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+
         $host = $_SERVER['HTTP_HOST'];
         $path = ltrim($path, '/');
-        return $protocol . $host . '/' . $path;
+
+        return rtrim($protocol . $host, '/') . '/public/' . $path;
     }
 }
+
 
 // -------------------------
 // Get all CMS pages (for dynamic header)

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../app/config.php';
+require_once __DIR__ . '/../app/helpers.php';
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -137,11 +138,15 @@ tr:hover{background:#eef7ff;}
     <div><strong>Chandusoft Admin</strong></div>
     <div>
         Welcome <?= htmlspecialchars($user_role) ?>!
-        <a href="dashboard.php">Dashboard</a>
-        <a href="pages.php">Pages</a>
-        <a href="catalog.php" class="nav-btn">Catalog</a>
-        <a href="admin-leads.php">Leads</a>
-        <a href="logout.php">Logout</a>
+        <a href="/admin/dashboard.php">Dashboard</a>
+        <!-- Dynamic catalog link based on user role -->
+    <?php if ($user_role === 'admin'): ?>
+    <a href="/admin/catalog.php">Admin Catalog</a>
+    <?php endif; ?>
+    <a href="/public/catalog.php">Public Catalog</a>
+        <a href="/admin/pages.php">Pages</a>
+        <a href="/admin/admin-leads.php">Leads</a>
+        <a href="/admin/logout.php">Logout</a>
     </div>
 </div>
 
