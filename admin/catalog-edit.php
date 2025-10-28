@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 
+// Safe user info
+$user_name = $_SESSION['user_name'] ?? 'User';
+$user_role = $_SESSION['user_role'] ?? 'Admin';
+
 $id = intval($_GET['id'] ?? 0);
 if(!$id) exit('Invalid ID');
 
@@ -79,8 +83,41 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 <meta charset="UTF-8">
 <title>Edit Catalog Item</title>
 <style>
-body{font-family:Arial,sans-serif;background:#f9f9f9;padding:20px;}
-.container{max-width:600px;margin:30px auto;background:#fff;padding:30px;border-radius:12px;box-shadow:0 8px 25px rgba(0,0,0,0.1);}
+body { font-family: Arial; margin:0; background:#f7f8fc; }
+
+.navbar {
+    background:#2c3e50;
+    color:#fff;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    /* ✅ new lines */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width:100%;
+    z-index:1000;
+    box-sizing: border-box;
+}
+
+.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
+.navbar .navbar-left { font-weight:bold; font-size:22px; }
+.navbar .navbar-right { display:flex; align-items:center; }
+.navbar .navbar-right span { margin-right:10px; font-weight:bold; }
+.navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
+.navbar a.nav-btn:hover { background:#1C86EE; }
+
+/* ✅ Prevent overlap by pushing content down */
+.container {
+    max-width:1000px;
+    margin:100px auto 40px auto; /* Keep your original spacing */
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 4px 12px #0001;
+    padding:30px 28px;
+}
 h2{text-align:center;color:#007BFF;margin-bottom:25px;}
 label{display:block;margin-top:15px;font-weight:bold;}
 input,textarea,select{width:100%;padding:12px;border-radius:6px;border:1px solid #ccc;margin-top:5px;box-sizing:border-box;}
@@ -131,6 +168,23 @@ img.current-image{max-width:150px;margin-top:10px;border-radius:6px;}
 </style>
 </head>
 <body>
+
+
+<div class="navbar">
+    <div class="navbar-left">Chandusoft Admin</div>
+    <div class="navbar-right">
+        <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
+        <a href="/admin/dashboard.php">Dashboard</a>
+        <!-- Dynamic catalog link based on user role -->
+    <?php if ($user_role === 'admin'): ?>
+    <a href="/admin/catalog.php">Admin Catalog</a>
+    <?php endif; ?>
+    <a href="/public/catalog.php">Public Catalog</a>
+        <a href="/admin/pages.php">Pages</a>
+        <a href="/admin/admin-leads.php">Leads</a>
+        <a href="/admin/logout.php">Logout</a>
+    </div>
+</div>
 
 <div class="container">
 <h2>Edit Catalog Item</h2>

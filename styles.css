@@ -52,6 +52,13 @@ nav a, nav button {
     cursor: pointer;
 }
 
+nav a.active, nav button.active {
+    background-color: #fff; /* White background */
+    color: #007BFF;        /* Blue text */
+    border-color: #fff;    /* Optional */
+}
+
+
 nav a:hover, nav button:hover {
     background-color: rgb(239, 245, 245);
     color: #007BFF;

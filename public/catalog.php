@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 
+// Safe user info
+$user_name = $_SESSION['user_name'] ?? 'User';
+$user_role = $_SESSION['user_role'] ?? 'Admin';
+
 // Helper for clean URLs (fixed to include /public/)
 function base_url($path = '') {
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
@@ -53,7 +57,41 @@ logCatalogAction("Catalog listing viewed. Search: '$search', Page: $page_no");
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Catalog</title>
 <style>
-body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 0; padding: 20px; }
+body { font-family: Arial; margin:0; background:#f7f8fc; }
+
+.navbar {
+    background:#2c3e50;
+    color:#fff;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    /* ✅ new lines */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width:100%;
+    z-index:1000;
+    box-sizing: border-box;
+}
+
+.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
+.navbar .navbar-left { font-weight:bold; font-size:22px; }
+.navbar .navbar-right { display:flex; align-items:center; }
+.navbar .navbar-right span { margin-right:10px; font-weight:bold; }
+.navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
+.navbar a.nav-btn:hover { background:#1C86EE; }
+
+/* ✅ Prevent overlap by pushing content down */
+.container {
+    max-width:1000px;
+    margin:100px auto 40px auto; /* Keep your original spacing */
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 4px 12px #0001;
+    padding:30px 28px;
+}
 h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
 .search-bar { text-align: center; margin-bottom: 20px; }
 .search-bar input { padding: 8px 12px; width: 250px; border-radius: 5px; border: 1px solid #ccc; }
@@ -72,6 +110,23 @@ h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
 </style>
 </head>
 <body>
+
+   <div class="navbar">
+    <div class="navbar-left">Chandusoft Admin</div>
+    <div class="navbar-right">
+        <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
+        <a href="/admin/dashboard.php">Dashboard</a>
+        <!-- Dynamic catalog link based on user role -->
+    <?php if ($user_role === 'admin'): ?>
+    <a href="/admin/catalog.php">Admin Catalog</a>
+    <?php endif; ?>
+    <a href="/public/catalog.php">Public Catalog</a>
+        <a href="/admin/pages.php">Pages</a>
+        <a href="/admin/admin-leads.php">Leads</a>
+        <a href="/admin/logout.php">Logout</a>
+    </div>
+</div>
+
 
 <h2>Catalog</h2>
 

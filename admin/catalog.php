@@ -3,6 +3,10 @@ session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 
+// Safe user info
+$user_name = $_SESSION['user_name'] ?? 'User';
+$user_role = $_SESSION['user_role'] ?? 'Admin';
+
 // -------------------------
 // Define BASE_URL fallback (if not defined in config.php)
 // -------------------------
@@ -78,7 +82,41 @@ logCatalogAction("Catalog list viewed by Admin ID: " . ($_SESSION['user_id'] ?? 
 <meta charset="UTF-8">
 <title>Catalog List - Admin</title>
 <style>
-body { font-family: Arial, sans-serif; background:#f9f9f9; padding:20px; color:#333;}
+body { font-family: Arial; margin:0; background:#f7f8fc; }
+
+.navbar {
+    background:#2c3e50;
+    color:#fff;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    /* ✅ new lines */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width:100%;
+    z-index:1000;
+    box-sizing: border-box;
+}
+
+.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
+.navbar .navbar-left { font-weight:bold; font-size:22px; }
+.navbar .navbar-right { display:flex; align-items:center; }
+.navbar .navbar-right span { margin-right:10px; font-weight:bold; }
+.navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
+.navbar a.nav-btn:hover { background:#1C86EE; }
+
+/* ✅ Prevent overlap by pushing content down */
+.container {
+    max-width:1000px;
+    margin:100px auto 40px auto; /* Keep your original spacing */
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 4px 12px #0001;
+    padding:30px 28px;
+}
 h2 { text-align:center; color:#007BFF; margin-bottom:20px;}
 .search-container { display:flex; justify-content:center; gap:5px; margin-bottom:20px; flex-wrap: wrap;}
 .search-container input[type="text"] { padding:8px; border-radius:5px; border:1px solid #ccc; width:250px; }
@@ -91,7 +129,7 @@ tr:nth-child(even) { background:#f5f5f5;}
 tr:hover { background:#e3f0ff;}
 img { max-width:80px; display:block; border-radius:5px;}
 a { color:#007BFF; text-decoration:none; font-weight:bold; margin-right:8px;}
-a:hover { text-decoration:underline;}
+a:hover { text-decoration:none;}
 .pagination { text-align:center; margin-top:15px;}
 .pagination a { padding:6px 12px; border:1px solid #007BFF; margin:0 3px; border-radius:5px; text-decoration:none; color:#007BFF; }
 .pagination a.active { background:#007BFF; color:white; }
@@ -100,6 +138,21 @@ a:hover { text-decoration:underline;}
 </head>
 <body>
 
+<div class="navbar">
+    <div class="navbar-left">Chandusoft Admin</div>
+    <div class="navbar-right">
+        <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
+        <a href="/admin/dashboard.php">Dashboard</a>
+        <!-- Dynamic catalog link based on user role -->
+    <?php if ($user_role === 'admin'): ?>
+    <a href="/admin/catalog.php">Admin Catalog</a>
+    <?php endif; ?>
+    <a href="/public/catalog.php">Public Catalog</a>
+        <a href="/admin/pages.php">Pages</a>
+        <a href="/admin/admin-leads.php">Leads</a>
+        <a href="/admin/logout.php">Logout</a>
+    </div>
+</div>
 
 
 <h2>Catalog List (Admin)</h2>
