@@ -62,10 +62,14 @@ $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <meta charset="UTF-8">
 <title>Pages - Admin</title>
 <style>
-body { font-family: Arial; background:#f4f4f4; margin:0; padding:0; }
+body { font-family: Arial; margin:0; background:#f7f8fc; }
 .navbar { background:#2c3e50; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
-.navbar a { color:#fff; text-decoration:none; margin-left:10px; font-weight:bold; padding:5px 10px; border-radius:4px; }
-.navbar a:hover { text-decoration:none; background:#1a2a38; }
+.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
+.navbar .navbar-left { font-weight:bold; font-size:22px; }
+.navbar .navbar-right { display:flex; align-items:center; }
+.navbar .navbar-right span { margin-right:10px; font-weight:bold; }
+.navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
+.navbar a.nav-btn:hover { background:#1C86EE; }
 
 .container { max-width:1200px; margin:30px auto; background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
 

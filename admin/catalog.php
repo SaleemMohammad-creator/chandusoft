@@ -100,6 +100,8 @@ a:hover { text-decoration:underline;}
 </head>
 <body>
 
+
+
 <h2>Catalog List (Admin)</h2>
 
 <?php
@@ -141,8 +143,10 @@ if(!empty($_SESSION['success_message'])) {
     <td><?= htmlspecialchars($item['status']) ?></td>
     <td>
         <a href="catalog-edit.php?id=<?= $item['id'] ?>">Edit</a> |
-        <a href="?archive_id=<?= $item['id'] ?>" onclick="return confirm('Archive this item?')">Archive</a>
+        <a href="?archive_id=<?= $item['id'] ?>" onclick="return confirm('Archive this item?')">Archive</a> |
+        <a href="?delete_id=<?= $item['id'] ?>" onclick="return confirm('Delete this item?')">Delete</a>
     </td>
+
 </tr>
 <?php endforeach; ?>
 <?php else: ?>
