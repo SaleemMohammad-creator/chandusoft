@@ -62,14 +62,10 @@ $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <meta charset="UTF-8">
 <title>Pages - Admin</title>
 <style>
-body { font-family: Arial; margin:0; background:#f7f8fc; }
+body { font-family: Arial; background:#f4f4f4; margin:0; padding:0; }
 .navbar { background:#2c3e50; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
-.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
-.navbar .navbar-left { font-weight:bold; font-size:22px; }
-.navbar .navbar-right { display:flex; align-items:center; }
-.navbar .navbar-right span { margin-right:10px; font-weight:bold; }
-.navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
-.navbar a.nav-btn:hover { background:#1C86EE; }
+.navbar a { color:#fff; text-decoration:none; margin-left:10px; font-weight:bold; padding:5px 10px; border-radius:4px; }
+.navbar a:hover { text-decoration:none; background:#1a2a38; }
 
 .container { max-width:1200px; margin:30px auto; background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
 
@@ -203,19 +199,22 @@ tr:hover{background:#eef7ff;}
                 <td><?= htmlspecialchars($page['slug'] ?? '') ?></td>
                 <td><?= htmlspecialchars($page['status'] ?? '') ?></td>
                 <td><?= htmlspecialchars($page['created_at'] ?? '') ?></td>
-                <td class="actions">
-                    <button class="edit-btn" onclick="window.location.href='edit.php?id=<?= $page['id'] ?>'">Edit</button>
-                    <?php if($user_role === 'admin' && ($page['status'] ?? '') !== 'archived'): ?>
-                        <button class="archive-btn" onclick="if(confirm('Archive this page?')) window.location.href='pages.php?archive_id=<?= $page['id'] ?>'">Archive</button>
-                    <?php endif; ?>
-                    <?php if($user_role === 'admin'): ?>
-                        <button class="delete-btn" 
-                            onclick="if(confirm('Delete this page?')) window.location.href='delete.php?delete_id=<?= $page['id'] ?>'">
-                            Delete
-                        </button>
-                    <?php endif; ?>
-                
-                </td>
+               <td class="actions">
+    <button class="edit-btn" onclick="window.location.href='edit.php?id=<?= $page['id'] ?>'">Edit</button>
+
+    <?php if($user_role === 'admin'): ?>
+        <button class="archive-btn" onclick="if(confirm('Archive this page?')) window.location.href='pages.php?archive_id=<?= $page['id'] ?>'">
+            Archive
+        </button>
+    <?php endif; ?>
+
+    <?php if($user_role === 'admin'): ?>
+        <button class="delete-btn"
+            onclick="if(confirm('Delete this page?')) window.location.href='delete.php?delete_id=<?= $page['id'] ?>'">
+            Delete
+        </button>
+    <?php endif; ?>
+</td>
             </tr>
             <?php endforeach; ?>
         <?php else: ?>
