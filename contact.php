@@ -26,7 +26,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO leads (name, email, message, created_at) VALUES (?, ?, ?, NOW())");
             $stmt->execute([$name, $email, $message]);
 
-            // ✅ Email Sending using PHPMailer
+            // ✅ Log Form Submission (Mailpit + Storage)
+            mailLog(
+                "New Contact Form Submission",
+                "Name: {$name}\nEmail: {$email}\nMessage: {$message}",
+                'email'
+            );
+
+            // ✅ Email Sending using PHPMailer (Gmail SMTP)
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);
 
             try {
