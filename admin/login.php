@@ -68,11 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // ✅ File Log
         file_put_contents($logFile, "[{$timestamp}] ✅ SUCCESS login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
 
-        // ✅ Mailpit Log
-        mailLog(
-            "✅ Admin Logged In",
-            "Email: {$email}\nIP Address: {$ip}\nTime: {$timestamp}"
-        );
+        // ✅ Dynamic Role Logging
+      $role = $user['role'] ?? 'User';
+      mailLog(
+    "✅ {$role} Logged In",
+    "Email: {$email}\nRole: {$role}\nIP Address: {$ip}\nTime: {$timestamp}"
+);
+
 
         header("Location: dashboard.php");
         exit;
@@ -83,9 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // ✅ Mailpit Log
         mailLog(
-            "❌ Failed Login Attempt",
-            "Email: {$email}\nIP Address: {$ip}\nTime: {$timestamp}"
-        );
+        "❌ Failed Login Attempt",
+        "Email: {$email}\nAttempted Role: Unknown\nIP Address: {$ip}\nTime: {$timestamp}"
+      );
+
 
         $_SESSION['flash_message'] = "Invalid email or password";
         header("Location: login.php");
