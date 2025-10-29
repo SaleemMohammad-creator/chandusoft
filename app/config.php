@@ -46,6 +46,14 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
+// Global Logging via Mailpit
+// ========================
+define('MAILPIT_LOGGING', true);
+define('MAILPIT_HOST', '127.0.0.1');
+define('MAILPIT_PORT', 1025);
+define('MAILPIT_LOG_EMAIL_TO', 'logs@chandusoft.test'); // Logs inbox name
+define('MAILPIT_LOG_EMAIL_FROM', 'system@chandusoft.test');
+
 // ====================
 // Site Settings Defaults
 // ====================

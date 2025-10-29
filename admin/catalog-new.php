@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php';
+
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
@@ -155,16 +157,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     'image'      => $uploaded['original'] ?? null
 ]);
 
-// ✅ Log add event
-logCatalogAction("New item added: '$title' (Slug: $slug) by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'));
+ // ✅ Store logs
+        mailLog("Catalog Item Added: $title",
+            "Slug: $slug | Price: $price | Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'),
+            'catalog'
+        );
 
-
-$_SESSION['success_message'] = "Catalog item added successfully.";
-redirect('catalog.php');
+        $_SESSION['success_message'] = "Catalog item added successfully.";
+        redirect('catalog.php');
 
     } catch (Exception $e) {
-        $errors[] = $e->getMessage(); // Display friendly error
-        log_catalog_error($e->getMessage()); // Log error to catalog.logs
+        $errors[] = $e->getMessage();
+        log_catalog_error($e->getMessage());
     }
 }
 ?>

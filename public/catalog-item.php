@@ -2,6 +2,8 @@
 session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php';
+
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';

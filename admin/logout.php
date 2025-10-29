@@ -2,6 +2,8 @@
 session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php';
+
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {

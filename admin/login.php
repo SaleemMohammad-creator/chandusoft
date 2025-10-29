@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php'; // ✅ Added for Mailpit Logging
 
 // ---------------------------
 // Secure session start
@@ -17,8 +18,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // ---------------------------
 // Redirect if already logged in
 // ---------------------------
-    if (isset($_SESSION['user_id']) && basename($_SERVER['PHP_SELF']) !== 'login.php') {
-    // Set flash message
+if (isset($_SESSION['user_id']) && basename($_SERVER['PHP_SELF']) !== 'login.php') {
     $_SESSION['flash_message'] = "You are already logged in!";
     header("Location: dashboard.php");
     exit;
@@ -59,22 +59,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-        // Set session
+
+        // ✅ Session Set
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'] ?? 'User';
         $_SESSION['user_role'] = $user['role'] ?? 'Admin';
 
+        // ✅ File Log
         file_put_contents($logFile, "[{$timestamp}] ✅ SUCCESS login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
+
+        // ✅ Mailpit Log
+        mailLog(
+            "✅ Admin Logged In",
+            "Email: {$email}\nIP Address: {$ip}\nTime: {$timestamp}"
+        );
+
         header("Location: dashboard.php");
         exit;
     } else {
+
+        // ✅ File Log
         file_put_contents($logFile, "[{$timestamp}] ❌ FAILED login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
+
+        // ✅ Mailpit Log
+        mailLog(
+            "❌ Failed Login Attempt",
+            "Email: {$email}\nIP Address: {$ip}\nTime: {$timestamp}"
+        );
+
         $_SESSION['flash_message'] = "Invalid email or password";
         header("Location: login.php");
         exit;
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

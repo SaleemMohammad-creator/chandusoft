@@ -211,3 +211,67 @@ function logCatalogAction($message) {
     $date = date('Y-m-d H:i:s');
     file_put_contents($logFile, "[$date] $message\n", FILE_APPEND);
 }
+
+// -------------------------
+// Mailpitr(Inbox)
+// -------------------------
+
+function mailLog($subject, $message) {
+    if (!defined('MAILPIT_LOGGING') || MAILPIT_LOGGING !== true) {
+        return; // ✅ Do nothing if disabled
+    }
+
+    try {
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host       = MAILPIT_HOST;
+        $mail->Port       = MAILPIT_PORT;
+        $mail->SMTPAuth   = false;
+        $mail->SMTPSecure = false;
+
+        $mail->setFrom(MAILPIT_LOG_EMAIL_FROM, 'System Logger');
+        $mail->addAddress(MAILPIT_LOG_EMAIL_TO);
+
+        $mail->Subject = $subject;
+        $mail->Body    = nl2br($message);
+        $mail->isHTML(true);
+
+        $mail->send();
+    } catch (Exception $e) {
+        error_log("Mail Log Error: " . $mail->ErrorInfo);
+    }
+}
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+if (!function_exists('logCatalog')) {
+    function logCatalog($action, $details = '') {
+        $timestamp = date('Y-m-d H:i:s');
+        $logMsg = "[$timestamp][$action] $details";
+
+        // ✅ Store in file (backup)
+        $logFile = __DIR__ . '/../storage/logs/catalog.log';
+        @file_put_contents($logFile, $logMsg . PHP_EOL, FILE_APPEND);
+
+        // ✅ Send to Mailpit inbox
+        try {
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host = '127.0.0.1';
+            $mail->Port = 1025;
+            $mail->SMTPAuth = false;
+
+            $mail->setFrom('catalog-logger@chandusoft.test', 'Catalog Logger');
+            $mail->addAddress('logs@chandusoft.test');
+
+            $mail->Subject = "CATALOG LOG: $action";
+            $mail->Body    = nl2br($logMsg);
+            $mail->isHTML(true);
+            $mail->send();
+        }
+        catch (Exception $e) {
+            error_log("Mailpit Log Failed: " . $mail->ErrorInfo);
+        }
+    }
+}

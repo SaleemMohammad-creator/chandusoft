@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php'; // ✅ Added logging support
+
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
@@ -48,14 +50,18 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         }
     }
 
-    if(!$message){
+     if(!$message){
         $stmtUpdate = $pdo->prepare("UPDATE catalog SET title=?, slug=?, price=?, image=?, short_desc=?, status=? WHERE id=?");
 
         try{
             $stmtUpdate->execute([$title, $slug, $price, $imageName, $short_desc, $status, $id]);
             $message = "success: Catalog item updated successfully!";
 
-            logCatalogAction("Item ID $id updated: '$title' by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'));
+            // ✅ Log update
+            mailLog("Catalog Item Updated: $title",
+                "ID: $id | Slug: $slug | Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'),
+                'catalog'
+            );
 
             $item = array_merge($item, [
                 'title'=>$title,
@@ -67,11 +73,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             ]);
 
         } catch(PDOException $e){
-            if($e->getCode() === '23000'){
-                $message = "error: Slug already exists. Choose another slug.";
-            } else {
-                $message = "error: Database error: " . $e->getMessage();
-            }
+            $message = "error: " . $e->getMessage();
         }
     }
 }

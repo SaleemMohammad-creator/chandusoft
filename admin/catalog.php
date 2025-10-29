@@ -2,13 +2,15 @@
 session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php'; // ✅ added logging include
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
 $user_role = $_SESSION['user_role'] ?? 'Admin';
+$user_id = $_SESSION['user_id'] ?? 'Unknown';
 
 // -------------------------
-// Define BASE_URL fallback (if not defined in config.php)
+// Define BASE_URL fallback
 // -------------------------
 if (!defined('BASE_URL')) {
     define('BASE_URL', 'http://chandusoft.test');
@@ -26,7 +28,7 @@ if (isset($_GET['archive_id'])) {
     $stmt->execute(['id' => $archive_id]);
 
     // ✅ Log archive action
-    logCatalogAction("Item ID $archive_id archived by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'));
+    mailLog("Catalog Item Archived", "Item ID: {$archive_id} | Admin ID: {$user_id}", "catalog");
 
     $_SESSION['success_message'] = "Item archived successfully.";
     header("Location: catalog.php");
@@ -40,6 +42,11 @@ $limit = 10;
 $page_no = isset($_GET['page_no']) ? intval($_GET['page_no']) : 1;
 $offset = ($page_no - 1) * $limit;
 
+// ✅ Log pagination action
+if ($page_no > 1) {
+    mailLog("Catalog Page Viewed", "Page: {$page_no} | Admin ID: {$user_id}", "catalog");
+}
+
 // -------------------------
 // Search
 // -------------------------
@@ -52,6 +59,9 @@ if ($search !== '') {
     $where .= " AND (title LIKE ? ESCAPE '\\\\' OR short_desc LIKE ? ESCAPE '\\\\')";
     $params[] = "%$search_escaped%";
     $params[] = "%$search_escaped%";
+
+    // ✅ Log search action
+    mailLog("Catalog Search Performed", "Keyword: {$search} | Admin ID: {$user_id}", "catalog");
 }
 
 // -------------------------
@@ -71,9 +81,10 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ✅ Log view action
-logCatalogAction("Catalog list viewed by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'));
+// ✅ Log default list view
+mailLog("Catalog List Viewed", "Admin ID: {$user_id}", "catalog");
 ?>
+
 
 
 <!DOCTYPE html>

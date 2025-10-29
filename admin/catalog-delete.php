@@ -1,16 +1,33 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php'; // ✅ Enable Mailpit Logs
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
 $user_role = $_SESSION['user_role'] ?? 'Admin';
 
+// ✅ Log viewing archived list (Mailpit + Storage)
+mailLog(
+    "Archived Catalog Viewed",
+    "Viewed by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'),
+    'catalog'
+);
+
 // Handle restore action
 if (isset($_GET['restore_id'])) {
     $restore_id = intval($_GET['restore_id']);
+
     $stmt = $pdo->prepare("UPDATE catalog SET status='published' WHERE id=?");
     $stmt->execute([$restore_id]);
+
+    // ✅ Log restore action (Mailpit + Storage)
+    mailLog(
+        "Catalog Item Restored",
+        "Item ID: $restore_id restored by Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'),
+        'catalog'
+    );
+
     header("Location: catalog-delete.php");
     exit;
 }
@@ -44,6 +61,7 @@ foreach($params as $k => $v) $stmt->bindValue($k, $v);
 $stmt->execute();
 $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

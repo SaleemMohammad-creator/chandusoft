@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/app/config.php';
+require_once __DIR__ . '/app/mail-logger.php';
 require_once __DIR__ . '/vendor/autoload.php'; // ✅ PHPMailer Autoload
 
 $pageSlug = 'contact';

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
-
-
+require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php';
 
 $message = "";
 
@@ -18,10 +18,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Validate email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $message = "❌ Invalid email format";
+
+        // Log invalid email
+        mailLog("Registration Failed - Invalid Email", "Email: {$email}", 'register');
     } 
     // Check password match
     elseif ($password !== $confirm_password) {
         $message = "❌ Passwords do not match";
+
+        // Log password mismatch
+        mailLog("Registration Failed - Password Mismatch", "Email: {$email}", 'register');
     } 
     else {
         // Hash password
@@ -32,15 +38,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $check->execute([$email]);
         if ($check->fetch()) {
             $message = "⚠️ Email Already Registered!";
+
+            // Log email exists
+            mailLog("Registration Failed - Email Exists", "Email: {$email}", 'register');
         } else {
             // Insert new user
             $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
             $stmt->execute([$name, $email, $passwordHash]);
             $message = "✅ Registration Successful! <a href='login.php'>Login Now</a>";
+
+            // ✅ Log registration success (Mailpit + Storage)
+            mailLog("New User Registered", "Email: {$email}", 'register');
         }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html>
