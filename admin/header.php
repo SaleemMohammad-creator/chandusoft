@@ -65,6 +65,9 @@ $staticPages = [
             <?php endif; ?>
         <?php endforeach; ?>
 
+            <!-- ✅ Public Catalog Link -->
+    <a href="/public/catalog.php" class="<?= ($currentPage === 'catalog') ? 'active' : '' ?>">Catalog</a>
+
         <!-- Static page AFTER CMS -->
         <a href="/contact" class="<?= ($currentPage === 'contact') ? 'active' : '' ?>">Contact</a>
 

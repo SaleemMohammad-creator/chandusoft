@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+// Include admin header
+include __DIR__ . '/../admin/header.php';
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
@@ -59,29 +61,52 @@ logCatalogAction("Catalog listing viewed. Search: '$search', Page: $page_no");
 <style>
 body { font-family: Arial; margin:0; background:#f7f8fc; }
 
-.navbar {
-    background:#2c3e50;
-    color:#fff;
-    padding:15px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
-    /* ✅ new lines */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width:100%;
-    z-index:1000;
-    box-sizing: border-box;
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #007BFF;
+    padding: 5px 10px;
 }
 
-.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
-.navbar .navbar-left { font-weight:bold; font-size:22px; }
-.navbar .navbar-right { display:flex; align-items:center; }
-.navbar .navbar-right span { margin-right:10px; font-weight:bold; }
-.navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
-.navbar a.nav-btn:hover { background:#1C86EE; }
+.logo img {
+    width: 400px;
+    height: 70px;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    background-color: #007BFF;
+    padding: 1px 0;
+}
+
+nav a, nav button {
+    padding: 10px 18px;
+    margin: 5px;
+    background-color: #007BFF;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    border: 1px solid #007BFF;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+nav a.active, nav button.active {
+    background-color: #fff; /* White background */
+    color: #007BFF;        /* Blue text */
+    border-color: #fff;    /* Optional */
+}
+
+
+nav a:hover, nav button:hover {
+    background-color: rgb(239, 245, 245);
+    color: #007BFF;
+}
 
 /* ✅ Prevent overlap by pushing content down */
 .container {
@@ -111,21 +136,7 @@ h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
 </head>
 <body>
 
-   <div class="navbar">
-    <div class="navbar-left">Chandusoft Admin</div>
-    <div class="navbar-right">
-        <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
-        <a href="/admin/dashboard.php">Dashboard</a>
-        <!-- Dynamic catalog link based on user role -->
-    <?php if ($user_role === 'admin'): ?>
-    <a href="/admin/catalog.php">Admin Catalog</a>
-    <?php endif; ?>
-    <a href="/public/catalog.php">Public Catalog</a>
-        <a href="/admin/pages.php">Pages</a>
-        <a href="/admin/admin-leads.php">Leads</a>
-        <a href="/admin/logout.php">Logout</a>
-    </div>
-</div>
+   
 
 
 <h2>Catalog</h2>

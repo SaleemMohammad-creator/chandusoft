@@ -3,6 +3,8 @@ session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../app/mail-logger.php';
+// Include admin header
+include __DIR__ . '/../admin/header.php';
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
@@ -174,49 +176,51 @@ body {
   background: #f7f8fc; 
 }
 
-.navbar { 
-  background: #2c3e50; 
-  color: #fff; 
-  padding: 15px 20px; 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #007BFF;
+    padding: 5px 10px;
 }
 
-.navbar a { 
-  color: #fff; 
-  text-decoration: none; 
-  margin-left: 15px; 
-  font-weight: bold; 
+.logo img {
+    width: 400px;
+    height: 70px;
 }
 
-.navbar .navbar-left { 
-  font-weight: bold; 
-  font-size: 22px; 
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    background-color: #007BFF;
+    padding: 1px 0;
 }
 
-.navbar .navbar-right { 
-  display: flex; 
-  align-items: center; 
+nav a, nav button {
+    padding: 10px 18px;
+    margin: 5px;
+    background-color: #007BFF;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    border: 1px solid #007BFF;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.navbar .navbar-right span { 
-  margin-right: 10px; 
-  font-weight: bold; 
+nav a.active, nav button.active {
+    background-color: #fff; /* White background */
+    color: #007BFF;        /* Blue text */
+    border-color: #fff;    /* Optional */
 }
 
-.navbar a.nav-btn { 
-  color: #fff; 
-  text-decoration: none; 
-  margin-left: 5px; 
-  font-weight: bold; 
-  padding: 6px 12px; 
-  border-radius: 4px; 
-  transition: background 0.3s; 
-}
 
-.navbar a.nav-btn:hover { 
-  background: #1C86EE; 
+nav a:hover, nav button:hover {
+    background-color: rgb(239, 245, 245);
+    color: #007BFF;
 }
 
 .container { 
@@ -293,21 +297,7 @@ button:hover {
 </head>
 <body>
 
-<div class="navbar">
-    <div class="navbar-left">Chandusoft Admin</div>
-    <div class="navbar-right">
-        <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
-        <a href="/admin/dashboard.php">Dashboard</a>
-        <!-- Dynamic catalog link based on user role -->
-    <?php if ($user_role === 'admin'): ?>
-    <a href="/admin/catalog.php">Admin Catalog</a>
-    <?php endif; ?>
-    <a href="/public/catalog.php">Public Catalog</a>
-        <a href="/admin/pages.php">Pages</a>
-        <a href="/admin/admin-leads.php">Leads</a>
-        <a href="/admin/logout.php">Logout</a>
-    </div>
-</div>
+
 
 <div class="container">
     <h1><?= htmlspecialchars($item['title']) ?></h1>
