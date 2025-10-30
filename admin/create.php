@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/../app/config.php'; // PDO connection + verify_csrf()
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php'; // ✅ Added for Mailpit logging
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
@@ -16,11 +17,14 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['ad
 // Safe user info
 $user_role = $_SESSION['user_role'] ?? 'Admin';
 $user_name = $_SESSION['user_name'] ?? 'User';
+
 // CSRF token
 $csrf_token = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
 $_SESSION['csrf_token'] = $csrf_token;
+
 $errors = [];
 $success = "";
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title        = trim($_POST['title'] ?? '');
@@ -53,7 +57,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':status'       => $status,
             ':content_html' => $content_html
         ]);
+
         $success = "Page created successfully!";
+
+        // ✅ Log to Mailpit inbox
+        $subject = "New Page Created by {$user_name}";
+        $message = "
+        A new page has been created by {$user_name} ({$user_role}).
+        <br><br>
+        <b>Title:</b> {$title}<br>
+        <b>Slug:</b> {$slug}<br>
+        <b>Status:</b> {$status}
+        ";
+        mailLog($subject, $message);
+
         // Reset form
         $title = $slug = $content_html = '';
     }
@@ -77,7 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     justify-content:space-between;
     align-items:center;
 
-    /* ✅ new lines */
     position: fixed;
     top: 0;
     left: 0;
@@ -93,39 +109,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 .navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
 .navbar a.nav-btn:hover { background:#1C86EE; }
 
-/* ✅ Prevent overlap by pushing content down */
 .container {
     max-width:1000px;
-    margin:100px auto 40px auto; /* Keep your original spacing */
+    margin:100px auto 40px auto;
     background:#fff;
     border-radius:10px;
     box-shadow:0 4px 12px #0001;
     padding:30px 28px;
 }
 
-    input[type=text], select, textarea { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:4px; }
+input[type=text], select, textarea { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:4px; }
 
-    /* Buttons container */
-    .form-buttons {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 15px;
-    }
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
 
-    button {
-        padding:10px 20px;
-        border:none;
-        background:#3498db;
-        color:#fff;
-        cursor:pointer;
-        border-radius:4px;
-        font-weight:bold;
-        transition: background 0.3s;
-    }
+button {
+    padding:10px 20px;
+    border:none;
+    background:#3498db;
+    color:#fff;
+    cursor:pointer;
+    border-radius:4px;
+    font-weight:bold;
+    transition: background 0.3s;
+}
 
-
-    .error { color:#c0392b; margin-bottom:15px; }
-    .success { color:#27ae60; margin-bottom:15px; }
+.error { color:#c0392b; margin-bottom:15px; }
+.success { color:#27ae60; margin-bottom:15px; }
 </style>
 </head>
 <body>
@@ -135,11 +148,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="navbar-right">
         <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>
-        <!-- Dynamic catalog link based on user role -->
-    <?php if ($user_role === 'admin'): ?>
-    <a href="/admin/catalog.php">Admin Catalog</a>
-    <?php endif; ?>
-    <a href="/public/catalog.php">Public Catalog</a>
+        <?php if ($user_role === 'admin'): ?>
+        <a href="/admin/catalog.php">Admin Catalog</a>
+        <?php endif; ?>
+        <a href="/public/catalog.php">Public Catalog</a>
         <a href="/admin/pages.php">Pages</a>
         <a href="/admin/admin-leads.php">Leads</a>
         <a href="/admin/logout.php">Logout</a>
@@ -176,7 +188,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <option value="archived" <?= ($status ?? '') === 'archived' ? 'selected' : '' ?>>Archived</option>
         </select>
 
-        <!-- Buttons on same line -->
         <div class="form-buttons">
             <button type="submit">Create Page</button>
             <a href="pages.php"><button type="button">← Back to Pages</button></a>

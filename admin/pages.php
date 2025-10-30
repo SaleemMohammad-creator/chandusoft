@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php'; // Mailpit Logger included
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -21,6 +22,12 @@ if (isset($_GET['archive_id']) && $user_role === 'admin') {
     $archive_id = (int)$_GET['archive_id'];
     $stmt = $pdo->prepare("UPDATE pages SET status='archived' WHERE id=:id");
     $stmt->execute(['id' => $archive_id]);
+
+    // ✅ Log to Mailpit Inbox
+    $subject = "Page Archived by Admin";
+    $message = "User: {$user_name} ({$user_role}) has archived the page with ID: {$archive_id}.";
+    mailLog($subject, $message); // Uses mail-logger.php
+
     header("Location: pages.php");
     exit;
 }
@@ -48,12 +55,24 @@ if ($search !== '') {
     }
     $params['s1'] = "%$search%";
     $params['s2'] = "%$search%";
+
+    // ✅ Log search action
+    $subject = "Search Performed in Pages";
+    $message = "User: {$user_name} ({$user_role}) searched for: '{$search}'.";
+    mailLog($subject, $message);
 }
 
 $query .= " ORDER BY id DESC";
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ✅ Log viewing action
+if (!isset($_GET['archive_id']) && $search === '') {
+    $subject = "Pages Viewed";
+    $message = "User: {$user_name} ({$user_role}) viewed the pages list (Filter: {$filter}).";
+    mailLog($subject, $message);
+}
 ?>
 
 <!DOCTYPE html>
@@ -137,11 +156,10 @@ tr:hover{background:#eef7ff;}
     <div>
         Welcome <?= htmlspecialchars($user_role) ?>!
         <a href="/admin/dashboard.php">Dashboard</a>
-        <!-- Dynamic catalog link based on user role -->
-    <?php if ($user_role === 'admin'): ?>
-    <a href="/admin/catalog.php">Admin Catalog</a>
-    <?php endif; ?>
-    <a href="/public/catalog.php">Public Catalog</a>
+        <?php if ($user_role === 'admin'): ?>
+        <a href="/admin/catalog.php">Admin Catalog</a>
+        <?php endif; ?>
+        <a href="/public/catalog.php">Public Catalog</a>
         <a href="/admin/pages.php">Pages</a>
         <a href="/admin/admin-leads.php">Leads</a>
         <a href="/admin/logout.php">Logout</a>
@@ -198,21 +216,16 @@ tr:hover{background:#eef7ff;}
                 <td><?= htmlspecialchars($page['status'] ?? '') ?></td>
                 <td><?= htmlspecialchars($page['created_at'] ?? '') ?></td>
                 <td class="actions">
-                <button class="edit-btn" onclick="window.location.href='edit.php?id=<?= $page['id'] ?>'">Edit</button>
+                    <button class="edit-btn" onclick="window.location.href='edit.php?id=<?= $page['id'] ?>'">Edit</button>
 
-       <?php if($user_role === 'admin'): ?>
-            <button class="archive-btn" onclick="if(confirm('Archive this page?')) window.location.href='pages.php?archive_id=<?= $page['id'] ?>'">
-            Archive
-        </button>
-    <?php endif; ?>
+                    <?php if($user_role === 'admin'): ?>
+                        <button class="archive-btn" onclick="if(confirm('Archive this page?')) window.location.href='pages.php?archive_id=<?= $page['id'] ?>'">Archive</button>
+                    <?php endif; ?>
 
-    <?php if($user_role === 'admin'): ?>
-        <button class="delete-btn"
-            onclick="if(confirm('Delete this page?')) window.location.href='delete.php?delete_id=<?= $page['id'] ?>'">
-            Delete
-        </button>
-    <?php endif; ?>
-</td>
+                    <?php if($user_role === 'admin'): ?>
+                        <button class="delete-btn" onclick="if(confirm('Delete this page?')) window.location.href='delete.php?delete_id=<?= $page['id'] ?>'">Delete</button>
+                    <?php endif; ?>
+                </td>
             </tr>
             <?php endforeach; ?>
         <?php else: ?>
@@ -222,6 +235,5 @@ tr:hover{background:#eef7ff;}
     </table>
 
 </div>
-
 </body>
 </html>

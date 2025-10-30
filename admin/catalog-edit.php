@@ -144,28 +144,48 @@ img.current-image{max-width:150px;margin-top:10px;border-radius:6px;}
     border:1px solid #f5c6cb;
 }
 
-/* ✅ Buttons same style, side by side */
-.button-row{
-    display:flex;
-    gap:10px;
-    margin-top:20px;
+/* ✅ Buttons layout — Update (left), Back to Catalog (right) */
+.button-row {
+    display: flex;
+    justify-content: space-between; /* left & right alignment */
+    align-items: center;
+    margin-top: 15px;
 }
-.btn{
-    flex:1;
-    display:inline-block;
-    padding:15px;
-    font-weight:bold;
-    text-align:center;
-    border-radius:8px;
-    cursor:pointer;
-    text-decoration:none;
-    border:none;
-    color:#fff;
-    background:#007BFF;
-    transition:0.3s;
+
+/* ✅ Shared button style */
+.btn {
+    display: inline-block;
+    padding: 8px 16px; /* smaller button size */
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
-.btn:hover{
-    background:#0056b3;
+
+/* ✅ Primary button (Update) */
+.btn-primary {
+    background: #007BFF;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+/* ✅ Secondary button (Back to Catalog) */
+.btn-secondary {
+    background: #007BFF;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
 }
 </style>
 </head>
@@ -231,9 +251,9 @@ img.current-image{max-width:150px;margin-top:10px;border-radius:6px;}
 
     <!-- ✅ Same color + width buttons -->
     <div class="button-row">
-        <button type="submit" class="btn">Update</button>
-        <a href="/admin/catalog" class="btn">Back to Catalog</a>
-    </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a href="/admin/catalog.php" class="btn btn-secondary">← Back to Catalog</a>
+   </div>
 
 </form>
 </div>

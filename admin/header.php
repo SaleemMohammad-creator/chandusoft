@@ -1,7 +1,12 @@
 <?php
 // Ensure variables are defined
 $recentPages = $recentPages ?? [];
-$currentPage = $currentPage ?? 'index';
+
+// ✅ Auto-detect current page slug from URL
+$currentPage = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+$currentPage = str_replace('.php', '', $currentPage);
+$currentPage = trim($currentPage, "/");
+$currentPage = ($currentPage === '' || $currentPage === false) ? 'index' : $currentPage;
 
 // Include config & helpers
 require_once __DIR__ . '/../app/config.php';
@@ -62,5 +67,9 @@ $staticPages = [
 
         <!-- Static page AFTER CMS -->
         <a href="/contact" class="<?= ($currentPage === 'contact') ? 'active' : '' ?>">Contact</a>
+
+        <!-- ✅ Login / Register -->
+        <a href="/admin/login.php" class="<?= ($currentPage === 'login') ? 'active' : '' ?>">Login/Register</a>
+
     </nav>
 </header>

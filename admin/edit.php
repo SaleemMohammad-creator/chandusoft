@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/../app/config.php'; // PDO connection
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/mail-logger.php'; // ✅ Added for Mailpit Logging
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
@@ -60,14 +61,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'status' => $status,
             'id' => $pageId
         ]);
+
         $success = "Page updated successfully.";
+
+        // ✅ Log to Mailpit
+        log_info("Page updated successfully by {$user_name} (Role: {$user_role}) — ID: {$pageId}, Title: {$title}");
+
         // Refresh page data
         $stmt->execute(['id' => $pageId]);
         $page = $stmt->fetch(PDO::FETCH_ASSOC);
+    } else {
+        // ✅ Log errors to Mailpit
+        log_error("Page update failed by {$user_name} (Role: {$user_role}) — Errors: " . implode(', ', $errors));
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,60 +109,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 .navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
 .navbar a.nav-btn:hover { background:#1C86EE; }
 
-/* ✅ Prevent overlap by pushing content down */
 .container {
     max-width:1000px;
-    margin:100px auto 40px auto; /* Keep your original spacing */
+    margin:100px auto 40px auto;
     background:#fff;
     border-radius:10px;
     box-shadow:0 4px 12px #0001;
     padding:30px 28px;
 }
   
-    input[type=text], select, textarea { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:4px; }
+input[type=text], select, textarea {
+    width:100%; padding:10px; margin:8px 0;
+    border:1px solid #ccc; border-radius:4px;
+}
 
-    /* Buttons */
-    .form-buttons {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 15px;
-    }
+.form-buttons {
+    display:flex; justify-content:space-between; margin-top:15px;
+}
 
-    button {
-        padding:10px 20px;
-        border:none;
-        background:#3498db;
-        color:#fff;
-        cursor:pointer;
-        border-radius:4px;
-        font-weight:bold;
-        transition: background 0.3s;
-    }
-    button:hover { background:#1d6fa5; }
+button {
+    padding:10px 20px; border:none;
+    background:#3498db; color:#fff; cursor:pointer;
+    border-radius:4px; font-weight:bold; transition:background 0.3s;
+}
+button:hover { background:#1d6fa5; }
 
-    .error { color:#c0392b; margin-bottom:15px; }
-    .success { color:#27ae60; margin-bottom:15px; }
+.error { color:#c0392b; margin-bottom:15px; }
+.success { color:#27ae60; margin-bottom:15px; }
 </style>
 </head>
 <body>
  
- <div class="navbar">
+<div class="navbar">
     <div class="navbar-left">Chandusoft Admin</div>
     <div class="navbar-right">
         <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>
-        <!-- Dynamic catalog link based on user role -->
-    <?php if ($user_role === 'admin'): ?>
-    <a href="/admin/catalog.php">Admin Catalog</a>
-    <?php endif; ?>
-    <a href="/public/catalog.php">Public Catalog</a>
+        <?php if ($user_role === 'admin'): ?>
+        <a href="/admin/catalog.php">Admin Catalog</a>
+        <?php endif; ?>
+        <a href="/public/catalog.php">Public Catalog</a>
         <a href="/admin/pages.php">Pages</a>
         <a href="/admin/admin-leads.php">Leads</a>
         <a href="/admin/logout.php">Logout</a>
     </div>
 </div>
  
-
 <div class="container">
     <h2>Edit Page</h2>
 
@@ -183,13 +183,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <option value="archived" <?= ($page['status'] ?? '') === 'archived' ? 'selected' : '' ?>>Archived</option>
         </select>
 
-        <!-- Buttons on same line, same color -->
         <div class="form-buttons">
             <button type="submit">Update Page</button>
             <a href="pages.php"><button type="button">← Back to Pages</button></a>
         </div>
     </form>
-
 </div>
 </body>
 </html>
