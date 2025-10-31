@@ -154,11 +154,6 @@ $jsonLd = [
         "priceCurrency" => "USD"
     ]
 ];
-
-// Image handling
-$originalImage = '/uploads/' . htmlspecialchars($item['image']);
-$webpImage = preg_replace('/\.(jpg|jpeg|png)$/i', '.webp', $originalImage);
-$webpExists = file_exists(__DIR__ . '/../' . ltrim($webpImage, '/'));
 ?>
 
 <!DOCTYPE html>
@@ -212,11 +207,10 @@ nav a, nav button {
 }
 
 nav a.active, nav button.active {
-    background-color: #fff; /* White background */
-    color: #007BFF;        /* Blue text */
-    border-color: #fff;    /* Optional */
+    background-color: #fff;
+    color: #007BFF;
+    border-color: #fff;
 }
-
 
 nav a:hover, nav button:hover {
     background-color: rgb(239, 245, 245);
@@ -260,7 +254,7 @@ textarea {
 /* --- Buttons Layout --- */
 .form-actions {
   display: flex;
-  justify-content: space-between; /* ✅ Send Enquiry (left), Back to Catalog (right) */
+  justify-content: space-between;
   align-items: center;
   margin-top: 10px;
 }
@@ -292,26 +286,69 @@ button:hover {
   background: #0056b3;
 }
 
+/* ✅ NEW: Medium Image Gallery */
+.catalog-images {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.catalog-image {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  display: block;
+  margin: 20px auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
 </style>
 
 </head>
 <body>
-
-
 
 <div class="container">
     <h1><?= htmlspecialchars($item['title']) ?></h1>
     <p><strong>Price: </strong>$<?= htmlspecialchars($item['price']) ?></p>
     <p><?= nl2br(htmlspecialchars($item['short_desc'])) ?></p>
 
-    <?php if ($item['image']): ?>
-    <picture>
-        <?php if ($webpExists): ?>
-            <source srcset="<?= $webpImage ?>" type="image/webp">
-        <?php endif; ?>
-        <img src="<?= $originalImage ?>" style="max-width:100%; border-radius:8px;">
-    </picture>
+    <!-- ✅ Updated: Dynamic Medium-Sized Image Gallery -->
+    <?php if (!empty($item['image'])): ?>
+        <?php
+        $images = explode(',', $item['image']);
+        ?>
+        <div class="catalog-images">
+            <?php foreach ($images as $img): 
+                $img = trim($img);
+                if (!$img) continue;
+                $originalImage = '/uploads/' . htmlspecialchars($img);
+                $webpImage = preg_replace('/\.(jpg|jpeg|png)$/i', '.webp', $originalImage);
+                $webpExists = file_exists(__DIR__ . '/../' . ltrim($webpImage, '/'));
+            ?>
+            <picture>
+                <?php if ($webpExists): ?>
+                    <source srcset="<?= $webpImage ?>" type="image/webp">
+                <?php endif; ?>
+                <img src="<?= $originalImage ?>" alt="<?= htmlspecialchars($item['title']) ?>" class="catalog-image">
+            </picture>
+            <?php endforeach; ?>
+        </div>
     <?php endif; ?>
+
+    <!-- ✅ Add to Cart Form -->
+       <form method="post" action="/public/cart?action=add">
+    <input type="hidden" name="product_id" value="<?= htmlspecialchars($item['id']) ?>">
+    <input type="hidden" name="product_name" value="<?= htmlspecialchars($item['title']) ?>">
+    <input type="hidden" name="unit_price" value="<?= htmlspecialchars($item['price']) ?>">
+    Quantity:
+    <input type="number" name="qty" value="1" min="1" style="width:60px;text-align:center;border-radius:5px;">
+    <button type="submit" 
+            style="background:#28a745;color:#fff;border:none;padding:10px 18px;
+                   border-radius:6px;cursor:pointer;margin-left:10px;">
+        🛒 Add to Cart
+    </button>
+</form>
 
     <h2>Enquire Now</h2>
 
@@ -328,7 +365,7 @@ button:hover {
         <textarea name="message" rows="5" placeholder="Your Message" required><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
         <div class="cf-turnstile" data-sitekey="<?= $siteKey ?>"></div>
         <div class="form-actions">
-              <button type="submit">Send Enquiry</button>
+            <button type="submit">Send Enquiry</button>
             <a href="/public/catalog.php" class="back-btn">← Back To Catalog</a>
         </div>
     </form>

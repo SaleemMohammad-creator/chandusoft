@@ -57,6 +57,19 @@ RewriteRule ^public/catalog/page/([0-9]+)$ public/catalog.php?page_no=$1 [L,QSA,
 RewriteRule ^public/catalog-item/?$ public/catalog-item.php [L,QSA,NC]
 RewriteRule ^public/catalog-item/([a-zA-Z0-9\-_]+)/?$ public/catalog-item.php?slug=$1 [L,QSA,NC]
 
+
+# 🧺 CART & CHECKOUT ROUTES (keep /public path visible)
+RewriteRule ^public/cart/?$ public/cart.php [L,QSA,NC]
+RewriteRule ^public/checkout/?$ public/checkout.php [L,QSA,NC]
+
+# ✅ Allow checkout_process direct access
+RewriteRule ^public/checkout_process/?$ public/checkout_process.php [L,QSA,NC]
+RewriteRule ^public/stripe_checkout/?$ public/stripe_checkout.php [L,QSA,NC]
+RewriteRule ^public/paypal_checkout/?$ public/paypal_checkout.php [L,QSA,NC]
+RewriteRule ^public/success/?$ public/success.php [L,QSA,NC]
+RewriteRule ^public/cancel/?$ public/cancel.php [L,QSA,NC]
+
+
 # ------------------------------------------------------------
 # 🧭 5. ADMIN PANEL PAGES
 # ------------------------------------------------------------

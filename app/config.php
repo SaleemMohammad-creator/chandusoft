@@ -20,7 +20,6 @@ if (empty($_SESSION['csrf_token'])) {
 // ====================
 // Base URL Setup
 // ====================
-// ⚠️ Change this if your domain or folder differs
 define('BASE_URL', 'http://chandusoft.test');
 define('UPLOADS_URL', BASE_URL . '/uploads/');
 
@@ -43,21 +42,22 @@ $options = [
 try {
     $pdo = new PDO($dsn, $DB_USER, $DB_PASS, $options);
 } catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
+    die("❌ Database connection failed: " . $e->getMessage());
 }
 
-// Global Logging via Mailpit
-// ========================
+// ====================
+// Global Logging via Mailpit (optional)
+// ====================
 define('MAILPIT_LOGGING', true);
 define('MAILPIT_HOST', '127.0.0.1');
 define('MAILPIT_PORT', 1025);
-define('MAILPIT_LOG_EMAIL_TO', 'logs@chandusoft.test'); // Logs inbox name
+define('MAILPIT_LOG_EMAIL_TO', 'logs@chandusoft.test');
 define('MAILPIT_LOG_EMAIL_FROM', 'system@chandusoft.test');
 
 // ====================
 // Site Settings Defaults
 // ====================
-$site_name = "Chandusoft";
+$site_name = "Chandusoft Store";
 
 // ====================
 // Upload Settings
@@ -67,10 +67,34 @@ define('MAX_UPLOAD_SIZE', 2 * 1024 * 1024); // 2 MB
 $allowed_mime_types = ['image/jpeg', 'image/png', 'image/webp'];
 
 // ====================
-// Cloudflare Turnstile Keys
+// Cloudflare Turnstile Keys (Optional)
 // ====================
-putenv('TURNSTILE_SITE=YOUR_SITE_KEY_HERE');     // Replace with your actual Turnstile site key
-putenv('TURNSTILE_SECRET=YOUR_SECRET_KEY_HERE'); // Replace with your actual Turnstile secret key
+putenv('TURNSTILE_SITE=YOUR_SITE_KEY_HERE');
+putenv('TURNSTILE_SECRET=YOUR_SECRET_KEY_HERE');
+
+// ====================
+// Stripe Configuration (Test Mode)
+// ====================
+define('STRIPE_PUBLISHABLE_KEY', 'pk_test_51SNs3wAhJkYkXNzXFRGWcyq0uuCTqMfxG2bglwY58md7TBDUiMRrUWuRvHNkKy2Q57dKuWd0cxRdSA1JO3HSaeDf00jyB0qCv8');
+define('STRIPE_SECRET_KEY', 'sk_test_51SNs3wAhJkYkXNzXsOYQJ2VYGfYIfcXd20lVISFv3Dq4W1eafNWaVQQQFEVUplug1FUx2jY4PDivCDC3bJSL2gX900hbscfEG2');
+define('STRIPE_WEBHOOK_SECRET', 'whsec_your_stripe_webhook_secret_here'); // 🔑 Add your actual webhook secret
+
+if (empty(STRIPE_SECRET_KEY)) {
+    die('❌ Stripe secret key not found in config.php.');
+}
+
+// ====================
+// PayPal Configuration (Sandbox)
+// ====================
+define('PAYPAL_MODE', 'sandbox');
+define('PAYPAL_CLIENT_ID', 'ARM375iNx3xH7GY9tDWGqPbIoASrXuLrzMPneG9KnV_1preXUCf2tdIeKF7Alqw3DuhremaHrr5x5JXK');
+define('PAYPAL_SECRET', 'EHXvqbutdXCuFsl6fPkSPSiOqV-5zBpFGAESii_ACZ8DLEumi8auz8jbJWhbQNnIQ-mhuw73noHbCUnl');
+define('PAYPAL_RETURN_URL', BASE_URL . '/public/success.php');
+define('PAYPAL_CANCEL_URL', BASE_URL . '/public/cancel.php');
+define('PAYPAL_CURRENCY', 'USD');
+
+define('PAYPAL_BASE_URL', 'https://api-m.sandbox.paypal.com');
+define('PAYPAL_CHECKOUT_URL', 'https://www.sandbox.paypal.com/checkoutnow');
 
 // ====================
 // Logging Setup
@@ -141,7 +165,7 @@ function uploadImage($file) {
     if (!move_uploaded_file($file['tmp_name'], $target)) return false;
 
     // Convert to WebP if JPG/PNG
-    if (in_array($ext, ['jpg','jpeg','png'])) {
+    if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
         $webpFile = UPLOAD_DIR . pathinfo($filename, PATHINFO_FILENAME) . '.webp';
         $img = ($ext === 'png') ? imagecreatefrompng($target) : imagecreatefromjpeg($target);
         imagepalettetotruecolor($img);
@@ -154,3 +178,13 @@ function uploadImage($file) {
     return $filename;
 }
 
+// ====================
+// Extra Utility from Config (order ref)
+// ====================
+function generate_order_ref(): string {
+    try {
+        return strtoupper(bin2hex(random_bytes(6)));
+    } catch (Exception $e) {
+        return 'ORD' . time();
+    }
+}

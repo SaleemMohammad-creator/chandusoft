@@ -73,6 +73,7 @@ $staticPages = [
 
         <!-- ✅ Login / Register -->
         <a href="/admin/login.php" class="<?= ($currentPage === 'login') ? 'active' : '' ?>">Login/Register</a>
+        
 
     </nav>
 </header>
