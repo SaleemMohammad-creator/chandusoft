@@ -42,23 +42,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 2️⃣ PayPal or Stripe Redirect
-    elseif (in_array($method, ['paypal', 'stripe'])) {
-        $returnUrl = BASE_URL . "/public/success.php?order_ref=" . urlencode($order_ref);
+    // 2️⃣ PayPal Redirect (sandbox API)
+    elseif ($method === 'paypal') {
+        // ✅ Create a PayPal order via API
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, PAYPAL_BASE_URL . "/v2/checkout/orders");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "Authorization: Basic " . base64_encode(PAYPAL_CLIENT_ID . ":" . PAYPAL_SECRET)
+        ]);
 
-        if ($method === 'paypal') {
-            // ✅ Redirect to PayPal Sandbox
-            $paypalUrl = "https://www.sandbox.paypal.com/checkoutnow?token=" . urlencode($order_ref) .
-                         "&return_url=" . urlencode($returnUrl);
-            header("Location: $paypalUrl");
-            exit;
-        }
+        $data = [
+            "intent" => "CAPTURE",
+            "purchase_units" => [[
+                "amount" => [
+                    "currency_code" => PAYPAL_CURRENCY,
+                    "value" => number_format($order['total'], 2, '.', '')
+                ]
+            ]],
+            "application_context" => [
+                "return_url" => PAYPAL_RETURN_URL . "?order_ref=" . urlencode($order_ref),
+                "cancel_url" => PAYPAL_CANCEL_URL . "?order_ref=" . urlencode($order_ref)
+            ]
+        ];
 
-        if ($method === 'stripe') {
-            // ✅ Redirect to Stripe Checkout session handler
-            header("Location: stripe_checkout.php?order_ref=" . urlencode($order_ref));
-            exit;
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        $response = curl_exec($ch);
+        $paypalOrder = json_decode($response, true);
+        curl_close($ch);
+
+        if (!empty($paypalOrder['links'])) {
+            foreach ($paypalOrder['links'] as $link) {
+                if ($link['rel'] === 'approve') {
+                    header("Location: " . $link['href']);
+                    exit;
+                }
+            }
         }
+        $errors[] = "PayPal order creation failed. Response: " . htmlspecialchars($response);
+    }
+
+    // 3️⃣ Stripe Redirect
+    elseif ($method === 'stripe') {
+        header("Location: stripe_checkout.php?order_ref=" . urlencode($order_ref));
+        exit;
     }
 
     // ✅ If manual card payment succeeds
@@ -70,7 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -180,7 +207,6 @@ a.button:hover { background: #5a6268; }
 function selectMethod(method) {
   document.querySelectorAll('.option').forEach(el => el.classList.remove('active'));
   document.getElementById(method).classList.add('active');
-
   document.getElementById('method').value = method;
   document.getElementById('cardDetails').style.display = (method === 'card') ? 'block' : 'none';
 }

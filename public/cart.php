@@ -46,33 +46,71 @@ $cart =& $_SESSION['cart'];
 
 $action = $_REQUEST['action'] ?? null;
 
-// ADD ITEM (example endpoint - uses POST)
-if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = (int)($_POST['product_id'] ?? 0);
-    $name = trim($_POST['product_name'] ?? '');
-    $price = (float)($_POST['unit_price'] ?? 0);
-    $qty = max(1, (int)($_POST['qty'] ?? 1));
+// =========================
+// ADD ITEM (supports GET + POST)
+// =========================
+if ($action === 'add') {
+    // Case 1: Adding via catalog.php (GET /cart.php?action=add&slug=...)
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['slug'])) {
+        $slug = trim($_GET['slug']);
 
-    if ($id > 0 && $name && $price > 0) {
-        if (isset($cart[$id])) {
-            $cart[$id]['quantity'] += $qty;
-        } else {
-            $cart[$id] = [
-                'product_id' => $id,
-                'product_name' => $name,
-                'unit_price' => $price,
-                'quantity' => $qty,
-                'total_price' => round($price * $qty, 2)
-            ];
+        // Fetch product by slug
+        $stmt = $pdo->prepare("SELECT id, title, price FROM catalog WHERE slug = ? AND status = 'published' LIMIT 1");
+        $stmt->execute([$slug]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($product) {
+            $pid = (int)$product['id'];
+            $pname = $product['title'];
+            $pprice = (float)$product['price'];
+
+            if (isset($cart[$pid])) {
+                $cart[$pid]['quantity'] += 1;
+            } else {
+                $cart[$pid] = [
+                    'product_id' => $pid,
+                    'product_name' => $pname,
+                    'unit_price' => $pprice,
+                    'quantity' => 1,
+                    'total_price' => round($pprice, 2)
+                ];
+            }
+            $_SESSION['cart'] = $cart;
+            recalc_total($cart);
         }
-        // save back and recalc
-        $_SESSION['cart'] = $cart;
-        recalc_total($cart);
+
+        header('Location: /public/cart.php');
+        exit;
     }
 
-    header('Location: /public/cart.php');
-    exit;
+    // Case 2: Add via POST form (if used somewhere else)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $id = (int)($_POST['product_id'] ?? 0);
+        $name = trim($_POST['product_name'] ?? '');
+        $price = (float)($_POST['unit_price'] ?? 0);
+        $qty = max(1, (int)($_POST['qty'] ?? 1));
+
+        if ($id > 0 && $name && $price > 0) {
+            if (isset($cart[$id])) {
+                $cart[$id]['quantity'] += $qty;
+            } else {
+                $cart[$id] = [
+                    'product_id' => $id,
+                    'product_name' => $name,
+                    'unit_price' => $price,
+                    'quantity' => $qty,
+                    'total_price' => round($price * $qty, 2)
+                ];
+            }
+            $_SESSION['cart'] = $cart;
+            recalc_total($cart);
+        }
+
+        header('Location: /public/cart.php');
+        exit;
+    }
 }
+
 
 // UPDATE CART
 if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {

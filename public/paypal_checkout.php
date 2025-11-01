@@ -1,67 +1,90 @@
 <?php
 // public/paypal_checkout.php
-require_once __DIR__ . '/../app/config.php';
 
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-// Get order reference
-$order_ref = $_GET['order_ref'] ?? null;
-if (!$order_ref) die("Missing order reference.");
-
-// Fetch order from DB
-$stmt = $pdo->prepare("SELECT * FROM orders WHERE order_ref = :ref LIMIT 1");
-$stmt->execute(['ref' => $order_ref]);
-$order = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$order) die("Order not found.");
-
-// PayPal API credentials (Sandbox)
-$paypalClientId = 'YOUR_SANDBOX_CLIENT_ID';
-$paypalSecret   = 'YOUR_SANDBOX_SECRET';
-
-// Create PayPal order using API
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "https://api-m.sandbox.paypal.com/v2/checkout/orders");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_USERPWD, "$paypalClientId:$paypalSecret");
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-    "intent" => "CAPTURE",
-    "purchase_units" => [[
-        "reference_id" => $order_ref,
-        "description" => "Order #$order_ref",
-        "amount" => [
-            "currency_code" => "USD",
-            "value" => number_format($order['total'], 2, '.', '')
-        ]
-    ]],
-    "application_context" => [
-        "return_url" => BASE_URL . "/public/success.php?order_ref=" . urlencode($order_ref),
-        "cancel_url" => BASE_URL . "/public/cancel.php?order_ref=" . urlencode($order_ref)
-    ]
-]));
-$response = curl_exec($ch);
-if (curl_errno($ch)) die("CURL Error: " . curl_error($ch));
-$result = json_decode($response, true);
-curl_close($ch);
-
-// Extract PayPal order link
-$approveLink = null;
-if (!empty($result['links'])) {
-    foreach ($result['links'] as $link) {
-        if ($link['rel'] === 'approve') {
-            $approveLink = $link['href'];
-            break;
-        }
-    }
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-if (!$approveLink) {
-    echo "<pre>PayPal order creation failed:</pre>";
-    print_r($result);
+require_once __DIR__ . '/../app/config.php';
+
+// Ensure cart exists
+$cart = $_SESSION['cart'] ?? [];
+if (empty($cart)) {
+    header('Location: cart.php');
     exit;
 }
 
-// Redirect user to PayPal checkout
-header("Location: $approveLink");
-exit;
+// Calculate total
+$total = 0;
+foreach ($cart as $item) {
+    $total += ($item['price'] * $item['quantity']);
+}
+
+$paypalClientId = PAYPAL_CLIENT_ID;
+$currency = PAYPAL_CURRENCY;
+$returnUrl = PAYPAL_RETURN_URL;
+$cancelUrl = PAYPAL_CANCEL_URL;
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PayPal Checkout</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; }
+        .container { max-width: 500px; margin: 60px auto; padding: 30px; background: #fff; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { margin-bottom: 10px; color:#007BFF; }
+        .total { font-size: 18px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>PayPal Sandbox Checkout</h2>
+    <p class="total">Total Amount: <strong><?= number_format($total, 2) . ' ' . htmlspecialchars($currency) ?></strong></p>
+
+    <!-- ✅ Load PayPal Sandbox SDK -->
+    <script src="https://www.sandbox.paypal.com/sdk/js?client-id=<?= htmlspecialchars($paypalClientId) ?>&currency=<?= htmlspecialchars($currency) ?>"></script>
+
+    <!-- ✅ PayPal Button Container -->
+    <div id="paypal-button-container"></div>
+
+    <script>
+    paypal.Buttons({
+        style: {
+            color: 'gold',
+            shape: 'rect',
+            label: 'paypal',
+            layout: 'vertical'
+        },
+        // ✅ Create Order
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '<?= number_format($total, 2, '.', '') ?>',
+                        currency_code: '<?= htmlspecialchars($currency) ?>'
+                    },
+                    description: 'Purchase from Chandusoft Catalog'
+                }]
+            });
+        },
+        // ✅ On Approve
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                window.location.href = 'success.php?status=success&txn_id=' + details.id;
+            });
+        },
+        // ✅ On Cancel
+        onCancel: function (data) {
+            window.location.href = 'cancel.php';
+        },
+        // ✅ On Error
+        onError: function (err) {
+            console.error('PayPal Error:', err);
+            alert('PayPal Error: ' + err.message);
+        }
+    }).render('#paypal-button-container');
+    </script>
+</div>
+</body>
+</html>

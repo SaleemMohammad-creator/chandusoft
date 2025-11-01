@@ -92,7 +92,6 @@ define('PAYPAL_SECRET', 'EHXvqbutdXCuFsl6fPkSPSiOqV-5zBpFGAESii_ACZ8DLEumi8auz8j
 define('PAYPAL_RETURN_URL', BASE_URL . '/public/success.php');
 define('PAYPAL_CANCEL_URL', BASE_URL . '/public/cancel.php');
 define('PAYPAL_CURRENCY', 'USD');
-
 define('PAYPAL_BASE_URL', 'https://api-m.sandbox.paypal.com');
 define('PAYPAL_CHECKOUT_URL', 'https://www.sandbox.paypal.com/checkoutnow');
 

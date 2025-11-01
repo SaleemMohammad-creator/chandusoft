@@ -1,6 +1,32 @@
 <?php
 session_start();
 require_once __DIR__ . '/../app/config.php';
+require_once __DIR__ . '/../app/helpers.php';
+
+// ✅ Support "Buy Now" direct product load
+if (isset($_GET['action']) && $_GET['action'] === 'buy' && !empty($_GET['slug'])) {
+    $slug = trim($_GET['slug']);
+
+    // Fetch product by slug
+    $stmt = $pdo->prepare("SELECT id, title, price FROM catalog WHERE slug = ? AND status = 'published' LIMIT 1");
+    $stmt->execute([$slug]);
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($product) {
+        // Replace cart session with single product
+        $_SESSION['cart'] = [[
+            'product_id'   => $product['id'],
+            'product_name' => $product['title'],
+            'unit_price'   => (float)$product['price'],
+            'quantity'     => 1
+        ]];
+    } else {
+        die('Product not found.');
+    }
+}
+
+// ✅ Original code continues below — unchanged
+require_once __DIR__ . '/../app/config.php';
 
 // Ensure cart exists
 $cart = $_SESSION['cart'] ?? [];
