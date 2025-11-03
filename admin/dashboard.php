@@ -92,6 +92,7 @@ body { font-family: Arial; margin:0; background:#f7f8fc; }
         <!-- Dynamic catalog link based on user role -->
     <?php if ($user_role === 'admin'): ?>
     <a href="/admin/catalog.php">Admin Catalog</a>
+    <a href="/admin/orders.php">Orders</a>
     <?php endif; ?>
     <a href="/public/catalog.php">Public Catalog</a>
         <a href="/admin/pages.php">Pages</a>

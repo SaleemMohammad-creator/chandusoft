@@ -13,7 +13,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy' && !empty($_GET['slug'])
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($product) {
-        // Replace cart session with single product
         $_SESSION['cart'] = [[
             'product_id'   => $product['id'],
             'product_name' => $product['title'],
@@ -25,22 +24,34 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy' && !empty($_GET['slug'])
     }
 }
 
-// ✅ Original code continues below — unchanged
-require_once __DIR__ . '/../app/config.php';
-
-// Ensure cart exists
-$cart = $_SESSION['cart'] ?? [];
-if (empty($cart)) {
+// ✅ Ensure cart exists
+$cart_session = $_SESSION['cart'] ?? [];
+if (empty($cart_session)) {
     header('Location: cart.php');
     exit;
+}
+
+// ✅ Normalize cart data structure (support both cart.php & buy-now)
+$cart = [];
+foreach ($cart_session as $key => $item) {
+    if (isset($item['product_id'])) {
+        // Already in buy-now format
+        $cart[] = $item;
+    } else {
+        // Convert from cart.php format
+        $cart[] = [
+            'product_id'   => $item['id'] ?? $key,
+            'product_name' => $item['title'] ?? '',
+            'unit_price'   => (float)($item['price'] ?? 0),
+            'quantity'     => (int)($item['quantity'] ?? 1)
+        ];
+    }
 }
 
 // ✅ Calculate total
 $total = 0;
 foreach ($cart as $item) {
-    $price = isset($item['unit_price']) ? (float)$item['unit_price'] : 0;
-    $qty   = isset($item['quantity']) ? (int)$item['quantity'] : 0;
-    $total += $price * $qty;
+    $total += $item['unit_price'] * $item['quantity'];
 }
 
 $errors = [];
@@ -50,18 +61,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $address = trim($_POST['address'] ?? '');
-    $payment_gateway = $_POST['payment_gateway'] ?? 'stripe'; // ✅ Added payment option
+    $payment_gateway = $_POST['payment_gateway'] ?? 'stripe';
 
-    // Validate input
     if ($name === '') $errors[] = "Name is required.";
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email is required.";
 
     if (empty($errors)) {
         try {
-            // Create unique order reference
             $orderRef = 'ORD-' . strtoupper(bin2hex(random_bytes(4)));
 
-            // ✅ Insert into `orders` table (match your table schema)
             $stmt = $pdo->prepare("
                 INSERT INTO orders (
                     order_ref, customer_name, customer_email, total,
@@ -74,14 +82,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':name'  => $name,
                 ':email' => $email,
                 ':total' => $total,
-                ':gateway' => $payment_gateway, // ✅ user-selected gateway
+                ':gateway' => $payment_gateway,
                 ':meta'  => json_encode($cart, JSON_UNESCAPED_SLASHES)
             ]);
 
-            // ✅ Get last inserted order ID
             $orderId = $pdo->lastInsertId();
 
-            // ✅ Insert order items (including product_id fix)
             $stmtItems = $pdo->prepare("
                 INSERT INTO order_items (
                     order_id, product_id, product_name, quantity, unit_price, total_price
@@ -89,19 +95,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
 
             foreach ($cart as $c) {
-                $price = isset($c['unit_price']) ? (float)$c['unit_price'] : 0;
-                $qty   = isset($c['quantity']) ? (int)$c['quantity'] : 0;
+                $price = $c['unit_price'];
+                $qty   = $c['quantity'];
                 $stmtItems->execute([
                     ':oid'  => $orderId,
-                    ':pid'  => $c['product_id'] ?? 0,
-                    ':name' => $c['product_name'] ?? '',
+                    ':pid'  => $c['product_id'],
+                    ':name' => $c['product_name'],
                     ':qty'  => $qty,
                     ':price'=> $price,
                     ':line' => $price * $qty
                 ]);
             }
 
-            // ✅ Always redirect to checkout_process.php (without changing logic)
             header("Location: checkout_process.php?order_ref=" . urlencode($orderRef));
             exit;
 
@@ -111,7 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -193,11 +197,10 @@ button:hover, a.button:hover {
 
   <?php if ($success): ?>
     <div class="success">
-      ✅ Order placed successfully!  
+      ✅ Order placed successfully!
       Your order reference is <strong><?= htmlspecialchars($orderRef) ?></strong>.
     </div>
     <p style="text-align:center;"><a href="catalog.php" class="button">← Continue Shopping</a></p>
-
   <?php else: ?>
 
     <?php if ($errors): ?>
@@ -211,12 +214,9 @@ button:hover, a.button:hover {
       </thead>
       <tbody>
         <?php foreach ($cart as $item): ?>
-          <?php
-            $price = isset($item['unit_price']) ? (float)$item['unit_price'] : 0;
-            $qty   = isset($item['quantity']) ? (int)$item['quantity'] : 0;
-          ?>
+          <?php $price = $item['unit_price']; $qty = $item['quantity']; ?>
           <tr>
-            <td><?= htmlspecialchars($item['product_name'] ?? '') ?></td>
+            <td><?= htmlspecialchars($item['product_name']) ?></td>
             <td><?= $qty ?></td>
             <td>$<?= number_format($price, 2) ?></td>
             <td>$<?= number_format($price * $qty, 2) ?></td>
@@ -231,12 +231,9 @@ button:hover, a.button:hover {
       <input type="text" name="name" placeholder="Your Name" required value="<?= htmlspecialchars($_POST['name'] ?? '') ?>">
       <input type="email" name="email" placeholder="Your Email" required value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
       <textarea name="address" placeholder="Your Address (optional)" rows="3"><?= htmlspecialchars($_POST['address'] ?? '') ?></textarea>
-
       <button type="submit">Pay Now</button>
-      <!-- ✅ Fixed cart link to public folder -->
       <a href="cart.php" class="button">← Back to Cart</a>
     </form>
-
   <?php endif; ?>
 </div>
 </body>

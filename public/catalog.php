@@ -14,7 +14,7 @@ function base_url($path = '') {
                  || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
     $host = $_SERVER['HTTP_HOST'];
     $path = ltrim($path, '/');
-    return $protocol . $host . '/public/' . $path; // <-- Added /public/ to match folder
+    return $protocol . $host . '/public/' . $path;
 }
 
 // Pagination
@@ -28,7 +28,6 @@ $params = [];
 $where = "WHERE status='published'";
 
 if ($search !== '') {
-    // Escape special characters for LIKE query
     $search_escaped = str_replace(['%', '_'], ['\%', '\_'], $search);
     $where .= " AND (title LIKE ? ESCAPE '\\\\' OR short_desc LIKE ? ESCAPE '\\\\')";
     $params[] = "%$search_escaped%";
@@ -47,9 +46,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ✅ Log view action
 logCatalogAction("Catalog listing viewed. Search: '$search', Page: $page_no");
-
 ?>
 
 <!DOCTYPE html>
@@ -60,8 +57,6 @@ logCatalogAction("Catalog listing viewed. Search: '$search', Page: $page_no");
 <title>Catalog</title>
 <style>
 body { font-family: Arial; margin:0; background:#f7f8fc; }
-
-/* Header Styles */
 header {
     display: flex;
     justify-content: space-between;
@@ -69,12 +64,7 @@ header {
     background-color: #007BFF;
     padding: 5px 10px;
 }
-
-.logo img {
-    width: 400px;
-    height: 70px;
-}
-
+.logo img { width: 400px; height: 70px; }
 nav {
     display: flex;
     justify-content: center;
@@ -82,7 +72,6 @@ nav {
     background-color: #007BFF;
     padding: 1px 0;
 }
-
 nav a, nav button {
     padding: 10px 18px;
     margin: 5px;
@@ -95,19 +84,9 @@ nav a, nav button {
     transition: all 0.3s ease;
     cursor: pointer;
 }
+nav a.active, nav button.active { background-color: #fff; color: #007BFF; border-color: #fff; }
+nav a:hover, nav button:hover { background-color: rgb(239, 245, 245); color: #007BFF; }
 
-nav a.active, nav button.active {
-    background-color: #fff;
-    color: #007BFF;
-    border-color: #fff;
-}
-
-nav a:hover, nav button:hover {
-    background-color: rgb(239, 245, 245);
-    color: #007BFF;
-}
-
-/* Main Content */
 .container {
     max-width:1000px;
     margin:100px auto 40px auto;
@@ -125,8 +104,38 @@ h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
 .card picture, .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 6px; display: block; margin-bottom: 10px; }
 .card h3 { margin: 5px 0; color: #007BFF; }
 .card p { font-size: 14px; color: #333; margin-bottom: 10px; }
-.card-buttons { display:flex; justify-content:space-between; gap:8px; margin-top:auto; }
-.card-buttons a { flex:1; text-decoration:none; color:#fff; padding:8px 10px; border-radius:5px; text-align:center; font-weight:bold; }
+.card-buttons { display:flex; flex-direction: column; gap:8px; margin-top:auto; }
+.qty-selector {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+}
+.qty-selector button {
+    background:#007BFF;
+    color:white;
+    border:none;
+    border-radius:4px;
+    padding:5px 10px;
+    cursor:pointer;
+    font-size:16px;
+}
+.qty-selector input {
+    width:50px;
+    text-align:center;
+    border:1px solid #ccc;
+    border-radius:4px;
+    padding:5px;
+}
+.card-buttons a {
+    text-decoration:none;
+    color:#fff;
+    padding:8px 10px;
+    border-radius:5px;
+    text-align:center;
+    font-weight:bold;
+}
 .card-buttons a.add { background:#007BFF; }
 .card-buttons a.buy { background:#28a745; }
 .card-buttons a:hover.add { background:#0056b3; }
@@ -155,7 +164,6 @@ h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
         $webpExists = file_exists(__DIR__ . '/../' . ltrim($webpImage, '/'));
     ?>
     <div class="card">
-        <!-- ✅ Product Image -->
         <a href="<?= base_url('catalog-item/' . urlencode($item['slug'])) ?>" style="display:block;">
             <picture>
                 <?php if ($webpExists): ?>
@@ -165,13 +173,19 @@ h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
             </picture>
         </a>
 
-        <!-- ✅ Product Info -->
         <h3><?= htmlspecialchars($item['title']) ?></h3>
         <p>Price: $<?= number_format($item['price'], 2) ?></p>
 
+        <!-- ✅ Quantity Selector -->
+        <div class="qty-selector">
+            <button type="button" class="decrease">−</button>
+            <input type="number" value="1" min="1" class="qty-input" data-slug="<?= htmlspecialchars($item['slug']) ?>">
+            <button type="button" class="increase">+</button>
+        </div>
+
         <!-- ✅ Buttons -->
         <div class="card-buttons">
-            <a href="<?= base_url('cart.php?action=add&slug=' . urlencode($item['slug'])) ?>" class="add">Add to Cart</a>
+            <a href="#" class="add" data-slug="<?= htmlspecialchars($item['slug']) ?>">Add to Cart</a>
             <a href="<?= base_url('checkout.php?action=buy&slug=' . urlencode($item['slug'])) ?>" class="buy">Buy Now</a>
         </div>
     </div>
@@ -186,6 +200,29 @@ h2 { text-align: center; color: #007BFF; margin-bottom: 20px; }
     <a href="<?= base_url('catalog.php?page_no=' . $i . '&search=' . urlencode($search)) ?>" class="<?= $page_no == $i ? 'active' : '' ?>"><?= $i ?></a>
 <?php endfor; ?>
 </div>
+
+<script>
+// Handle + / - buttons
+document.querySelectorAll('.card').forEach(card => {
+    const input = card.querySelector('.qty-input');
+    card.querySelector('.increase').addEventListener('click', () => {
+        input.value = parseInt(input.value) + 1;
+    });
+    card.querySelector('.decrease').addEventListener('click', () => {
+        if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
+    });
+});
+
+// Handle Add to Cart with quantity
+document.querySelectorAll('.add').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.preventDefault();
+        const slug = btn.dataset.slug;
+        const qty = btn.closest('.card').querySelector('.qty-input').value;
+        window.location.href = `<?= base_url('cart.php?action=add') ?>&slug=${encodeURIComponent(slug)}&qty=${qty}`;
+    });
+});
+</script>
 
 </body>
 </html>

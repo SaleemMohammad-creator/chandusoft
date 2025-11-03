@@ -79,6 +79,8 @@ RewriteRule ^admin/catalog-create/?$ admin/catalog-create.php [L,QSA,NC]
 RewriteRule ^admin/catalog-edit/([0-9]+)/?$ admin/catalog-edit.php?id=$1 [L,QSA,NC]
 RewriteRule ^admin/catalog-archive/?$ admin/catalog-archive.php [L,QSA,NC]
 RewriteRule ^admin/catalog-store/?$ admin/catalog-store.php [L,QSA,NC]
+# Redirect /admin/orders → /admin/orders_list.php
+RewriteRule ^orders$ orders_list.php [L,QSA]
 
 # Generic admin fallback
 RewriteCond %{REQUEST_FILENAME} !-f

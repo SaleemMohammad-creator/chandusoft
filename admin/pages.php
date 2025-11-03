@@ -158,6 +158,7 @@ tr:hover{background:#eef7ff;}
         <a href="/admin/dashboard.php">Dashboard</a>
         <?php if ($user_role === 'admin'): ?>
         <a href="/admin/catalog.php">Admin Catalog</a>
+        <a href="/admin/orders.php">Orders</a>
         <?php endif; ?>
         <a href="/public/catalog.php">Public Catalog</a>
         <a href="/admin/pages.php">Pages</a>
