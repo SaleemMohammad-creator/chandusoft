@@ -167,6 +167,40 @@ td:last-child a:hover {
   text-transform: capitalize;
   font-weight: 600;
 }
+
+/* === Status Badges === */
+.status {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status.paid {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #16a34a;
+}
+
+.status.pending {
+  background: #fef9c3;
+  color: #92400e;
+  border: 1px solid #facc15;
+}
+
+.status.failed, .status.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.status.refunded {
+  background: #e0f2fe;
+  color: #075985;
+  border: 1px solid #0ea5e9;
+}
 </style>
 </head>
 <body>
@@ -198,6 +232,7 @@ td:last-child a:hover {
       <tr><td colspan="9" class="empty">No orders found</td></tr>
     <?php else: ?>
       <?php foreach ($orders as $o): ?>
+        <?php $status = strtolower(trim($o['payment_status'] ?? '-')); ?>
         <tr>
           <td><?= $o['id'] ?></td>
           <td><?= htmlspecialchars($o['order_ref']) ?></td>
@@ -205,7 +240,11 @@ td:last-child a:hover {
           <td><?= htmlspecialchars($o['customer_email'] ?? '-') ?></td>
           <td>$<?= number_format($o['total'], 2) ?></td>
           <td class="gateway"><?= htmlspecialchars($o['payment_gateway'] ?? '-') ?></td>
-          <td><?= htmlspecialchars($o['payment_status'] ?? '-') ?></td>
+          <td>
+            <span class="status <?= htmlspecialchars($status) ?>">
+              <?= htmlspecialchars($status ?: '-') ?>
+            </span>
+          </td>
           <td><?= htmlspecialchars($o['created_at'] ?? '-') ?></td>
           <td><a href="order_view.php?id=<?= $o['id'] ?>">View</a></td>
         </tr>

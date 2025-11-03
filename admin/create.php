@@ -58,6 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':content_html' => $content_html
         ]);
 
+        
+
         $success = "Page created successfully!";
 
         // ✅ Log to Mailpit inbox
@@ -144,7 +146,7 @@ button {
 <body>
   
   <div class="navbar">
-    <div class="navbar-left">Chandusoft Admin</div>
+    <div class="navbar-left">Chandusoft <?= htmlspecialchars($user_role) ?></div>
     <div class="navbar-right">
         <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>

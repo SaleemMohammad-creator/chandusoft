@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../app/mail-logger.php';
+require_once __DIR__ . '/../utilities/log_action.php'; // ✅ Admin Action Logging
 
 
 // Safe user info
@@ -162,6 +163,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "Slug: $slug | Price: $price | Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'),
             'catalog'
         );
+
+        // ✅ Admin action log
+    log_action($_SESSION['user_id'] ?? 0, 'Catalog Item Added', "Title: {$title} | Slug: {$slug} | Price: {$price}");
+
 
         $_SESSION['success_message'] = "Catalog item added successfully.";
         redirect('catalog.php');

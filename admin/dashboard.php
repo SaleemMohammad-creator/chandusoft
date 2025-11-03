@@ -85,7 +85,7 @@ body { font-family: Arial; margin:0; background:#f7f8fc; }
 <body>
 
 <div class="navbar">
-    <div class="navbar-left">Chandusoft Admin</div>
+    <div class="navbar-left">Chandusoft <?= htmlspecialchars($user_role) ?></div>
     <div class="navbar-right">
         <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>

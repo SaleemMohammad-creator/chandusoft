@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../app/mail-logger.php'; // ✅ Added logging support
-
+require_once __DIR__ . '/../utilities/log_action.php'; // ✅ Added DB log support
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
@@ -30,6 +30,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
     if($imageFile && $imageFile['error'] !== 4){
         try {
+            // Delete old images
             if($item['image'] && file_exists(UPLOAD_DIR . $item['image'])){
                 unlink(UPLOAD_DIR . $item['image']);
             }
@@ -50,19 +51,28 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         }
     }
 
-     if(!$message){
+    if(!$message){
         $stmtUpdate = $pdo->prepare("UPDATE catalog SET title=?, slug=?, price=?, image=?, short_desc=?, status=? WHERE id=?");
 
         try{
             $stmtUpdate->execute([$title, $slug, $price, $imageName, $short_desc, $status, $id]);
             $message = "success: Catalog item updated successfully!";
 
-            // ✅ Log update
-            mailLog("Catalog Item Updated: $title",
+            // ✅ Mail Log (Mailpit)
+            mailLog(
+                "Catalog Item Updated: $title",
                 "ID: $id | Slug: $slug | Admin ID: " . ($_SESSION['user_id'] ?? 'Unknown'),
                 'catalog'
             );
 
+            // ✅ Database Log (Admin Activity)
+            log_action(
+                $_SESSION['user_id'] ?? 0,
+                'Catalog Item Updated',
+                "ID: {$id} | Title: {$title} | Slug: {$slug} | Price: {$price}"
+            );
+
+            // ✅ Update local copy for instant preview
             $item = array_merge($item, [
                 'title'=>$title,
                 'slug'=>$slug,

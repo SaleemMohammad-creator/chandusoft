@@ -323,3 +323,24 @@
 [2025-11-03 03:24:20] Catalog listing viewed. Search: '', Page: 1
 [2025-11-03 03:32:34] Catalog listing viewed. Search: '', Page: 1
 [2025-11-03 03:32:46] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 04:48:28] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 05:08:35] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 05:31:29] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 06:02:56] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 06:13:15] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 06:22:33] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 06:22:47] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 06:23:12] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 06:27:20] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 06:27:36] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 06:49:27] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 06:54:43] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 06:55:03] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 07:18:00] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 10:48:49] Page create error: Invalid CSRF token.
+[2025-11-03 10:48:59] Page create error: Invalid CSRF token.
+[2025-11-03 10:49:30] Page create error: Invalid CSRF token.
+[2025-11-03 10:52:53] Page create error: Invalid CSRF token.
+[2025-11-03 10:53:07] Page create error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'chandusoft.cms_pages' doesn't exist
+[2025-11-03 10:59:17] Catalog listing viewed. Search: '', Page: 1
+[2025-11-03 11:16:48] Catalog listing viewed. Search: '', Page: 1

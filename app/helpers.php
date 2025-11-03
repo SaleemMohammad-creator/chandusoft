@@ -154,7 +154,6 @@ if (!function_exists('uploadImage')) {
     }
 }
 
-
 // -------------------------
 // Redirect helper
 // -------------------------
@@ -180,7 +179,6 @@ if (!function_exists('base_url')) {
         return rtrim($protocol . $host, '/') . '/public/' . $path;
     }
 }
-
 
 // -------------------------
 // Get all CMS pages (for dynamic header)
@@ -212,3 +210,27 @@ function logCatalogAction($message) {
     file_put_contents($logFile, "[$date] $message\n", FILE_APPEND);
 }
 
+// -------------------------
+// CSRF Protection Helpers
+// -------------------------
+if (!function_exists('csrf_input')) {
+    function csrf_input() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        $token = $_SESSION['csrf_token'];
+        return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
+    }
+}
+
+if (!function_exists('verify_csrf')) {
+    function verify_csrf($token) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+    }
+}

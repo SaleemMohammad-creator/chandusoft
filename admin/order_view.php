@@ -145,21 +145,51 @@ tr:nth-child(even) {
   color: #6b7280;
   font-size: 0.9em;
 }
-.back-link {
-  display: inline-block;
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 25px;
+}
+.back-link, .print-btn {
+  display: inline-block;
   color: #2563eb;
   text-decoration: none;
   font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 1em;
 }
-.back-link:hover { text-decoration: underline; }
+.back-link:hover, .print-btn:hover { text-decoration: underline; }
+
+/* 🖨️ Print Styles */
+@media print {
+  body {
+    background: #fff;
+    padding: 0;
+  }
+  .invoice-container {
+    box-shadow: none;
+    border: none;
+    padding: 20px;
+  }
+  .action-buttons {
+    display: none;
+  }
+}
 </style>
 </head>
 <body>
 
 <div class="invoice-container">
   <div class="header">
-    <h1>Invoice</h1>
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <div>
+        <h1>Chandusoft Pvt. Ltd.</h1>
+        
+      </div>
+    </div>
     <small>Date: <?= date('d M Y', strtotime($order['created_at'])) ?></small>
   </div>
 
@@ -213,10 +243,13 @@ tr:nth-child(even) {
     </div>
   </div>
 
-  <a href="orders.php" class="back-link">← Back to Orders</a>
+  <div class="action-buttons">
+    <button onclick="window.print()" class="print-btn">🖨️ Print Invoice</button>
+    <a href="orders.php" class="back-link">← Back to Orders</a>
+  </div>
 
   <div class="footer">
-    <p>Thank you for your business!</p>
+    <p>Thank you for your shopping!</p>
   </div>
 </div>
 

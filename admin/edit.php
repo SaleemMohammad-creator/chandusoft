@@ -141,7 +141,7 @@ button:hover { background:#1d6fa5; }
 <body>
  
 <div class="navbar">
-    <div class="navbar-left">Chandusoft Admin</div>
+    <div class="navbar-left">Chandusoft <?= htmlspecialchars($user_role) ?></div>
     <div class="navbar-right">
         <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>

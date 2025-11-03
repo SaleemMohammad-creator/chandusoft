@@ -1,36 +1,63 @@
 <?php
+// ============================================================
+// 🚀 Secure Config Loader (Chandusoft Store)
+// ============================================================
+
+// ------------------------------------------------------------
+// 🛡️ Prevent Double Loading (Guard Clause)
+// ------------------------------------------------------------
+if (defined('CONFIG_LOADED')) return;
+define('CONFIG_LOADED', true);
+
 // ====================
-// Secure Session Setup
+// 1️⃣ Load .env Variables
+// ====================
+$envFile = __DIR__ . '/../.env';
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0 || !strpos($line, '=')) continue;
+        list($name, $value) = explode('=', $line, 2);
+        $name = trim($name);
+        $value = trim($value, "\"' ");
+        putenv("$name=$value");
+    }
+} else {
+    die("❌ .env file missing! Please create one in the project root.");
+}
+
+// ====================
+// 2️⃣ Secure Session Setup
 // ====================
 if (session_status() === PHP_SESSION_NONE) {
     session_start([
         'cookie_httponly' => true,
-        'cookie_secure'   => false, // Set true if using HTTPS
+        'cookie_secure'   => getenv('APP_ENV') === 'production',
         'cookie_samesite' => 'Strict'
     ]);
 }
 
 // ====================
-// CSRF Token
+// 3️⃣ CSRF Token Setup
 // ====================
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 // ====================
-// Base URL Setup
+// 4️⃣ Base URL Setup
 // ====================
-define('BASE_URL', 'http://chandusoft.test');
-define('UPLOADS_URL', BASE_URL . '/uploads/');
+if (!defined('BASE_URL')) define('BASE_URL', getenv('BASE_URL'));
+if (!defined('UPLOADS_URL')) define('UPLOADS_URL', BASE_URL . '/uploads/');
 
 // ====================
-// Database Configuration
+// 5️⃣ Database Configuration
 // ====================
-$DB_HOST = '127.0.0.1';
-$DB_NAME = 'chandusoft';
-$DB_USER = 'root';
-$DB_PASS = '';
-$DB_CHARSET = 'utf8mb4';
+$DB_HOST = getenv('DB_HOST');
+$DB_NAME = getenv('DB_NAME');
+$DB_USER = getenv('DB_USER');
+$DB_PASS = getenv('DB_PASS');
+$DB_CHARSET = getenv('DB_CHARSET') ?: 'utf8mb4';
 
 $dsn = "mysql:host=$DB_HOST;dbname=$DB_NAME;charset=$DB_CHARSET";
 $options = [
@@ -46,57 +73,57 @@ try {
 }
 
 // ====================
-// Global Logging via Mailpit (optional)
+// 6️⃣ Mailpit Logging
 // ====================
-define('MAILPIT_LOGGING', true);
-define('MAILPIT_HOST', '127.0.0.1');
-define('MAILPIT_PORT', 1025);
-define('MAILPIT_LOG_EMAIL_TO', 'logs@chandusoft.test');
-define('MAILPIT_LOG_EMAIL_FROM', 'system@chandusoft.test');
+if (!defined('MAILPIT_LOGGING')) define('MAILPIT_LOGGING', getenv('MAILPIT_LOGGING') === 'true');
+if (!defined('MAILPIT_HOST')) define('MAILPIT_HOST', getenv('MAILPIT_HOST'));
+if (!defined('MAILPIT_PORT')) define('MAILPIT_PORT', getenv('MAILPIT_PORT'));
+if (!defined('MAILPIT_LOG_EMAIL_TO')) define('MAILPIT_LOG_EMAIL_TO', getenv('MAILPIT_LOG_EMAIL_TO'));
+if (!defined('MAILPIT_LOG_EMAIL_FROM')) define('MAILPIT_LOG_EMAIL_FROM', getenv('MAILPIT_LOG_EMAIL_FROM'));
 
 // ====================
-// Site Settings Defaults
+// 7️⃣ Site Defaults
 // ====================
-$site_name = "Chandusoft Store";
+$site_name = getenv('APP_NAME') ?: "Chandusoft Store";
 
 // ====================
-// Upload Settings
+// 8️⃣ Upload Settings
 // ====================
-define('UPLOAD_DIR', __DIR__ . '/../uploads/');
-define('MAX_UPLOAD_SIZE', 2 * 1024 * 1024); // 2 MB
+if (!defined('UPLOAD_DIR')) define('UPLOAD_DIR', __DIR__ . '/../uploads/');
+if (!defined('MAX_UPLOAD_SIZE')) define('MAX_UPLOAD_SIZE', 2 * 1024 * 1024); // 2 MB
 $allowed_mime_types = ['image/jpeg', 'image/png', 'image/webp'];
 
 // ====================
-// Cloudflare Turnstile Keys (Optional)
+// 9️⃣ Cloudflare Turnstile
 // ====================
-putenv('TURNSTILE_SITE=YOUR_SITE_KEY_HERE');
-putenv('TURNSTILE_SECRET=YOUR_SECRET_KEY_HERE');
+putenv('TURNSTILE_SITE=' . getenv('TURNSTILE_SITE'));
+putenv('TURNSTILE_SECRET=' . getenv('TURNSTILE_SECRET'));
 
 // ====================
-// Stripe Configuration (Test Mode)
+// 🔟 Stripe Configuration
 // ====================
-define('STRIPE_PUBLISHABLE_KEY', 'pk_test_51SNs3wAhJkYkXNzXFRGWcyq0uuCTqMfxG2bglwY58md7TBDUiMRrUWuRvHNkKy2Q57dKuWd0cxRdSA1JO3HSaeDf00jyB0qCv8');
-define('STRIPE_SECRET_KEY', 'sk_test_51SNs3wAhJkYkXNzXsOYQJ2VYGfYIfcXd20lVISFv3Dq4W1eafNWaVQQQFEVUplug1FUx2jY4PDivCDC3bJSL2gX900hbscfEG2');
-define('STRIPE_WEBHOOK_SECRET', 'whsec_your_stripe_webhook_secret_here'); // 🔑 Add your actual webhook secret
+if (!defined('STRIPE_PUBLISHABLE_KEY')) define('STRIPE_PUBLISHABLE_KEY', getenv('STRIPE_PUBLISHABLE_KEY'));
+if (!defined('STRIPE_SECRET_KEY')) define('STRIPE_SECRET_KEY', getenv('STRIPE_SECRET_KEY'));
+if (!defined('STRIPE_WEBHOOK_SECRET')) define('STRIPE_WEBHOOK_SECRET', getenv('STRIPE_WEBHOOK_SECRET'));
 
 if (empty(STRIPE_SECRET_KEY)) {
-    die('❌ Stripe secret key not found in config.php.');
+    die('❌ Stripe secret key not found in .env file.');
 }
 
 // ====================
-// PayPal Configuration (Sandbox)
+// 1️⃣1️⃣ PayPal Configuration
 // ====================
-define('PAYPAL_MODE', 'sandbox');
-define('PAYPAL_CLIENT_ID', 'ARM375iNx3xH7GY9tDWGqPbIoASrXuLrzMPneG9KnV_1preXUCf2tdIeKF7Alqw3DuhremaHrr5x5JXK');
-define('PAYPAL_SECRET', 'EHXvqbutdXCuFsl6fPkSPSiOqV-5zBpFGAESii_ACZ8DLEumi8auz8jbJWhbQNnIQ-mhuw73noHbCUnl');
-define('PAYPAL_RETURN_URL', BASE_URL . '/public/success.php');
-define('PAYPAL_CANCEL_URL', BASE_URL . '/public/cancel.php');
-define('PAYPAL_CURRENCY', 'USD');
-define('PAYPAL_BASE_URL', 'https://api-m.sandbox.paypal.com');
-define('PAYPAL_CHECKOUT_URL', 'https://www.sandbox.paypal.com/checkoutnow');
+if (!defined('PAYPAL_MODE')) define('PAYPAL_MODE', getenv('PAYPAL_MODE'));
+if (!defined('PAYPAL_CLIENT_ID')) define('PAYPAL_CLIENT_ID', getenv('PAYPAL_CLIENT_ID'));
+if (!defined('PAYPAL_SECRET')) define('PAYPAL_SECRET', getenv('PAYPAL_SECRET'));
+if (!defined('PAYPAL_RETURN_URL')) define('PAYPAL_RETURN_URL', getenv('PAYPAL_RETURN_URL'));
+if (!defined('PAYPAL_CANCEL_URL')) define('PAYPAL_CANCEL_URL', getenv('PAYPAL_CANCEL_URL'));
+if (!defined('PAYPAL_CURRENCY')) define('PAYPAL_CURRENCY', getenv('PAYPAL_CURRENCY'));
+if (!defined('PAYPAL_BASE_URL')) define('PAYPAL_BASE_URL', getenv('PAYPAL_BASE_URL'));
+if (!defined('PAYPAL_CHECKOUT_URL')) define('PAYPAL_CHECKOUT_URL', getenv('PAYPAL_CHECKOUT_URL'));
 
 // ====================
-// Logging Setup
+// 1️⃣2️⃣ Logging Setup
 // ====================
 $log_dir = __DIR__ . '/../storage/logs/';
 if (!file_exists($log_dir)) mkdir($log_dir, 0755, true);
@@ -110,80 +137,42 @@ if (!function_exists('logMessage')) {
 }
 
 // ====================
-// Helper Functions
+// 1️⃣3️⃣ Include Helpers & Logger
 // ====================
-function sanitize($str) {
-    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
-}
-
-function redirect($url) {
-    header("Location: $url");
-    exit;
-}
-
-function csrf_input() {
-    return '<input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">';
-}
-
-function verify_csrf($token) {
-    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
-}
+require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/mail-logger.php';
 
 // ====================
-// Site Settings Database Functions
+// 1️⃣4️⃣ Site Settings (Database Functions)
 // ====================
-function get_setting($key, $default = null) {
-    global $pdo;
-    $stmt = $pdo->prepare("SELECT value FROM settings WHERE `key` = ? LIMIT 1");
-    $stmt->execute([$key]);
-    $row = $stmt->fetch();
-    return $row ? $row['value'] : $default;
-}
-
-function update_setting($key, $value) {
-    global $pdo;
-    $stmt = $pdo->prepare("INSERT INTO settings (`key`,`value`) VALUES (?,?)
-        ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)");
-    return $stmt->execute([$key, $value]);
-}
-
-// ====================
-// Image Upload Handler
-// ====================
-function uploadImage($file) {
-    global $allowed_mime_types;
-
-    if ($file['error'] !== UPLOAD_ERR_OK) return false;
-    if ($file['size'] > MAX_UPLOAD_SIZE) return false;
-    if (!in_array(mime_content_type($file['tmp_name']), $allowed_mime_types)) return false;
-
-    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    $filename = uniqid('img_') . '.' . $ext;
-    $target = UPLOAD_DIR . $filename;
-
-    if (!move_uploaded_file($file['tmp_name'], $target)) return false;
-
-    // Convert to WebP if JPG/PNG
-    if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-        $webpFile = UPLOAD_DIR . pathinfo($filename, PATHINFO_FILENAME) . '.webp';
-        $img = ($ext === 'png') ? imagecreatefrompng($target) : imagecreatefromjpeg($target);
-        imagepalettetotruecolor($img);
-        imagewebp($img, $webpFile, 80);
-        imagedestroy($img);
-        unlink($target);
-        $filename = pathinfo($filename, PATHINFO_FILENAME) . '.webp';
+if (!function_exists('get_setting')) {
+    function get_setting($key, $default = null) {
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT value FROM settings WHERE `key` = ? LIMIT 1");
+        $stmt->execute([$key]);
+        $row = $stmt->fetch();
+        return $row ? $row['value'] : $default;
     }
+}
 
-    return $filename;
+if (!function_exists('update_setting')) {
+    function update_setting($key, $value) {
+        global $pdo;
+        $stmt = $pdo->prepare("INSERT INTO settings (`key`,`value`) VALUES (?,?)
+            ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)");
+        return $stmt->execute([$key, $value]);
+    }
 }
 
 // ====================
-// Extra Utility from Config (order ref)
+// 1️⃣5️⃣ Extra Utility: Order Reference
 // ====================
-function generate_order_ref(): string {
-    try {
-        return strtoupper(bin2hex(random_bytes(6)));
-    } catch (Exception $e) {
-        return 'ORD' . time();
+if (!function_exists('generate_order_ref')) {
+    function generate_order_ref(): string {
+        try {
+            return strtoupper(bin2hex(random_bytes(6)));
+        } catch (Exception $e) {
+            return 'ORD' . time();
+        }
     }
 }

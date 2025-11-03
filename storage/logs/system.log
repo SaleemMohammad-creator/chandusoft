@@ -119,3 +119,85 @@ Time: 2025-10-29 10:09:57
 [2025-11-01 10:22:33][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-01 10:22:33
 [2025-11-01 11:06:48][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-01 11:06:48
 [2025-11-03 02:53:41][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 02:53:41
+[2025-11-03 04:45:43][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 04:45:43
+[2025-11-03 04:50:54][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 04:50:54
+[2025-11-03 04:51:00][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 04:51:09][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: draft).
+[2025-11-03 04:51:14][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: archived).
+[2025-11-03 04:51:22][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 04:51:36][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: published).
+[2025-11-03 04:55:42][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 04:55:47][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: draft).
+[2025-11-03 04:55:51][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: archived).
+[2025-11-03 04:55:54][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: published).
+[2025-11-03 05:03:15][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: published).
+[2025-11-03 05:03:47][✅ editor Logged In] Email: saleem@gmail.comRole: editorIP Address: 127.0.0.1Time: 2025-11-03 05:03:47
+[2025-11-03 05:03:58][Pages Viewed] User: Saleem.M (editor) viewed the pages list (Filter: all).
+[2025-11-03 05:06:37][Pages Viewed] User: Saleem.M (editor) viewed the pages list (Filter: all).
+[2025-11-03 05:06:58][Pages Viewed] User: Saleem.M (editor) viewed the pages list (Filter: all).
+[2025-11-03 05:07:21][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 05:07:21
+[2025-11-03 05:07:28][Catalog List Viewed] Admin ID: 9
+[2025-11-03 05:07:37][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 05:50:51][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 05:50:51
+[2025-11-03 05:50:56][Catalog List Viewed] Admin ID: 9
+[2025-11-03 05:51:03][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 07:32:31][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 07:32:31
+[2025-11-03 07:44:18][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 07:44:18
+[2025-11-03 07:48:23][✅ editor Logged In] Email: saleem@gmail.comRole: editorIP Address: 127.0.0.1Time: 2025-11-03 07:48:23
+[2025-11-03 07:50:43][❌ Failed Login Attempt] Email: sai@gmail.comAttempted Role: UnknownIP Address: 127.0.0.1Time: 2025-11-03 07:50:43
+[2025-11-03 07:53:20][❌ Failed Login Attempt] Email: qwe@gmail.comAttempted Role: UnknownIP Address: 127.0.0.1Time: 2025-11-03 07:53:19
+[2025-11-03 08:01:07][❌ Failed Login Attempt] Email: qwe@gmail.comAttempted Role: UnknownIP Address: 127.0.0.1Time: 2025-11-03 08:01:07
+[2025-11-03 08:01:25][❌ Failed Login Attempt] Email: ddd@gmail.comAttempted Role: UnknownIP Address: 127.0.0.1Time: 2025-11-03 08:01:25
+[2025-11-03 08:03:14][✅ editor Logged In] Email: saleem@gmail.comRole: editorIP Address: 127.0.0.1Time: 2025-11-03 08:03:14
+[2025-11-03 08:03:45][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 08:03:45
+[2025-11-03 08:04:09][❌ Failed Login Attempt] Email: qwe@gmail.comAttempted Role: UnknownIP Address: 127.0.0.1Time: 2025-11-03 08:04:09
+[2025-11-03 08:11:30][✅ editor Logged In] Email: saleem@gmail.comRole: editorIP Address: 127.0.0.1Time: 2025-11-03 08:11:29
+[2025-11-03 08:11:52][❌ Failed Login Attempt] Email: saleem@gmail.comAttempted Role: UnknownIP Address: 127.0.0.1Time: 2025-11-03 08:11:52
+[2025-11-03 08:39:55][✅ editor Logged In] Email: saleem@gmail.comRole: editorIP Address: 127.0.0.1Time: 2025-11-03 08:39:55
+[2025-11-03 08:40:20][❌ Failed Login Attempt] Email: sai@gmail.comAttempted Role: UnknownIP Address: 127.0.0.1Time: 2025-11-03 08:40:20
+[2025-11-03 08:40:42][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 08:40:42
+[2025-11-03 09:29:30][✅ editor Logged In] Email: saleem@gmail.comRole: editorIP Address: 127.0.0.1Time: 2025-11-03 09:29:30
+[2025-11-03 09:34:00][Pages Viewed] User: Saleem.M (editor) viewed the pages list (Filter: all).
+[2025-11-03 09:59:53][❌ Failed Login Attempt] Email: sai@gmail.comAttempted Role: UnknownIP Address: 127.0.0.1Time: 2025-11-03 09:59:53
+[2025-11-03 10:00:08][✅ editor Logged In] Email: saleem@gmail.comRole: editorIP Address: 127.0.0.1Time: 2025-11-03 10:00:08
+[2025-11-03 10:00:28][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 10:00:28
+[2025-11-03 10:00:40][Catalog List Viewed] Admin ID: 9
+[2025-11-03 10:06:01][Catalog List Viewed] Admin ID: 9
+[2025-11-03 10:08:10][Catalog List Viewed] Admin ID: 9
+[2025-11-03 10:08:31][Catalog Item Updated: Blog2] ID: 33 | Slug: blog2 | Admin ID: 9
+[2025-11-03 10:08:38][Catalog List Viewed] Admin ID: 9
+[2025-11-03 10:09:30][Catalog Item Archived] Item ID: 33 | Admin ID: 9
+[2025-11-03 10:09:32][Catalog List Viewed] Admin ID: 9
+[2025-11-03 10:15:57][Catalog List Viewed] Admin ID: 9
+[2025-11-03 10:16:05][Archived Catalog Viewed] Viewed by Admin ID: 9
+[2025-11-03 10:16:28][Archived Catalog Viewed] Viewed by Admin ID: 9
+[2025-11-03 10:16:30][Catalog Item Restored] Item ID: 33 restored by Admin ID: 9
+[2025-11-03 10:16:32][Archived Catalog Viewed] Viewed by Admin ID: 9
+[2025-11-03 10:19:02][Archived Catalog Viewed] Viewed by Admin ID: 9
+[2025-11-03 10:19:28][Catalog List Viewed] Admin ID: 9
+[2025-11-03 10:19:46][Catalog Item Updated: Ghee] ID: 30 | Slug: ghee | Admin ID: 9
+[2025-11-03 10:20:15][Catalog List Viewed] Admin ID: 9
+[2025-11-03 10:39:07][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 10:39:24][Page Archived by Admin] User: Sai I (admin) has archived the page with ID: 14.
+[2025-11-03 10:39:26][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 10:39:34][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: archived).
+[2025-11-03 10:39:37][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: archived).
+[2025-11-03 10:39:41][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: archived).
+[2025-11-03 10:39:47][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: archived).
+[2025-11-03 10:39:54][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 10:40:39][INFO] Page updated successfully by Sai I (Role: admin) — ID: 13, Title: About Company
+[2025-11-03 10:40:44][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 10:41:06][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: archived).
+[2025-11-03 10:41:11][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 10:54:54][New Page Created by Sai I] A new page has been created by Sai I (admin).        <br><br>        <b>Title:</b> Money<br>        <b>Slug:</b> money<br>        <b>Status:</b> published
+[2025-11-03 10:58:23][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 10:58:23
+[2025-11-03 10:58:32][Catalog List Viewed] Admin ID: 9
+[2025-11-03 10:58:38][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).
+[2025-11-03 10:59:05][✅ editor Logged In] Email: saleem@gmail.comRole: editorIP Address: 127.0.0.1Time: 2025-11-03 10:59:05
+[2025-11-03 10:59:25][Pages Viewed] User: Saleem.M (editor) viewed the pages list (Filter: all).
+[2025-11-03 10:59:37][Pages Viewed] User: Saleem.M (editor) viewed the pages list (Filter: all).
+[2025-11-03 11:02:36][Pages Viewed] User: Saleem.M (editor) viewed the pages list (Filter: all).
+[2025-11-03 11:17:01][✅ admin Logged In] Email: sai@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-03 11:17:01
+[2025-11-03 11:17:06][Catalog List Viewed] Admin ID: 9
+[2025-11-03 11:18:34][Catalog List Viewed] Admin ID: 9
+[2025-11-03 11:18:41][Pages Viewed] User: Sai I (admin) viewed the pages list (Filter: all).

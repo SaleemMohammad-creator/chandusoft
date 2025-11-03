@@ -3,6 +3,7 @@ session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../app/mail-logger.php'; // ✅ added logging include
+require_once __DIR__ . '/../utilities/log_action.php';
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
@@ -83,6 +84,16 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // ✅ Log default list view
 mailLog("Catalog List Viewed", "Admin ID: {$user_id}", "catalog");
+
+// ✅ Database Log (admin_logs)
+if ($search) {
+    log_action($user_id, 'Catalog Search', "Keyword: {$search}"); // 🔍 Log search keyword
+} elseif ($page_no > 1) {
+    log_action($user_id, 'Catalog Page Viewed', "Page: {$page_no}"); // 📄 Log page number
+} else {
+    log_action($user_id, 'Catalog List Viewed', "Viewed main catalog list"); // 📜 Default first page
+}
+
 ?>
 
 
@@ -228,7 +239,7 @@ a:hover { text-decoration:none;}
 <body>
 
 <div class="navbar">
-    <div class="navbar-left">Chandusoft Admin</div>
+    <div class="navbar-left">Chandusoft <?= htmlspecialchars($user_role) ?></div>
     <div class="navbar-right">
         <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>

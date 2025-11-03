@@ -52,7 +52,7 @@ tr:hover { background:#e6f7ff; }
 </head>
 <body>
  <div class="navbar">
-    <div><strong>Chandusoft Admin</strong></div>
+    <div class="navbar-left">Chandusoft <?= htmlspecialchars($user_role) ?></div>
     <div>
         Welcome <?= htmlspecialchars($user_role) ?>!
         <a href="/admin/dashboard.php">Dashboard</a>

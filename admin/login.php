@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
-require_once __DIR__ . '/../app/mail-logger.php'; // ✅ Added for Mailpit Logging
+require_once __DIR__ . '/../app/mail-logger.php'; // ✅ For Mailpit Logging
+require_once __DIR__ . '/../utilities/log_action.php'; // ✅ For Admin Activity Logging
 
 // ---------------------------
 // Secure session start
@@ -59,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-
         // ✅ Session Set
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'] ?? 'User';
@@ -68,27 +68,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // ✅ File Log
         file_put_contents($logFile, "[{$timestamp}] ✅ SUCCESS login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
 
-        // ✅ Dynamic Role Logging
-      $role = $user['role'] ?? 'User';
-      mailLog(
-    "✅ {$role} Logged In",
-    "Email: {$email}\nRole: {$role}\nIP Address: {$ip}\nTime: {$timestamp}"
-);
+        // ✅ Mailpit Log
+        $role = $user['role'] ?? 'User';
+        mailLog(
+            "✅ {$role} Logged In",
+            "Email: {$email}\nRole: {$role}\nIP Address: {$ip}\nTime: {$timestamp}"
+        );
 
+        // ✅ Database Log (SUCCESS)
+        log_action($user['id'], 'Login Success', "User {$email} logged in from IP {$ip}");
 
         header("Location: dashboard.php");
         exit;
     } else {
-
         // ✅ File Log
         file_put_contents($logFile, "[{$timestamp}] ❌ FAILED login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
 
         // ✅ Mailpit Log
         mailLog(
-        "❌ Failed Login Attempt",
-        "Email: {$email}\nAttempted Role: Unknown\nIP Address: {$ip}\nTime: {$timestamp}"
-      );
+            "❌ Failed Login Attempt",
+            "Email: {$email}\nAttempted Role: Unknown\nIP Address: {$ip}\nTime: {$timestamp}"
+        );
 
+        // ✅ Database Log (FAILED)
+        log_action(null, 'Login Failed', "Failed login attempt for {$email} from {$ip}");
 
         $_SESSION['flash_message'] = "Invalid email or password";
         header("Location: login.php");

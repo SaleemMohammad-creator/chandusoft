@@ -32,6 +32,14 @@ if (isset($_GET['archive_id']) && $user_role === 'admin') {
     exit;
 }
 
+// ✅ Added counts section
+$totalCounts = [
+    'all' => $pdo->query("SELECT COUNT(*) FROM pages")->fetchColumn(),
+    'published' => $pdo->query("SELECT COUNT(*) FROM pages WHERE status='published'")->fetchColumn(),
+    'draft' => $pdo->query("SELECT COUNT(*) FROM pages WHERE status='draft'")->fetchColumn(),
+    'archived' => $pdo->query("SELECT COUNT(*) FROM pages WHERE status='archived'")->fetchColumn(),
+];
+
 // Filter pages
 $filter = $_GET['filter'] ?? 'all';
 $query = "SELECT * FROM pages";
@@ -152,7 +160,7 @@ tr:hover{background:#eef7ff;}
 <body>
 
 <div class="navbar">
-    <div><strong>Chandusoft Admin</strong></div>
+    <div class="navbar-left">Chandusoft <?= htmlspecialchars($user_role) ?></div>
     <div>
         Welcome <?= htmlspecialchars($user_role) ?>!
         <a href="/admin/dashboard.php">Dashboard</a>
@@ -183,10 +191,10 @@ tr:hover{background:#eef7ff;}
 
     <div class="top-bar">
         <div class="filters">
-            <a href="pages.php?filter=all" class="<?= $filter==='all'?'active':'' ?>">All (<?= count($pages) ?>)</a>
-            <a href="pages.php?filter=published" class="<?= $filter==='published'?'active':'' ?>">Published (<?= count(array_filter($pages, fn($p)=>$p['status']==='published')) ?>)</a>
-            <a href="pages.php?filter=draft" class="<?= $filter==='draft'?'active':'' ?>">Draft (<?= count(array_filter($pages, fn($p)=>$p['status']==='draft')) ?>)</a>
-            <a href="pages.php?filter=archived" class="<?= $filter==='archived'?'active':'' ?>">Archived (<?= count(array_filter($pages, fn($p)=>$p['status']==='archived')) ?>)</a>
+            <a href="pages.php?filter=all" class="<?= $filter==='all'?'active':'' ?>">All (<?= $totalCounts['all'] ?>)</a>
+            <a href="pages.php?filter=published" class="<?= $filter==='published'?'active':'' ?>">Published (<?= $totalCounts['published'] ?>)</a>
+            <a href="pages.php?filter=draft" class="<?= $filter==='draft'?'active':'' ?>">Draft (<?= $totalCounts['draft'] ?>)</a>
+            <a href="pages.php?filter=archived" class="<?= $filter==='archived'?'active':'' ?>">Archived (<?= $totalCounts['archived'] ?>)</a>
         </div>
 
         <div class="right-side">

@@ -1,0 +1,38 @@
+[03-Nov-2025 04:45:20 UTC] PHP Warning:  Undefined variable $site_name in C:\laragon\www\chandusoft\admin\login.php on line 105
+[03-Nov-2025 04:45:20 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\laragon\www\chandusoft\app\config.php on line 103
+[03-Nov-2025 04:45:46 UTC] Mailpit Logging Failed: SMTP Error: Could not connect to SMTP host. Failed to connect to server SMTP server error: Failed to connect to server SMTP code: 10061 Additional SMTP info: No connection could be made because the target machine actively refused it
+[03-Nov-2025 04:46:09 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_setting() in C:\laragon\www\chandusoft\admin\header.php:16
+Stack trace:
+#0 C:\laragon\www\chandusoft\public\catalog.php(5): include()
+#1 {main}
+  thrown in C:\laragon\www\chandusoft\admin\header.php on line 16
+[03-Nov-2025 04:46:29 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_setting() in C:\laragon\www\chandusoft\admin\header.php:16
+Stack trace:
+#0 C:\laragon\www\chandusoft\index.php(60): include()
+#1 {main}
+  thrown in C:\laragon\www\chandusoft\admin\header.php on line 16
+[03-Nov-2025 04:46:29 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_setting() in C:\laragon\www\chandusoft\admin\header.php:16
+Stack trace:
+#0 C:\laragon\www\chandusoft\index.php(60): include()
+#1 {main}
+  thrown in C:\laragon\www\chandusoft\admin\header.php on line 16
+[03-Nov-2025 04:46:40 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_setting() in C:\laragon\www\chandusoft\admin\header.php:16
+Stack trace:
+#0 C:\laragon\www\chandusoft\index.php(60): include()
+#1 {main}
+  thrown in C:\laragon\www\chandusoft\admin\header.php on line 16
+[03-Nov-2025 04:46:44 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_setting() in C:\laragon\www\chandusoft\admin\header.php:16
+Stack trace:
+#0 C:\laragon\www\chandusoft\public\catalog.php(5): include()
+#1 {main}
+  thrown in C:\laragon\www\chandusoft\admin\header.php on line 16
+[03-Nov-2025 04:46:48 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_setting() in C:\laragon\www\chandusoft\admin\header.php:16
+Stack trace:
+#0 C:\laragon\www\chandusoft\public\catalog.php(5): include()
+#1 {main}
+  thrown in C:\laragon\www\chandusoft\admin\header.php on line 16
+[03-Nov-2025 04:47:13 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_setting() in C:\laragon\www\chandusoft\admin\header.php:16
+Stack trace:
+#0 C:\laragon\www\chandusoft\public\catalog.php(5): include()
+#1 {main}
+  thrown in C:\laragon\www\chandusoft\admin\header.php on line 16
