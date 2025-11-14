@@ -1,81 +1,78 @@
 <?php
-// public/payment-webhook.php
+// ===============================================
+// payment-webhook.php  (Stripe → Database Sync)
+// ===============================================
+
+// No whitespace before <?php !!
 require_once __DIR__ . '/../app/config.php';
-require_once __DIR__ . '/../app/security.php';
-require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-// Read the raw POST payload
-$payload = @file_get_contents('php://input');
-$sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
+use Stripe\Webhook;
+use Stripe\Exception\SignatureVerificationException;
 
-// ✅ Use constant fallback instead of only .env
-$endpoint_secret = defined('STRIPE_WEBHOOK_SECRET') && !empty(STRIPE_WEBHOOK_SECRET)
-    ? STRIPE_WEBHOOK_SECRET
-    : ($_ENV['STRIPE_WEBHOOK_SECRET'] ?? '');
+$endpoint_secret = STRIPE_WEBHOOK_SECRET;
 
-if (empty($endpoint_secret)) {
-    // If not configured, fail safely
-    http_response_code(400);
-    exit('Webhook secret not configured.');
+// ✅ Log file
+$log_file = __DIR__ . '/../storage/stripe-webhook.log';
+function log_msg($msg) {
+    global $log_file;
+    file_put_contents($log_file, date("Y-m-d H:i:s") . " - " . $msg . PHP_EOL, FILE_APPEND);
 }
 
+// ✅ Stripe requires raw payload
+$payload = file_get_contents("php://input");
+$sig_header = $_SERVER["HTTP_STRIPE_SIGNATURE"] ?? "";
+
+if (!$payload) {
+    http_response_code(400);
+    exit("No payload received");
+}
+
+// ✅ Validate signature
 try {
-    // ✅ Construct Stripe event securely
-    $event = \Stripe\Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
-} catch (\UnexpectedValueException $e) {
-    // Invalid payload
+    $event = Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
+} catch (SignatureVerificationException $e) {
+    log_msg("❌ Invalid Signature: " . $e->getMessage());
     http_response_code(400);
-    exit();
-} catch (\Stripe\Exception\SignatureVerificationException $e) {
-    // Invalid signature
-    http_response_code(400);
-    exit();
+    exit("Invalid signature");
 }
 
-// Handle the event type
-$type = $event->type;
-$data = $event->data->object;
+// ✅ Extract PaymentIntent and order_ref
+$pi = $event->data->object;
+$order_ref = $pi->metadata->order_ref ?? null;
 
-// ✅ Handle checkout completion
-if ($type === 'checkout.session.completed') {
-    $session = $data;
-    $order_id = $session->metadata->order_id ?? null;
-    $payment_status = $session->payment_status ?? null;
+if ($order_ref) {
+    switch ($event->type) {
 
-    if ($order_id) {
-        if ($payment_status === 'paid') {
-            // Store Stripe session JSON inside metadata
-            $meta = json_encode(['stripe_session' => $session], JSON_UNESCAPED_SLASHES);
+        // ------------------------------------------------
+        // ✅ SUCCESS → Save transaction_id = PI_xxx
+        // ------------------------------------------------
+        case "payment_intent.succeeded":
+            $transaction_id = $pi->id;
             $stmt = $pdo->prepare("
-                UPDATE orders 
-                SET payment_status = 'paid', 
-                    metadata = JSON_MERGE_PATCH(COALESCE(metadata, JSON_OBJECT()), ?) 
-                WHERE id = ?
+                UPDATE orders
+                SET payment_status = 'paid', transaction_id = ?
+                WHERE order_ref = ?
             ");
-            $stmt->execute([$meta, $order_id]);
-        } else {
-            $pdo->prepare("
-                UPDATE orders 
-                SET payment_status = 'failed' 
-                WHERE id = ?
-            ")->execute([$order_id]);
-        }
+            $stmt->execute([$transaction_id, $order_ref]);
+            log_msg("✅ PAID: ORDER=$order_ref, TXN=$transaction_id");
+            break;
+
+        // ------------------------------------------------
+        // ❌ CANCEL OR FAILED → transaction_id = NULL
+        // ------------------------------------------------
+        case "payment_intent.canceled":
+        case "payment_intent.payment_failed":
+            $stmt = $pdo->prepare("
+                UPDATE orders
+                SET payment_status = 'failed', transaction_id = NULL
+                WHERE order_ref = ?
+            ");
+            $stmt->execute([$order_ref]);
+            log_msg("⚠️ FAILED/CANCELLED: ORDER=$order_ref");
+            break;
     }
 }
 
-// ✅ Optionally handle other events
-if ($type === 'payment_intent.payment_failed') {
-    $intent = $data;
-    $order_id = $intent->metadata->order_id ?? null;
-    if ($order_id) {
-        $pdo->prepare("
-            UPDATE orders 
-            SET payment_status = 'failed' 
-            WHERE id = ?
-        ")->execute([$order_id]);
-    }
-}
-
-// ✅ Send Stripe a 200 response
 http_response_code(200);
-echo json_encode(['received' => true]);
+echo "OK";

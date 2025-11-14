@@ -1,0 +1,49 @@
+[2025-11-05 10:32:15] Added to cart: 29 with qty: 2
+[2025-11-05 10:56:02] Added to cart: 29 with qty: 2
+[2025-11-06 04:00:54] Added to cart: 30 with qty: 5
+[2025-11-06 05:39:14] Added to cart: 21 with qty: 2
+[2025-11-06 06:49:27] Added to cart: 30 with qty: 1
+[2025-11-06 06:59:36] Added to cart: 32 with qty: 2
+[2025-11-06 07:41:30] Added to cart: 32 with qty: 1
+[2025-11-06 07:59:14] Added to cart: 32 with qty: 1
+[2025-11-07 02:39:59] Added to cart: 15 with qty: 2
+[2025-11-07 03:27:18] Added to cart: 33 with qty: 2
+[2025-11-07 03:34:49] Added to cart: 32 with qty: 2
+[2025-11-07 06:18:43] Added to cart: 33 with qty: 1
+[2025-11-07 06:36:35] Added to cart: 30 with qty: 2
+[2025-11-07 06:47:02] Removed from cart: 33
+[2025-11-07 07:12:30] Added to cart: 33 with qty: 1
+[2025-11-07 07:46:01] Added to cart: 32 with qty: 1
+[2025-11-07 07:46:06] Removed from cart: 33
+[2025-11-07 07:46:08] Removed from cart: 30
+[2025-11-07 09:20:21] Added to cart: 33 with qty: 1
+[2025-11-10 04:07:28] Added to cart: 6 qty: 1
+[2025-11-10 04:07:54] Added to cart: 6 with qty: 1
+[2025-11-10 04:18:59] Missing or invalid data for cart item with ID: 0. Data: {"product_id":6,"product_name":"Nature","unit_price":15,"quantity":1}
+[2025-11-10 06:05:40] Added to cart: 6 with qty: 1
+[2025-11-10 06:27:43] Added to cart: 6 with qty: 1
+[2025-11-10 07:02:01] Added to cart: 5 with qty: 1
+[2025-11-10 07:02:07] Removed from cart: 6
+[2025-11-10 07:35:16] Added to cart: 1 with qty: 1
+[2025-11-10 07:44:24] Added to cart: 6 with qty: 1
+[2025-11-10 07:55:29] Added to cart: 6 with qty: 1
+[2025-11-10 08:08:21] Added to cart: 4 with qty: 1
+[2025-11-10 09:52:25] Added to cart: 6 with qty: 1
+[2025-11-11 05:28:17] Cart quantities updated: {"10":"2"}
+[2025-11-11 05:30:25] Cart quantities updated: {"10":"1"}
+[2025-11-11 07:39:36] Removed from cart: 4
+[2025-11-11 07:39:38] Removed from cart: 6
+[2025-11-14 04:01:42] Cart quantities updated: {"11":"2"}
+[2025-11-14 06:20:55] Cart cleared completely
+[2025-11-14 06:21:12] Added to cart: 17 with qty: 2
+[2025-11-14 06:21:45] Added to cart: 18 with qty: 1
+[2025-11-14 06:21:49] Added to cart: 11 with qty: 1
+[2025-11-14 06:21:55] Cart cleared completely
+[2025-11-14 06:22:55] Added to cart: 18 with qty: 1
+[2025-11-14 06:39:03] Added to cart: 6 with qty: 1
+[2025-11-14 06:40:36] Removed from cart: 6
+[2025-11-14 06:57:28] Added to cart: 17 with qty: 1
+[2025-11-14 07:03:20] Cart cleared completely
+[2025-11-14 07:03:26] Added to cart: 11 with qty: 1
+[2025-11-14 07:04:31] Added to cart: 17 with qty: 1
+[2025-11-14 07:04:50] Removed from cart: 17

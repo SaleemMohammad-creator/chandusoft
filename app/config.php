@@ -26,14 +26,36 @@ if (file_exists($envFile)) {
     die("❌ .env file missing! Please create one in the project root.");
 }
 
+// ✅ Expand ${BASE_URL} placeholders dynamically
+$base = getenv('BASE_URL') ?: '';
+foreach ($_ENV as $key => $val) {
+    if (is_string($val) && strpos($val, '${BASE_URL}') !== false) {
+        putenv("$key=" . str_replace('${BASE_URL}', $base, $val));
+    }
+}
+
 // ====================
-// 2️⃣ Secure Session Setup
+// 2️⃣ Optimized Secure Session Setup (AUTO HTTPS + NGROK DETECT)
 // ====================
-if (session_status() === PHP_SESSION_NONE) {
+$isHttps =
+    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+    (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+    (isset($_SERVER['HTTP_CF_VISITOR']) && strpos($_SERVER['HTTP_CF_VISITOR'], '"scheme":"https"') !== false);
+
+$host = $_SERVER['HTTP_HOST'] ?? '';
+$isLocal = (
+    str_contains($host, 'localhost') ||
+    str_contains($host, '.test') ||
+    str_contains($host, '127.0.0.1')
+);
+
+$cookieSecure = $isHttps && !$isLocal;
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
         'cookie_httponly' => true,
-        'cookie_secure'   => getenv('APP_ENV') === 'production',
-        'cookie_samesite' => 'Strict'
+        'cookie_secure'   => $cookieSecure,
+        'cookie_samesite' => $cookieSecure ? 'Strict' : 'Lax'
     ]);
 }
 
@@ -94,10 +116,20 @@ if (!defined('MAX_UPLOAD_SIZE')) define('MAX_UPLOAD_SIZE', 2 * 1024 * 1024); // 
 $allowed_mime_types = ['image/jpeg', 'image/png', 'image/webp'];
 
 // ====================
-// 9️⃣ Cloudflare Turnstile
+// ✅ 9️⃣ Cloudflare Turnstile (Auto Local / Test fallback)
 // ====================
-putenv('TURNSTILE_SITE=' . getenv('TURNSTILE_SITE'));
-putenv('TURNSTILE_SECRET=' . getenv('TURNSTILE_SECRET'));
+$TURNSTILE_SITE   = getenv('TURNSTILE_SITE');
+$TURNSTILE_SECRET = getenv('TURNSTILE_SECRET');
+
+// 🔄 Auto fallback when in localhost or missing values
+if ($isLocal && (!$TURNSTILE_SITE || !$TURNSTILE_SECRET)) {
+    $TURNSTILE_SITE   = "1x00000000000000000000AA";  // Test key
+    $TURNSTILE_SECRET = "1x0000000000000000000000000000000AA"; // Test secret
+}
+
+// final constants used everywhere
+if (!defined('TURNSTILE_SITE'))   define('TURNSTILE_SITE', $TURNSTILE_SITE);
+if (!defined('TURNSTILE_SECRET')) define('TURNSTILE_SECRET', $TURNSTILE_SECRET);
 
 // ====================
 // 🔟 Stripe Configuration

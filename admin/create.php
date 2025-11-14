@@ -3,10 +3,12 @@ session_start();
 require_once __DIR__ . '/../app/config.php'; // PDO connection + verify_csrf()
 require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../app/mail-logger.php'; // ✅ Added for Mailpit logging
+require_once __DIR__ . '/../utilities/log_action.php'; // ✅ Added logging helper
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
 $user_role = $_SESSION['user_role'] ?? 'Admin';
+$user_id   = $_SESSION['user_id'] ?? null;
 
 // Allow both admin and editor
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'])) {
@@ -58,8 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':content_html' => $content_html
         ]);
 
-        
-
         $success = "Page created successfully!";
 
         // ✅ Log to Mailpit inbox
@@ -73,11 +73,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ";
         mailLog($subject, $message);
 
+        // ✅ Log to Database (admin_logs)
+        log_action($user_id, 'Page Created', "Title: {$title}, Slug: {$slug}, Status: {$status}");
+
         // Reset form
         $title = $slug = $content_html = '';
+    } else {
+        // ✅ Log failed creation attempt
+        $errorText = implode(', ', $errors);
+        log_action($user_id, 'Page Create Failed', $errorText);
     }
 }
 ?>
+
+
+<!-- Your existing HTML form remains unchanged -->
+
 
 <!DOCTYPE html>
 <html lang="en">

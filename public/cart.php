@@ -1,328 +1,315 @@
 <?php
-// public/cart.php
+// ===============================================
+// 🛒 Cart Page (Display Cart, Update Quantity, Remove Items)
+// ===============================================
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 require_once __DIR__ . '/../app/config.php';
-require_once __DIR__ . '/../app/security.php';
 require_once __DIR__ . '/../app/helpers.php';
 
-// Initialize cart if not exists
+// debug log file
+$debugLog = __DIR__ . '/../storage/logs/cart_debug.log';
+if (!file_exists(dirname($debugLog))) mkdir(dirname($debugLog), 0755, true);
+
+// helper: write debug
+function cart_debug($msg) {
+    global $debugLog;
+    file_put_contents($debugLog, date('[Y-m-d H:i:s] ') . $msg . PHP_EOL, FILE_APPEND);
+}
+
+// Initialize cart if not set
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// ✅ Add item to cart (from catalog)
-if (($_GET['action'] ?? '') === 'add' && !empty($_GET['slug'])) {
-    $slug = trim($_GET['slug']);
-    $qty = max(1, intval($_GET['qty'] ?? 1));
+// Helper function to read parameters
+function readParam($name) {
+    return $_POST[$name] ?? $_GET[$name] ?? null;
+}
 
-    $stmt = $pdo->prepare("SELECT id, title, price, image FROM catalog WHERE slug = ? AND status='published' LIMIT 1");
+// Action: Add/Update/Remove Cart Item
+$action = readParam('action');
+$slug = readParam('slug');
+$qty = readParam('qty');
+$pid_in = readParam('product_id');
+
+if ($action === 'add' && $slug) {
+    $stmt = $pdo->prepare("SELECT id, title, price, image FROM catalog WHERE slug = ? AND status='published'");
     $stmt->execute([$slug]);
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($product) {
-        $pid = $product['id'];
+        $pid = (int)$product['id'];
+        $_SESSION['cart'][$pid] = [
+            'id' => $pid,
+            'title' => $product['title'],
+            'price' => $product['price'],
+            'image' => $product['image'],
+            'quantity' => isset($_SESSION['cart'][$pid]) ? $_SESSION['cart'][$pid]['quantity'] + $qty : $qty
+        ];
+        cart_debug("Added to cart: $pid with qty: $qty");
+    } else {
+        cart_debug("Product not found for slug: $slug");
+    }
+
+} elseif ($action === 'remove' && $pid_in) {
+    unset($_SESSION['cart'][$pid_in]);
+    cart_debug("Removed from cart: $pid_in");
+
+} elseif ($action === 'clear') {  // ✅ ADDED — CLEAR ENTIRE CART
+    $_SESSION['cart'] = [];
+    cart_debug("Cart cleared completely");
+
+} elseif ($action === 'update' && !empty($_GET['qty'])) {
+    foreach ($_GET['qty'] as $pid => $quantity) {
         if (isset($_SESSION['cart'][$pid])) {
-            $_SESSION['cart'][$pid]['quantity'] += $qty;
-        } else {
-            $_SESSION['cart'][$pid] = [
-                'id' => $pid,
-                'title' => $product['title'],
-                'price' => $product['price'],
-                'image' => $product['image'],
-                'quantity' => $qty
-            ];
+            $_SESSION['cart'][$pid]['quantity'] = max(1, (int)$quantity);
         }
     }
-
+    cart_debug("Cart quantities updated: " . json_encode($_GET['qty']));
     header("Location: /public/cart.php");
     exit;
 }
 
-// ✅ Update item quantity (NEW)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update') {
-    $pid = intval($_POST['product_id']);
-    $qty = max(1, intval($_POST['quantity'] ?? 1));
+// Check cart status
+$cart_items = $_SESSION['cart'];
+$cart_total = 0;
+$cart_qty = 0;
 
-    if (isset($_SESSION['cart'][$pid])) {
-        $_SESSION['cart'][$pid]['quantity'] = $qty; // Replace, not increase
-    }
-
-    header("Location: /public/cart.php");
-    exit;
-}
-
-// ✅ Remove item
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'remove') {
-    $pid = intval($_POST['product_id']);
-    unset($_SESSION['cart'][$pid]);
-    header("Location: /public/cart.php");
-    exit;
-}
-
-// ✅ Empty cart via POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'empty') {
-    $_SESSION['cart'] = [];
-    header("Location: /public/cart.php");
-    exit;
-}
-
-// ✅ Empty cart via GET
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'clear') {
-    $_SESSION['cart'] = [];
-    header("Location: /public/cart.php");
-    exit;
-}
-
-// Fetch cart products
-$cart_items = [];
-$total = 0.0;
-
-if ($_SESSION['cart']) {
-    $ids = implode(',', array_keys($_SESSION['cart']));
-    $stmt = $pdo->query("SELECT * FROM catalog WHERE id IN ($ids) AND status='published'");
-    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    foreach ($products as $p) {
-        $qty = $_SESSION['cart'][$p['id']]['quantity'];
-        $p['quantity'] = $qty;
-        $p['subtotal'] = $p['price'] * $qty;
-        $total += $p['subtotal'];
-        $cart_items[] = $p;
+if ($cart_items) {
+    foreach ($cart_items as $pid => $item) {
+        if (isset($item['id'], $item['title'], $item['price'], $item['quantity']) && is_numeric($item['price']) && is_numeric($item['quantity'])) {
+            $cart_total += $item['price'] * $item['quantity'];
+            $cart_qty += $item['quantity'];
+        } else {
+            cart_debug("Missing or invalid data for cart item with ID: $pid. Data: " . json_encode($item));
+            unset($_SESSION['cart'][$pid]);
+        }
     }
 }
 ?>
 
-
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Your Shopping Cart</title>
-<style>
-/* ============================
-   CART PAGE FULL CSS STYLES
-   ============================ */
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f1f3f6;
-    margin: 0;
-    padding: 40px;
-}
-
-.container {
-    max-width: 900px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    padding: 30px;
-}
-
-h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 25px;
-}
-
-/* ============================
-   TABLE STYLES
-   ============================ */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-th, td {
-    padding: 12px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-}
-
-th {
-    background-color: #f8f9fa;
-    color: #333;
-    font-weight: bold;
-}
-
-tr:hover {
-    background-color: #f1f1f1;
-}
-
-.product-image {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 4px;
-    vertical-align: middle;
-}
-
-/* ============================
-   BUTTONS
-   ============================ */
-button, .btn {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-
-/* Blue - Update */
-.update-btn, .btn-update {
-    background-color: #007bff;
-    color: #fff;
-}
-.update-btn:hover, .btn-update:hover {
-    background-color: #0069d9;
-}
-
-/* Green - Checkout */
-.checkout-btn, .btn-checkout {
-    background-color: #28a745;
-    color: #fff;
-    text-decoration: none;
-    display: inline-block;
-}
-.checkout-btn:hover, .btn-checkout:hover {
-    background-color: #218838;
-}
-
-/* Red - Clear/Remove */
-.clear-btn, .btn-clear {
-    background-color: #dc3545;
-    color: #fff;
-    text-decoration: none;
-    display: inline-block;
-}
-.clear-btn:hover, .btn-clear:hover {
-    background-color: #c82333;
-}
-
-/* ============================
-   TOTAL ROW
-   ============================ */
-.total-row td {
-    font-weight: bold;
-    text-align: right;
-    background: #f8f9fa;
-    border-top: 2px solid #ddd;
-}
-
-/* ============================
-   BUTTON GROUP AREA
-   ============================ */
-.btn-group {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 25px;
-}
-
-a {
-    text-decoration: none;
-}
-
-/* ============================
-   RESPONSIVE DESIGN
-   ============================ */
-@media (max-width: 600px) {
-    body {
-        padding: 20px;
-    }
-
-    .container {
-        padding: 20px;
-    }
-
-    table, th, td {
-        font-size: 14px;
-    }
-
-    .btn-group {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .btn-group .btn,
-    .btn-group button {
-        width: 80%;
-    }
-}
-</style>
+    <meta charset="UTF-8">
+    <title>Your Cart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f3f6;
+            margin: 0;
+            padding: 40px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: bold;
+        }
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            vertical-align: middle;
+        }
+        button, .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+            display: inline-block;
+        }
+        .update-btn {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .update-btn:hover {
+            background-color: #0069d9;
+        }
+        .clear-btn {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .quantity-controls {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .quantity-controls button {
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .quantity-controls input {
+            width: 50px;
+            text-align: center;
+            border: none;
+            font-size: 16px;
+        }
+        .cart-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .cart-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .cart-info {
+            text-align: right;
+        }
+        .cart-info p {
+            margin: 5px 0;
+        }
+        a.btn {
+            text-decoration: none;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            display: inline-block;
+        }
+        a.btn:hover {
+            opacity: 0.9;
+        }
+        @media (max-width: 600px) {
+            .cart-footer {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .cart-buttons {
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+            .cart-info {
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
-
 <div class="container">
-    <h2>Your Shopping Cart</h2>
+    <h1>Your Cart</h1>
 
-    <?php if ($cart_items): ?>
+<?php if (empty($cart_items)): ?>
+    <p>Your cart is empty.</p>
+<?php else: ?>
     <table>
-        <tr>
-            <th>Product</th>
-            <th>Unit Price</th>
-            <th>Quantity</th>
-            <th>Line Total</th>
-            <th>Action</th>
-        </tr>
-
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
         <?php foreach ($cart_items as $item): ?>
-        <tr>
-            <td>
-                <img src="<?= strpos($item['image'], '/uploads/') !== false ? $item['image'] : '/uploads/' . htmlspecialchars($item['image']) ?>" 
-                class="product-image" 
-                alt="<?= htmlspecialchars($item['title']) ?>">
-                <?= htmlspecialchars($item['title']) ?>
-            </td>
-            <td>$<?= number_format($item['price'], 2) ?></td>
-            <td>
-                <form method="post" action="?action=update" style="display:inline;">
-                    <input type="hidden" name="product_id" value="<?= $item['id'] ?>">
-                    <input type="number" name="quantity" value="<?= $item['quantity'] ?>" min="1" style="width:60px; text-align:center;">
-                    <input type="hidden" name="action" value="update">
-                    <button type="submit" class="update-btn">Update</button>
-                </form>
-            </td>
-            <td>$<?= number_format($item['subtotal'], 2) ?></td>
-            <td>
-                <form method="post" style="display:inline;">
-                    <input type="hidden" name="product_id" value="<?= $item['id'] ?>">
-                    <input type="hidden" name="action" value="remove">
-                    <button type="submit" class="clear-btn">Remove</button>
-                </form>
-            </td>
-        </tr>
+            <?php if (isset($item['id'], $item['title'], $item['price'], $item['quantity'])): ?>
+                <tr>
+                    <td><?= htmlspecialchars($item['title']) ?></td>
+                    <td>$<?= number_format($item['price'], 2) ?></td>
+                    <td>
+                        <form method="GET" action="/public/cart.php">
+                            <div class="quantity-controls">
+                                <button type="button" onclick="changeQty(this, -1)">−</button>
+                                <input type="text" name="qty[<?= $item['id'] ?>]" value="<?= $item['quantity'] ?>" readonly>
+                                <button type="button" onclick="changeQty(this, 1)">+</button>
+                            </div>
+                            <input type="hidden" name="action" value="update">
+                            <button type="submit" class="btn update-btn">Update</button>
+                        </form>
+                    </td>
+                    <td>$<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+                    <td>
+                        <a href="/public/cart.php?action=remove&product_id=<?= $item['id'] ?>" class="btn clear-btn">Remove</a>
+                    </td>
+                </tr>
+            <?php else: ?>
+                
+            <?php endif; ?>
         <?php endforeach; ?>
-
-        <tr class="total-row">
-            <td colspan="3">Total:</td>
-            <td colspan="2">$<?= number_format($total, 2) ?></td>
-        </tr>
+        </tbody>
     </table>
-
-    <div class="btn-group" style="justify-content: space-between;">
-    <div>
-        <a href="/public/checkout.php" class="btn btn-checkout">Proceed to Checkout</a>
-        <a href="/public/cart.php?action=clear" class="btn btn-clear">Clear Cart</a>
-    </div>
-    <div>
-        <a href="/public/catalog.php" class="btn btn-update">← Back to Catalog</a>
-    </div>
-</div>
-
-    <?php else: ?>
-    <div style="text-align:center;">
-        <p>Your cart is empty.</p>
-        <a href="catalog.php" class="btn btn-checkout">Go Shopping</a>
-    </div>
 <?php endif; ?>
+
+<div class="cart-footer">
+    <div class="cart-buttons">
+        <a href="/public/catalog.php" class="btn update-btn">
+            <?= empty($cart_items) ? 'Continue Shopping' : 'Back to Catalog' ?>
+        </a>
+
+        <?php if (!empty($cart_items)): ?>
+            <!-- ✅ ADDED CLEAR CART BUTTON -->
+            <a href="/public/cart.php?action=clear" class="btn clear-btn">Clear Cart</a>
+        <?php endif; ?>
+    </div>
+
+    <?php if (!empty($cart_items)): ?>
+        <div class="cart-info">
+           <p><strong>Items in Cart: </strong><?= $cart_qty ?></p>
+            <p><strong>Total: </strong>$<?= number_format($cart_total, 2) ?></p>
+            <a href="/public/checkout.php" class="btn update-btn">Proceed to Checkout</a>
+        </div>
+    <?php endif; ?>
 </div>
+
+</div>
+
+<script>
+function changeQty(button, delta) {
+    const input = button.parentElement.querySelector('input[type="text"]');
+    let qty = parseInt(input.value);
+    qty += delta;
+    if (qty < 1) qty = 1;
+    input.value = qty;
+}
+</script>
 
 </body>
 </html>

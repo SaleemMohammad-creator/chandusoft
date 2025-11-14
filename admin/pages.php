@@ -3,6 +3,7 @@ session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../app/mail-logger.php'; // Mailpit Logger included
+require_once __DIR__ . '/../utilities/log_action.php'; // ✅ Added logging helper
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -13,6 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 // Safe user info
 $user_role = $_SESSION['user_role'] ?? 'Admin';
 $user_name = $_SESSION['user_name'] ?? 'User';
+$user_id   = $_SESSION['user_id'] ?? null;
 
 // Handle search
 $search = trim($_GET['search'] ?? '');
@@ -27,6 +29,23 @@ if (isset($_GET['archive_id']) && $user_role === 'admin') {
     $subject = "Page Archived by Admin";
     $message = "User: {$user_name} ({$user_role}) has archived the page with ID: {$archive_id}.";
     mailLog($subject, $message); // Uses mail-logger.php
+    log_action($user_id, 'Page Archived', "Page ID: {$archive_id} by {$user_name}"); // ✅ Added
+
+    header("Location: pages.php");
+    exit;
+}
+
+// ✅ Handle unarchive action
+if (isset($_GET['unarchive_id']) && $user_role === 'admin') {
+    $unarchive_id = (int)$_GET['unarchive_id'];
+    $stmt = $pdo->prepare("UPDATE pages SET status='draft' WHERE id=:id");
+    $stmt->execute(['id' => $unarchive_id]);
+
+    // ✅ Log to Mailpit Inbox
+    $subject = "Page Unarchived by Admin";
+    $message = "User: {$user_name} ({$user_role}) has unarchived the page with ID: {$unarchive_id}.";
+    mailLog($subject, $message);
+    log_action($user_id, 'Page Unarchived', "Page ID: {$unarchive_id} by {$user_name}"); // ✅ Added
 
     header("Location: pages.php");
     exit;
@@ -68,6 +87,7 @@ if ($search !== '') {
     $subject = "Search Performed in Pages";
     $message = "User: {$user_name} ({$user_role}) searched for: '{$search}'.";
     mailLog($subject, $message);
+    log_action($user_id, 'Page Search', "Search term: {$search}"); // ✅ Added
 }
 
 $query .= " ORDER BY id DESC";
@@ -76,12 +96,16 @@ $stmt->execute($params);
 $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // ✅ Log viewing action
-if (!isset($_GET['archive_id']) && $search === '') {
+if (!isset($_GET['archive_id']) && !isset($_GET['unarchive_id']) && $search === '') {
     $subject = "Pages Viewed";
     $message = "User: {$user_name} ({$user_role}) viewed the pages list (Filter: {$filter}).";
     mailLog($subject, $message);
+    log_action($user_id, 'View Pages List', "Filter: {$filter}"); // ✅ Added
 }
 ?>
+
+
+<!-- Your existing HTML design and rendering remain unchanged -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -141,6 +165,8 @@ tr:hover{background:#eef7ff;}
 .actions button { margin-right:5px; padding:6px 14px; border:none; border-radius:4px; font-weight:bold; font-size:14px; cursor:pointer; }
 .edit-btn { background:#23b07d; color:#fff; }
 .archive-btn { background:#f39c12; color:#fff; }
+.unarchive-btn { background:#8e44ad; color:#fff; padding:6px 14px; border:none; border-radius:4px; font-weight:bold; font-size:14px; cursor:pointer; }
+.unarchive-btn:hover { background:#71368a; }
 
 .delete-btn { 
     background: #c0392b; 
@@ -228,17 +254,19 @@ tr:hover{background:#eef7ff;}
                     <button class="edit-btn" onclick="window.location.href='edit.php?id=<?= $page['id'] ?>'">Edit</button>
 
                     <?php if($user_role === 'admin'): ?>
-                        <button class="archive-btn" onclick="if(confirm('Archive this page?')) window.location.href='pages.php?archive_id=<?= $page['id'] ?>'">Archive</button>
-                    <?php endif; ?>
+                        <?php if($page['status'] === 'archived'): ?>
+                            <button class="unarchive-btn" onclick="if(confirm('Unarchive this page?')) window.location.href='pages.php?unarchive_id=<?= $page['id'] ?>'">Unarchive</button>
+                        <?php else: ?>
+                            <button class="archive-btn" onclick="if(confirm('Archive this page?')) window.location.href='pages.php?archive_id=<?= $page['id'] ?>'">Archive</button>
+                        <?php endif; ?>
 
-                    <?php if($user_role === 'admin'): ?>
                         <button class="delete-btn" onclick="if(confirm('Delete this page?')) window.location.href='delete.php?delete_id=<?= $page['id'] ?>'">Delete</button>
                     <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>
         <?php else: ?>
-            <tr><td colspan="5" style="text-align:center;">No pages found.</td></tr>
+            <tr><td colspan="5" style="text-align:center;">No Pages Found.</td></tr>
         <?php endif; ?>
         </tbody>
     </table>

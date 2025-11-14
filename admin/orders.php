@@ -1,9 +1,10 @@
 <?php
 // =====================================
-// Admin Orders Management (with Pagination)
+// Admin Orders Management (with Pagination + Search)
 // =====================================
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+
 
 // -------------------------------------
 // Secure Session & Role Validation
@@ -25,41 +26,79 @@ if (
     exit();
 }
 
+
 // ====================================
 // Pagination Variables
 // ====================================
 $limit = 10; // number of orders per page
-$page = max(1, (int)($_GET['page'] ?? 1));
+$page  = max(1, (int)($_GET['page'] ?? 1));
 $offset = ($page - 1) * $limit;
+
 
 // ====================================
 // Search Logic + Count
 // ====================================
 $search = trim($_GET['search'] ?? '');
 
-if ($search !== '') {
-    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE customer_email LIKE ? OR order_ref LIKE ?");
-    $like = "%$search%";
-    $countStmt->execute([$like, $like]);
-    $total_orders = (int)$countStmt->fetchColumn();
+$orders = [];
+$total_orders = 0;
 
-    $stmt = $pdo->prepare("SELECT * FROM orders 
-                           WHERE customer_email LIKE ? OR order_ref LIKE ?
-                           ORDER BY created_at DESC
-                           LIMIT $limit OFFSET $offset");
-    $stmt->execute([$like, $like]);
+// ✅ If only special characters entered → return empty result
+if ($search !== '' && !preg_match('/[A-Za-z0-9]/', $search)) {
+    $total_pages = 1;
 } else {
-    $countStmt = $pdo->query("SELECT COUNT(*) FROM orders");
-    $total_orders = (int)$countStmt->fetchColumn();
+    if ($search !== '') {
 
-    $stmt = $pdo->prepare("SELECT * FROM orders 
-                           ORDER BY created_at DESC 
-                           LIMIT $limit OFFSET $offset");
-    $stmt->execute();
+        // Escape wildcard characters
+        $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $search);
+        $like = "%$escaped%";
+
+        $countStmt = $pdo->prepare('
+            SELECT COUNT(*) FROM orders 
+            WHERE customer_email LIKE :email ESCAPE "\\\\"
+               OR order_ref LIKE :ref ESCAPE "\\\\"
+        ');
+
+        $countStmt->execute([
+            ':email' => $like,
+            ':ref'   => $like
+        ]);
+
+        $total_orders = (int)$countStmt->fetchColumn();
+
+        $stmt = $pdo->prepare('
+            SELECT * FROM orders 
+            WHERE customer_email LIKE :email ESCAPE "\\\\"
+               OR order_ref LIKE :ref ESCAPE "\\\\"
+            ORDER BY created_at DESC
+            LIMIT :limit OFFSET :offset
+        ');
+
+        $stmt->bindValue(':email', $like);
+        $stmt->bindValue(':ref', $like);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+    } else {
+        $countStmt = $pdo->query("SELECT COUNT(*) FROM orders");
+        $total_orders = (int)$countStmt->fetchColumn();
+
+        $stmt = $pdo->prepare("
+            SELECT * FROM orders 
+            ORDER BY created_at DESC
+            LIMIT :limit OFFSET :offset
+        ");
+
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    $orders = $stmt->fetchAll();
 }
 
-$orders = $stmt->fetchAll();
-$total_pages = ceil($total_orders / $limit);
+$total_pages = max(1, ceil($total_orders / $limit));
 ?>
 
 <!doctype html>
@@ -88,7 +127,6 @@ h1 {
   padding: 10px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
-  font-size: 1em;
 }
 .search-box button {
   padding: 10px 16px;
@@ -96,12 +134,6 @@ h1 {
   color: #fff;
   border: none;
   border-radius: 6px;
-  font-size: 1em;
-  cursor: pointer;
-  margin-left: 8px;
-}
-.search-box button:hover {
-  background: #1e40af;
 }
 table {
   border-collapse: collapse;
@@ -120,22 +152,6 @@ th, td {
   text-align: left;
 }
 tr:nth-child(even) { background: #f1f5f9; }
-a {
-  color: #2563eb;
-  text-decoration: none;
-  font-weight: 500;
-}
-a:hover { text-decoration: underline; }
-td:last-child a {
-  background: #2563eb;
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  text-decoration: none;
-}
-td:last-child a:hover {
-  background: #1e40af;
-}
 .empty {
   text-align: center;
   color: #64748b;
@@ -146,7 +162,6 @@ td:last-child a:hover {
   text-align: center;
 }
 .pagination a {
-  display: inline-block;
   padding: 8px 14px;
   margin: 0 4px;
   background: #e2e8f0;
@@ -157,53 +172,46 @@ td:last-child a:hover {
 .pagination a.active {
   background: #2563eb;
   color: #fff;
-  font-weight: bold;
 }
-.pagination a:hover {
-  background: #1e40af;
-  color: #fff;
-}
-.gateway {
-  text-transform: capitalize;
-  font-weight: 600;
-}
-
-/* === Status Badges === */
 .status {
-  display: inline-block;
   padding: 6px 10px;
   border-radius: 20px;
-  font-size: 0.9em;
   font-weight: 600;
-  text-transform: capitalize;
 }
-
 .status.paid {
   background: #dcfce7;
   color: #166534;
-  border: 1px solid #16a34a;
 }
-
 .status.pending {
   background: #fef9c3;
   color: #92400e;
-  border: 1px solid #facc15;
 }
-
 .status.failed, .status.cancelled {
   background: #fee2e2;
   color: #991b1b;
-  border: 1px solid #ef4444;
 }
-
 .status.refunded {
   background: #e0f2fe;
   color: #075985;
-  border: 1px solid #0ea5e9;
+}
+
+/* ⭐ NEW: View button style */
+.view-btn {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #2563eb;
+  color: #fff !important;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+}
+.view-btn:hover {
+  background: #1e40af;
 }
 </style>
 </head>
 <body>
+
 <h1>Admin Orders</h1>
 
 <div class="search-box">
@@ -214,43 +222,44 @@ td:last-child a:hover {
 </div>
 
 <table>
-  <thead>
+<thead>
+<tr>
+  <th>ID</th>
+  <th>Order Ref</th>
+  <th>Customer</th>
+  <th>Email</th>
+  <th>Total</th>
+  <th>Gateway</th>
+  <th>Status</th>
+  <th>Transaction ID</th>
+  <th>Date</th>
+  <th>View</th>
+</tr>
+</thead>
+<tbody>
+
+<?php if (empty($orders)): ?>
+  <tr><td colspan="10" class="empty">No orders found</td></tr>
+<?php else: ?>
+  <?php foreach ($orders as $o): ?>
+    <?php $status = strtolower(trim($o['payment_status'] ?? '-')); ?>
     <tr>
-      <th>ID</th>
-      <th>Order Ref</th>
-      <th>Customer</th>
-      <th>Email</th>
-      <th>Total</th>
-      <th>Gateway</th>
-      <th>Status</th>
-      <th>Date</th>
-      <th>View</th>
+      <td><?= $o['id'] ?></td>
+      <td><?= htmlspecialchars($o['order_ref']) ?></td>
+      <td><?= htmlspecialchars($o['customer_name'] ?? '-') ?></td>
+      <td><?= htmlspecialchars($o['customer_email'] ?? '-') ?></td>
+      <td>$<?= number_format($o['total'], 2) ?></td>
+      <td><?= htmlspecialchars($o['payment_gateway'] ?? '-') ?></td>
+      <td><span class="status <?= htmlspecialchars($status) ?>"><?= htmlspecialchars($status ?: '-') ?></span></td>
+      <td><?= htmlspecialchars($o['transaction_id'] ?? '-') ?></td>
+      <td><?= htmlspecialchars($o['created_at'] ?? '-') ?></td>
+      <td><a class="view-btn" href="order_view.php?id=<?= $o['id'] ?>">View</a></td>
+
     </tr>
-  </thead>
-  <tbody>
-    <?php if (empty($orders)): ?>
-      <tr><td colspan="9" class="empty">No orders found</td></tr>
-    <?php else: ?>
-      <?php foreach ($orders as $o): ?>
-        <?php $status = strtolower(trim($o['payment_status'] ?? '-')); ?>
-        <tr>
-          <td><?= $o['id'] ?></td>
-          <td><?= htmlspecialchars($o['order_ref']) ?></td>
-          <td><?= htmlspecialchars($o['customer_name'] ?? '-') ?></td>
-          <td><?= htmlspecialchars($o['customer_email'] ?? '-') ?></td>
-          <td>$<?= number_format($o['total'], 2) ?></td>
-          <td class="gateway"><?= htmlspecialchars($o['payment_gateway'] ?? '-') ?></td>
-          <td>
-            <span class="status <?= htmlspecialchars($status) ?>">
-              <?= htmlspecialchars($status ?: '-') ?>
-            </span>
-          </td>
-          <td><?= htmlspecialchars($o['created_at'] ?? '-') ?></td>
-          <td><a href="order_view.php?id=<?= $o['id'] ?>">View</a></td>
-        </tr>
-      <?php endforeach; ?>
-    <?php endif; ?>
-  </tbody>
+  <?php endforeach; ?>
+<?php endif; ?>
+
+</tbody>
 </table>
 
 <?php if ($total_pages > 1): ?>
@@ -260,7 +269,9 @@ td:last-child a:hover {
   <?php endif; ?>
 
   <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-    <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>" class="<?= $i === $page ? 'active' : '' ?>"><?= $i ?></a>
+    <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>" class="<?= $i === $page ? 'active' : '' ?>">
+      <?= $i ?>
+    </a>
   <?php endfor; ?>
 
   <?php if ($page < $total_pages): ?>

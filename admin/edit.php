@@ -3,10 +3,12 @@ session_start();
 require_once __DIR__ . '/../app/config.php'; // PDO connection
 require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../app/mail-logger.php'; // ✅ Added for Mailpit Logging
+require_once __DIR__ . '/../utilities/log_action.php'; // ✅ Added for admin action logging
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
 $user_role = $_SESSION['user_role'] ?? 'Admin';
+$user_id   = $_SESSION['user_id'] ?? null; // ✅ Added for logging
 
 // Redirect if not logged in or not admin/editor
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'])) {
@@ -67,15 +69,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // ✅ Log to Mailpit
         log_info("Page updated successfully by {$user_name} (Role: {$user_role}) — ID: {$pageId}, Title: {$title}");
 
+        // ✅ Log to Database (admin_logs)
+        log_action($user_id, 'Page Updated', "Page ID: {$pageId}, Title: {$title}, Slug: {$slug}, Status: {$status}");
+
         // Refresh page data
         $stmt->execute(['id' => $pageId]);
         $page = $stmt->fetch(PDO::FETCH_ASSOC);
     } else {
         // ✅ Log errors to Mailpit
         log_error("Page update failed by {$user_name} (Role: {$user_role}) — Errors: " . implode(', ', $errors));
+
+        // ✅ Log failed attempt to Database
+        $errorText = implode(', ', $errors);
+        log_action($user_id, 'Page Update Failed', "Page ID: {$pageId}, Errors: {$errorText}");
     }
 }
 ?>
+
+
+<!-- Your original HTML form and structure remain untouched -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

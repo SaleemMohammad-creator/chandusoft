@@ -1,0 +1,2 @@
+2025-11-10 09:08:55 ❌ Stripe cancel failed for ORD-6FE7B718: No such payment_intent: 'cs_test_a1TSaIQosfuKtiRcSl3QJKWWwK76pIeGKKc6Y42X1LNzTayQMZqHktYaUQ'
+2025-11-11 07:58:13 ❌ Stripe cancel failed for ORD-E9A00A3E: You cannot perform this action on PaymentIntents created by Checkout. Try expiring the Checkout Session instead. See https://stripe.com/docs/api/checkout/sessions/expire for more details.

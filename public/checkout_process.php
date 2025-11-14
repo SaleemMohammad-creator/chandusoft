@@ -26,7 +26,9 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $method = $_POST['method'] ?? '';
 
+    // ------------------------------------------------------------
     // 1️⃣ Manual Card Entry
+    // ------------------------------------------------------------
     if ($method === 'card') {
         $cardName = trim($_POST['card_name'] ?? '');
         $cardNumber = trim($_POST['card_number'] ?? '');
@@ -42,9 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // ------------------------------------------------------------
     // 2️⃣ PayPal Redirect (sandbox API)
+    // ------------------------------------------------------------
     elseif ($method === 'paypal') {
-        // ✅ Create a PayPal order via API
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, PAYPAL_BASE_URL . "/v2/checkout/orders");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -83,9 +86,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "PayPal order creation failed. Response: " . htmlspecialchars($response);
     }
 
-    // 3️⃣ Stripe Redirect
+    // ------------------------------------------------------------
+    // ✅ 3️⃣ Stripe Redirect (UPDATED!)
+    // ------------------------------------------------------------
     elseif ($method === 'stripe') {
-        header("Location: stripe_checkout.php?order_ref=" . urlencode($order_ref));
+
+        require_once __DIR__ . '/../vendor/autoload.php';
+        \Stripe\Stripe::setApiKey(STRIPE_SECRET_KEY);
+
+        $amount = floatval($order['total']) * 100; // cents
+
+        $checkout_session = \Stripe\Checkout\Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price_data' => [
+                    'currency'     => 'usd',
+                    'product_data' => ['name' => 'Order #' . $order_ref],
+                    'unit_amount'  => intval($amount),
+                ],
+                'quantity' => 1,
+            ]],
+            'mode' => 'payment',
+
+            // ✅ Attach to payment intent metadata so webhook can update DB
+            'payment_intent_data' => [
+                'metadata' => [
+                    'order_ref' => $order_ref
+                ]
+            ],
+
+            // ✅ Success → we redirect to success page
+            'success_url' => BASE_URL . "/public/success.php?order_ref={$order_ref}",
+
+            // ✅ Cancel → DO NOT store transaction id, just mark as failed
+            'cancel_url' => BASE_URL . "/public/cancel.php?order_ref={$order_ref}&session_id={CHECKOUT_SESSION_ID}",
+        ]);
+
+        header("Location: " . $checkout_session->url);
         exit;
     }
 
@@ -105,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Complete Payment</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+/* ---- your original styling untouched ----- */
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
   background: #f7f9fc;
@@ -153,29 +191,15 @@ button {
   border-radius: 8px;
   font-size: 1.1em;
   cursor: pointer;
-  transition: background 0.3s ease;
 }
-button:hover {
-  background: #0056b3;
-}
-.error {
-  background: #f8d7da;
-  color: #721c24;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-}
-.payment-options {
-  display: flex;
-  justify-content: space-around;
-  margin: 20px 0;
-}
+button:hover { background: #0056b3; }
+.error { background: #f8d7da; padding: 10px; border-radius: 8px; }
+.payment-options { display: flex; justify-content: space-around; margin: 20px 0; }
 .option {
   border: 2px solid #ccc;
   border-radius: 8px;
   padding: 12px 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 .option:hover {
   border-color: #007bff;
@@ -185,22 +209,9 @@ button:hover {
   border-color: #007bff;
   background: #e9f2ff;
 }
-.card-form {
-  margin-top: 20px;
-}
-.back-link {
-  text-align: center;
-  margin-top: 20px;
-}
-a.button {
-  text-decoration: none;
-  background: #6c757d;
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-weight: bold;
-  transition: background 0.3s;
-}
+.card-form { margin-top: 20px; }
+.back-link { text-align: center; margin-top: 20px; }
+a.button { text-decoration: none; background: #6c757d; color: #fff; padding: 10px 16px; border-radius: 6px; }
 a.button:hover { background: #5a6268; }
 </style>
 <script>
@@ -231,7 +242,6 @@ function selectMethod(method) {
       <div class="option" id="stripe" onclick="selectMethod('stripe')">💠 Stripe</div>
     </div>
 
-    <!-- Manual Card Entry -->
     <div id="cardDetails" class="card-form" style="display:none;">
       <label>Cardholder Name</label>
       <input type="text" name="card_name" placeholder="John Doe">

@@ -1,14 +1,65 @@
 <?php
+// =======================================
 // public/cancel.php
+// Triggered when the customer clicks
+// "Cancel" on the Stripe Checkout page
+// =======================================
+
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/security.php';
 
-$order_ref = $_GET['order_ref'] ?? ''; // ✅ corrected key name
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
+use Stripe\PaymentIntent;
+
+// ✅ Fallback if clean() doesn't exist
+if (!function_exists('clean')) {
+    function clean($data) {
+        return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
+    }
+}
+
+// ✅ Read data from cancel URL
+$order_ref  = clean($_GET['order_ref'] ?? '');
+$session_id = clean($_GET['session_id'] ?? '');  // Checkout Session ID
 
 if ($order_ref) {
-    // Mark order as cancelled
-    $stmt = $pdo->prepare("UPDATE orders SET payment_status = 'cancelled' WHERE order_ref = :ref");
+
+    // ✅ Mark order as FAILED (only when not paid)
+    $stmt = $pdo->prepare("
+        UPDATE orders
+        SET payment_status = 'failed', updated_at = NOW()
+        WHERE order_ref = :ref AND payment_status != 'paid'
+    ");
     $stmt->execute(['ref' => $order_ref]);
+
+    // ✅ Cancel PaymentIntent to show "Canceled" in Stripe dashboard
+    if (!empty($session_id)) {
+
+        Stripe::setApiKey(STRIPE_SECRET_KEY);
+
+        try {
+            $session = Session::retrieve($session_id);
+            if (!empty($session->payment_intent)) {
+
+                // --- FIX: retrieve the PaymentIntent instance, then call cancel() on it ---
+                $paymentIntent = PaymentIntent::retrieve($session->payment_intent);
+                $paymentIntent->cancel();  // instance method call (works for current SDK)
+                // -----------------------------------------------------------------------
+
+            }
+        } catch (Exception $e) {
+            $log_dir = __DIR__ . '/../storage';
+            if (!is_dir($log_dir)) mkdir($log_dir, 0777, true);
+
+            file_put_contents(
+                $log_dir . '/stripe-error.log',
+                date('Y-m-d H:i:s') . " ❌ Stripe cancel failed for {$order_ref}: " . $e->getMessage() . "\n",
+                FILE_APPEND
+            );
+        }
+    }
 }
 ?>
 <!doctype html>
@@ -17,53 +68,23 @@ if ($order_ref) {
 <meta charset="utf-8">
 <title>Payment Cancelled</title>
 <style>
-  body {
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: #fef2f2;
-    color: #333;
-    margin: 0;
-    padding: 0;
-  }
+  body { font-family: "Segoe UI", Arial, sans-serif; background: #fef2f2; margin: 0; }
   .container {
-    max-width: 600px;
-    margin: 60px auto;
-    background: #fff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    text-align: center;
+    max-width: 600px; margin: 60px auto; background: white; padding: 40px;
+    border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;
   }
-  h1 {
-    color: #dc2626;
-    font-size: 1.8em;
-    margin-bottom: 10px;
-  }
-  p {
-    font-size: 1.05em;
-    line-height: 1.6;
-    margin: 10px 0;
-  }
-  strong { color: #b91c1c; }
+  h1 { color: #dc2626; font-size: 26px; }
+  .order { font-weight: bold; color: #b91c1c; }
   a {
-    display: inline-block;
-    margin-top: 20px;
-    text-decoration: none;
-    background: #b91c1c;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    transition: background 0.2s ease;
+    margin-top: 20px; display: inline-block; background: #b91c1c;
+    color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none;
   }
-  a:hover { background: #7f1d1d; }
 </style>
 </head>
 <body>
   <div class="container">
     <h1>❌ Payment Cancelled</h1>
-    <p>Your order <strong><?= htmlspecialchars($order_ref) ?></strong> was cancelled.</p>
-    <p>You can try again or contact support.</p>
-
-    <!-- ✅ Updated redirect link -->
+    <p>Your order <span class="order"><?= htmlspecialchars($order_ref) ?></span> was not completed.</p>
     <p><a href="<?= BASE_URL ?>/public/cart.php">Return to cart</a></p>
   </div>
 </body>

@@ -169,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
         $_SESSION['success_message'] = "Catalog item added successfully.";
-        redirect('catalog.php');
+        redirect('/admin/catalog.php');
 
     } catch (Exception $e) {
         $errors[] = $e->getMessage();

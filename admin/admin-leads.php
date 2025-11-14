@@ -1,16 +1,23 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../utilities/log_action.php'; // ✅ log helper
+
+// Secure session
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Check login
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
-// Safe user info
+
+// User info
+$user_id   = $_SESSION['user_id'] ?? null;
 $user_name = $_SESSION['user_name'] ?? 'User';
 $user_role = $_SESSION['user_role'] ?? 'Admin';
-
 
 // Handle search
 $search = trim($_GET['search'] ?? '');
@@ -21,11 +28,16 @@ if ($search !== '') {
         's2' => "%$search%"
     ]);
     $leads = $stmt->fetchAll();
+
+    // ✅ Log search — includes role & name for clarity
+    $details = sprintf("%s (%s) searched leads for: '%s'", $user_name, ucfirst($user_role), $search);
+    log_action($user_id, 'Lead Search', $details);
 } else {
     $stmt = $pdo->query("SELECT * FROM leads ORDER BY id DESC");
     $leads = $stmt->fetchAll();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

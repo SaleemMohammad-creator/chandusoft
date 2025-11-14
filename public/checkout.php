@@ -3,9 +3,10 @@ session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
 
-// ✅ Support "Buy Now" direct product load
+// ✅ Support "Buy Now" direct product load (with quantity)
 if (isset($_GET['action']) && $_GET['action'] === 'buy' && !empty($_GET['slug'])) {
     $slug = trim($_GET['slug']);
+    $qty  = max(1, intval($_GET['qty'] ?? 1)); // ✅ Read quantity from URL safely
 
     // Fetch product by slug
     $stmt = $pdo->prepare("SELECT id, title, price FROM catalog WHERE slug = ? AND status = 'published' LIMIT 1");
@@ -13,11 +14,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy' && !empty($_GET['slug'])
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($product) {
+        // ✅ Store correct quantity (instead of always 1)
         $_SESSION['cart'] = [[
             'product_id'   => $product['id'],
             'product_name' => $product['title'],
             'unit_price'   => (float)$product['price'],
-            'quantity'     => 1
+            'quantity'     => $qty
         ]];
     } else {
         die('Product not found.');
@@ -140,56 +142,107 @@ body {
 h1 {
   text-align: center;
   color: #007BFF;
+  margin-bottom: 30px;
 }
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
+  table-layout: fixed;
 }
 th, td {
-  padding: 10px;
+  padding: 12px 10px;
   border-bottom: 1px solid #ddd;
+  text-align: left;
+  vertical-align: middle;
 }
-th { background: #007BFF; color: #fff; }
+th {
+  background: #007BFF;
+  color: #fff;
+  font-weight: bold;
+}
+td:nth-child(2),
+td:nth-child(3),
+td:nth-child(4),
+th:nth-child(2),
+th:nth-child(3),
+th:nth-child(4) {
+  text-align: right;
+  width: 120px;
+}
 form {
   margin-top: 25px;
 }
 input, textarea {
   width: 100%;
   padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  font-size: 15px;
 }
 button, a.button {
   background: #007BFF;
   color: white;
   border: none;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border-radius: 6px;
   cursor: pointer;
   text-decoration: none;
   font-weight: bold;
   transition: background 0.3s ease;
+  display: inline-block;
 }
 button:hover, a.button:hover {
   background: #0056b3;
 }
-.success {
-  background: #d4edda;
-  color: #155724;
+.success, .error {
   padding: 12px;
   border-radius: 6px;
   margin-bottom: 15px;
+}
+.success {
+  background: #d4edda;
+  color: #155724;
 }
 .error {
   background: #f8d7da;
   color: #721c24;
-  padding: 12px;
-  border-radius: 6px;
-  margin-bottom: 15px;
+}
+h2 {
+  margin-top: 30px;
+  color: #333;
+}
+h3 {
+  text-align: right;
+  margin-top: 15px;
+}
+@media (max-width: 600px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  tr {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  th {
+    display: none;
+  }
+  td {
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    text-align: left;
+    font-weight: bold;
+  }
 }
 </style>
+
 </head>
 <body>
 <div class="container">

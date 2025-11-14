@@ -1,48 +1,46 @@
 # ============================================================
 # Chandusoft Optimized .htaccess
 # Clean URLs + SEO + Performance (Mobile & Desktop)
+# Works with Laragon Virtual Host (chandusoft.test) & Ngrok
 # ============================================================
 
 RewriteEngine On
 RewriteBase /
 
 # ------------------------------------------------------------
-# 🔗 0. FIX /index HTTPS ISSUE (Internal rewrite, no redirect)
+# ✅ FORCE HTTPS REDIRECT (respects .env → FORCE_HTTPS=true)
+# ------------------------------------------------------------
+# ✅ Do NOT force HTTPS when using ngrok
+RewriteCond %{HTTP_HOST} !ngrok-free.app$ [NC]
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ------------------------------------------------------------
+# ✅ STRIPE WEBHOOK — NO REDIRECT / NO HEADER OUTPUT
+# Must be the FIRST rule
+# ------------------------------------------------------------
+RewriteRule ^payment-webhook\.php$ public/payment-webhook.php [L,NC,END]
+
+# ------------------------------------------------------------
+# 🔗 1. FIX /index HTTPS ISSUE (Internal rewrite, no redirect)
 # ------------------------------------------------------------
 <IfModule mod_rewrite.c>
-  # Only rewrite root / to index.php internally if HTTPS
   RewriteCond %{HTTPS} on
   RewriteRule ^$ index.php [L,QSA,NC]
 </IfModule>
 
 # ------------------------------------------------------------
-# 🔒 1. SECURITY & ACCESS CONTROL
-# ------------------------------------------------------------
-# Hide sensitive files
-<FilesMatch "(^\.|config\.php|db\.php|auth\.php|logger\.php)$">
-  Require all denied
-</FilesMatch>
-
-# Disable directory browsing
-Options -Indexes
-
-# Protect .env or hidden files
-<FilesMatch "^\.">
-  Require all denied
-</FilesMatch>
-
-# ------------------------------------------------------------
 # 🧭 2. ROOT REDIRECT & CANONICAL URLs
 # ------------------------------------------------------------
-# Redirect root / → /index
-RewriteRule ^$ /index [R=301,L]
+RewriteRule ^$ index.php [L,QSA,NC]
 
-# Redirect .php requests to clean URL
+# Remove .php from URL
 RewriteCond %{THE_REQUEST} \s/([^.]+)\.php[\s?]
 RewriteRule ^ %1 [R=301,L]
 
 # ------------------------------------------------------------
-# 🧭 3. STATIC PUBLIC PAGES
+# 🧭 3. STATIC ROOT PAGES
 # ------------------------------------------------------------
 RewriteRule ^index/?$ index.php [L,QSA,NC]
 RewriteRule ^about/?$ about.php [L,QSA,NC]
@@ -50,52 +48,73 @@ RewriteRule ^services/?$ services.php [L,QSA,NC]
 RewriteRule ^contact/?$ contact.php [L,QSA,NC]
 
 # ------------------------------------------------------------
-# 🧭 4. PUBLIC FOLDER PAGES (direct access)
+# 🛒 4. CART / CHECKOUT (Files in /public)
 # ------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^cart/?$ public/cart.php [L,QSA,NC]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^checkout/?$ public/checkout.php [L,QSA,NC]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^success/?$ public/success.php [L,QSA,NC]
+
+# ------------------------------------------------------------
+# 🧭 5. DIRECT ACCESS TO /public FILES
+# ------------------------------------------------------------
+RewriteRule ^public/cart/?$ public/cart.php [L,QSA,NC]
+RewriteRule ^public/checkout/?$ public/checkout.php [L,QSA,NC]
+RewriteRule ^public/checkout_process/?$ public/checkout_process.php [L,QSA,NC]
+RewriteRule ^public/stripe_checkout/?$ public/stripe_checkout.php [L,QSA,NC]
 RewriteRule ^public/catalog/?$ public/catalog.php [L,QSA,NC]
 RewriteRule ^public/catalog/page/([0-9]+)$ public/catalog.php?page_no=$1 [L,QSA,NC]
 RewriteRule ^public/catalog-item/?$ public/catalog-item.php [L,QSA,NC]
 RewriteRule ^public/catalog-item/([a-zA-Z0-9\-_]+)/?$ public/catalog-item.php?slug=$1 [L,QSA,NC]
 
-
-# 🧺 CART & CHECKOUT ROUTES (keep /public path visible)
-RewriteRule ^public/cart/?$ public/cart.php [L,QSA,NC]
-RewriteRule ^public/checkout/?$ public/checkout.php [L,QSA,NC]
-
-# ✅ Allow checkout_process direct access
-RewriteRule ^public/checkout_process/?$ public/checkout_process.php [L,QSA,NC]
-RewriteRule ^public/stripe_checkout/?$ public/stripe_checkout.php [L,QSA,NC]
-RewriteRule ^public/paypal_checkout/?$ public/paypal_checkout.php [L,QSA,NC]
 RewriteRule ^public/success/?$ public/success.php [L,QSA,NC]
 RewriteRule ^public/cancel/?$ public/cancel.php [L,QSA,NC]
 
+RewriteRule ^public/payment-webhook\.php$ - [L]
 
 # ------------------------------------------------------------
-# 🧭 5. ADMIN PANEL PAGES
+# 🛒 ✅ PUBLIC CATALOG PAGE (Clean URL /catalog)
 # ------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^catalog/?$ public/catalog.php [L,QSA,NC]
+
+# ------------------------------------------------------------
+# 🧭 6. ADMIN PANEL ROUTES
+# ------------------------------------------------------------
+
+# ✅ Load your existing catalog-new.php page
+RewriteRule ^admin/catalog-new/?$ admin/catalog-new.php [L,QSA,NC]
+
 RewriteRule ^admin/login/?$ admin/login.php [L,QSA,NC]
+RewriteRule ^admin/logout/?$ admin/logout.php [L,QSA,NC]
+RewriteRule ^admin/catalog/?$ admin/catalog.php [L,QSA,NC]
 RewriteRule ^admin/catalog-list/?$ admin/catalog-list.php [L,QSA,NC]
 RewriteRule ^admin/catalog-create/?$ admin/catalog-create.php [L,QSA,NC]
 RewriteRule ^admin/catalog-edit/([0-9]+)/?$ admin/catalog-edit.php?id=$1 [L,QSA,NC]
 RewriteRule ^admin/catalog-archive/?$ admin/catalog-archive.php [L,QSA,NC]
 RewriteRule ^admin/catalog-store/?$ admin/catalog-store.php [L,QSA,NC]
-# Redirect /admin/orders → /admin/orders_list.php
-RewriteRule ^orders$ orders_list.php [L,QSA]
 
-# Generic admin fallback
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^admin/([a-zA-Z0-9\-_]+)/?$ admin/$1.php [L,QSA,NC]
 
 # ------------------------------------------------------------
-# 🧭 6. DYNAMIC CMS SLUG HANDLING
+# 🧭 7. DYNAMIC CMS SLUG HANDLER (catch-all slugs)
 # ------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^([a-zA-Z0-9\-_]+)/?$ index.php?slug=$1 [L,QSA,NC]
 
 # ------------------------------------------------------------
-# ⚡ 7. PERFORMANCE BOOST (CACHING + COMPRESSION)
+# ⚡ 8. PERFORMANCE BOOST (CACHING + COMPRESSION)
 # ------------------------------------------------------------
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
@@ -131,30 +150,24 @@ AddType image/webp .webp
 </IfModule>
 
 # ------------------------------------------------------------
-# 🚀 8. PRELOAD + SECURITY HEADERS
+# 🚀 9. SECURITY HEADERS
 # ------------------------------------------------------------
 <IfModule mod_headers.c>
   <FilesMatch "\.(woff2)$">
     Header add Link "<%{REQUEST_URI}e>; rel=preload; as=font; crossorigin"
   </FilesMatch>
   Header always set X-Content-Type-Options "nosniff"
-  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-Frame-Options "DENY"
   Header always set X-XSS-Protection "1; mode=block"
 </IfModule>
 
 # ------------------------------------------------------------
-# 🧩 9. ERROR HANDLING
+# 🧩 10. CUSTOM ERROR PAGES
 # ------------------------------------------------------------
-ErrorDocument 404 /404.php
-ErrorDocument 500 /500.php
+ErrorDocument 404 /views/404.php
+
 
 # ------------------------------------------------------------
-# 10. DEFAULT PAGE
+# DEFAULT DOCUMENT
 # ------------------------------------------------------------
 DirectoryIndex index.php
-
-# ------------------------------------------------------------
-# 🔗 11. OPTIONAL HTTPS ENFORCEMENT (UNCOMMENT IF SSL AVAILABLE)
-# ------------------------------------------------------------
-# RewriteCond %{HTTPS} off
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
