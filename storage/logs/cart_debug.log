@@ -47,3 +47,8 @@
 [2025-11-14 07:03:26] Added to cart: 11 with qty: 1
 [2025-11-14 07:04:31] Added to cart: 17 with qty: 1
 [2025-11-14 07:04:50] Removed from cart: 17
+[2025-11-14 07:34:18] Added to cart: 18 with qty: 1
+[2025-11-15 09:47:10] Missing or invalid data for cart item with ID: 0. Data: {"product_id":11,"product_name":"Nutrition","unit_price":8,"quantity":1}
+[2025-11-15 09:50:46] Added to cart: 17 with qty: 1
+[2025-11-15 09:53:56] Cart cleared completely
+[2025-11-15 10:04:29] Added to cart: 20 with qty: 1

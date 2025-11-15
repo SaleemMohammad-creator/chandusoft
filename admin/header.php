@@ -72,8 +72,9 @@ $staticPages = [
         <a href="/contact" class="<?= ($currentPage === 'contact') ? 'active' : '' ?>">Contact</a>
 
         <!-- ✅ Login / Register -->
-        <a href="/admin/login.php" class="<?= ($currentPage === 'login') ? 'active' : '' ?>">Login/Register</a>
+        <a href="/admin/login.php" class="<?= ($currentPage === 'login') ? 'active' : '' ?>">Login</a>
         
+        <a href="/admin/register.php" class="<?= ($currentPage === 'register') ? 'active' : '' ?>">Sign Up</a>
 
     </nav>
 </header>

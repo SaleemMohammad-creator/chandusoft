@@ -100,135 +100,179 @@ if ($cart_items) {
     <title>Your Cart</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f1f3f6;
-            margin: 0;
-            padding: 40px;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-        }
-        h1 {
-            text-align: center;
-            color: #007bff;
-            margin-bottom: 25px;
-            font-size: 28px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f8f9fa;
-            color: #333;
-            font-weight: bold;
-        }
-        .product-image {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 4px;
-            vertical-align: middle;
-        }
-        button, .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            text-align: center;
-            display: inline-block;
-        }
-        .update-btn {
-            background-color: #007bff;
-            color: #fff;
-        }
-        .update-btn:hover {
-            background-color: #0069d9;
-        }
-        .clear-btn {
-            background-color: #dc3545;
-            color: #fff;
-        }
-        .quantity-controls {
-            display: inline-flex;
-            align-items: center;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        .quantity-controls button {
-            background: #007BFF;
-            color: #fff;
-            border: none;
-            width: 35px;
-            height: 35px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-        .quantity-controls input {
-            width: 50px;
-            text-align: center;
-            border: none;
-            font-size: 16px;
-        }
-        .cart-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        .cart-buttons {
-            display: flex;
-            gap: 15px;
-        }
-        .cart-info {
-            text-align: right;
-        }
-        .cart-info p {
-            margin: 5px 0;
-        }
-        a.btn {
-            text-decoration: none;
-            color: #fff;
-            padding: 10px 18px;
-            border-radius: 5px;
-            font-weight: 600;
-            transition: all 0.2s ease-in-out;
-            display: inline-block;
-        }
-        a.btn:hover {
-            opacity: 0.9;
-        }
-        @media (max-width: 600px) {
-            .cart-footer {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-            .cart-buttons {
-                justify-content: center;
-                margin-bottom: 10px;
-            }
-            .cart-info {
-                text-align: center;
-            }
-        }
+      /* ===========================
+   Global Styles
+=========================== */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f1f3f6;
+    margin: 0;
+    padding: 40px;
+}
+
+/* ===========================
+   Container
+=========================== */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+/* ===========================
+   Headings
+=========================== */
+h1 {
+    text-align: center;
+    color: #007bff;
+    font-size: 28px;
+    margin-bottom: 25px;
+}
+
+/* ===========================
+   Table
+=========================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th,
+td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: bold;
+}
+
+.product-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+
+/* ===========================
+   Buttons
+=========================== */
+button,
+.btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+    display: inline-block;
+}
+
+.update-btn {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.update-btn:hover {
+    background-color: #0069d9;
+}
+
+.clear-btn {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+a.btn {
+    text-decoration: none;
+    color: #fff;
+}
+
+a.btn:hover {
+    opacity: 0.9;
+}
+
+/* ===========================
+   Quantity Controls
+=========================== */
+.quantity-controls {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.quantity-controls button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.quantity-controls input {
+    width: 50px;
+    text-align: center;
+    border: none;
+    font-size: 16px;
+}
+
+/* ===========================
+   Cart Footer
+=========================== */
+.cart-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.cart-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.cart-info {
+    text-align: right;
+}
+
+.cart-info p {
+    margin: 5px 0;
+}
+
+/* ===========================
+   Responsive
+=========================== */
+@media (max-width: 600px) {
+    .cart-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .cart-buttons {
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .cart-info {
+        text-align: center;
+    }
+}
+
     </style>
 </head>
 <body>

@@ -68,17 +68,57 @@ if ($order_ref) {
 <meta charset="utf-8">
 <title>Payment Cancelled</title>
 <style>
-  body { font-family: "Segoe UI", Arial, sans-serif; background: #fef2f2; margin: 0; }
-  .container {
-    max-width: 600px; margin: 60px auto; background: white; padding: 40px;
-    border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;
-  }
-  h1 { color: #dc2626; font-size: 26px; }
-  .order { font-weight: bold; color: #b91c1c; }
-  a {
-    margin-top: 20px; display: inline-block; background: #b91c1c;
-    color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none;
-  }
+  /* ===========================
+   Global Styles
+=========================== */
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #fef2f2;
+    margin: 0;
+}
+
+/* ===========================
+   Container
+=========================== */
+.container {
+    max-width: 600px;
+    margin: 60px auto;
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* ===========================
+   Headings
+=========================== */
+h1 {
+    color: #dc2626;
+    font-size: 26px;
+}
+
+/* ===========================
+   Order Label
+=========================== */
+.order {
+    font-weight: bold;
+    color: #b91c1c;
+}
+
+/* ===========================
+   Link Button
+=========================== */
+a {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #b91c1c;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
 </style>
 </head>
 <body>

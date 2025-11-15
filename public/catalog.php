@@ -58,67 +58,291 @@ logCatalogAction("Catalog listing viewed. Search: '$search', Page: $page_no");
 <title>Catalog</title>
 
 <style>
-/* ------- ORIGINAL CSS (NOT Modified) ------- */
-body { font-family: Arial; margin:0; background:#f7f8fc; }
-header { display:flex; justify-content:space-between; align-items:center;
-         background-color:#007BFF; padding:5px 10px; }
-.logo img { width:400px; height:70px; }
-nav { display:flex; justify-content:center; gap:15px; background-color:#007BFF;
-      padding:1px 0; }
-nav a, nav button { padding:10px 18px; margin:5px; background:#007BFF; color:white;
-    text-decoration:none; border-radius:5px; font-weight:bold; border:1px solid #007BFF;
-    transition:all 0.3s ease; cursor:pointer; }
-nav a.active, nav button.active { background:#fff; color:#007BFF; border-color:#fff; }
-nav a:hover, nav button:hover { background:rgb(239,245,245); color:#007BFF; }
+/* =========================================================
+   BASIC PAGE UI
+   ========================================================= */
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f7f8fc;
+}
 
-.container { max-width:1000px; margin:100px auto 40px auto; background:#fff;
-    border-radius:10px; box-shadow:0 4px 12px #0001; padding:30px 28px; }
-h2 { text-align:center; color:#007BFF; margin-bottom:20px; }
-.search-bar { text-align:center; margin-bottom:20px; }
-.search-bar input { padding:8px 12px; width:250px; border-radius:5px; border:1px solid #ccc; }
-.search-bar button { padding:8px 14px; border:none; border-radius:5px; background:#007BFF;
-    color:#fff; cursor:pointer; }
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #007BFF;
+    padding: 5px 10px;
+}
 
-.catalog { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:20px; max-width:1200px; margin:0 auto; }
-.card { background:#fff; padding:15px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1);
-    display:flex; flex-direction:column; justify-content:space-between; }
+.logo img {
+    width: 400px;
+    height: 70px;
+}
 
-.card picture, .card img {
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    background-color: #007BFF;
+    padding: 1px 0;
+}
+
+nav a,
+nav button {
+    padding: 10px 18px;
+    margin: 5px;
+    background: #007BFF;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    border: 1px solid #007BFF;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+nav a.active,
+nav button.active {
+    background: #fff;
+    color: #007BFF;
+    border-color: #fff;
+}
+
+nav a:hover,
+nav button:hover {
+    background: rgb(239, 245, 245);
+    color: #007BFF;
+}
+
+/* =========================================================
+   PAGE CONTAINER
+   ========================================================= */
+.container {
+    max-width: 1000px;
+    margin: 100px auto 40px auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px #0001;
+    padding: 30px 28px;
+}
+
+h2 {
+    text-align: center;
+    color: #007BFF;
+    margin-bottom: 20px;
+}
+
+/* =========================================================
+   SEARCH BAR
+   ========================================================= */
+.search-bar {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.search-bar input {
+    padding: 8px 12px;
+    width: 250px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.search-bar button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 5px;
+    background: #007BFF;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* =========================================================
+   CATALOG GRID
+   ========================================================= */
+.catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================================================
+   CARD IMAGE
+   ========================================================= */
+.card picture,
+.card img {
     width: 100%;
-    height: 250px;          /* fixed frame, same for all images */
-    object-fit: contain;    /* keeps full image visible, no crop */
-    background: #ffffff;    /* clean background */
+    height: 250px;
+    object-fit: contain;
+    background: #ffffff;
     border-radius: 6px;
+    padding: 5px;
     display: block;
+}
+
+/* =========================================================
+   CARD TEXT
+   ========================================================= */
+.card h3 {
+    margin: 5px 0;
+    color: #007BFF;
+}
+
+.card p {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* =========================================================
+   QUANTITY SELECTOR
+   ========================================================= */
+.qty-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.qty-selector button {
+    background: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.qty-selector input {
+    width: 50px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
     padding: 5px;
 }
 
-.card h3 { margin:5px 0; color:#007BFF; }
-.card p { font-size:14px; color:#333; margin-bottom:10px; }
+/* =========================================================
+   CARD ACTION BUTTONS
+   ========================================================= */
+.card-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+}
 
-.qty-selector { display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:8px; }
-.qty-selector button { background:#007BFF; color:white; border:none; border-radius:4px;
-    padding:5px 10px; cursor:pointer; font-size:16px; }
-.qty-selector input { width:50px; text-align:center; border:1px solid #ccc; border-radius:4px; padding:5px; }
+.card-buttons a {
+    flex: 1;
+    text-decoration: none;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+}
 
-.card-buttons { display:flex; justify-content:space-between; gap:8px; margin-top:auto; }
-.card-buttons a { flex:1; text-decoration:none; color:#fff; padding:6px 10px; border-radius:4px;
-    text-align:center; font-weight:600; font-size:14px; }
-.card-buttons a.add { background:#007BFF; }
-.card-buttons a.buy { background:#28a745; }
-.card-buttons a:hover.add { background:#0056b3; }
-.card-buttons a:hover.buy { background:#1e7e34; }
+.card-buttons a.add { background: #007BFF; }
+.card-buttons a.buy { background: #28a745; }
 
-.pagination { text-align:center; margin-top:20px; }
-.pagination a { padding:6px 12px; border:1px solid #007BFF; margin:0 3px; border-radius:5px;
-    text-decoration:none; color:#007BFF; }
-.pagination a.active { background:#007BFF; color:#fff; }
+.card-buttons a:hover.add { background: #0056b3; }
+.card-buttons a:hover.buy { background: #1e7e34; }
 
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    padding: 6px 12px;
+    border: 1px solid #007BFF;
+    margin: 0 3px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #007BFF;
+}
+
+.pagination a.active {
+    background: #007BFF;
+    color: #fff;
+}
+
+/* =========================================================
+   MOBILE FIXES
+   ========================================================= */
 @media (max-width:480px) {
-    .card-buttons { flex-direction:column; }
+    .card-buttons { flex-direction: column; }
+}
+
+/* =========================================================
+   COMPACT CARD IMPROVEMENTS (neat reduced version)
+   ========================================================= */
+.card {
+    height: 330px;
+    padding: 12px;
+}
+
+.card picture {
+    height: 150px;
+}
+
+.card img {
+    height: 100%;
+    object-fit: contain;
+}
+
+.card h3 {
+    height: 38px;
+    overflow: hidden;
+    font-size: 16px;
+    line-height: 1.2;
+}
+
+.card p {
+    height: 18px;
+    margin-bottom: 8px;
+}
+
+.qty-selector {
+    gap: 6px;
+    margin-top: auto;
+}
+
+.qty-selector button {
+    padding: 4px 8px;
+    font-size: 14px;
+}
+
+.qty-selector input {
+    width: 45px;
+    padding: 4px;
+}
+
+.card-buttons a {
+    padding: 5px 8px;
+    font-size: 13px;
 }
 </style>
+
+
 </head>
 <body>
 

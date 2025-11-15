@@ -97,41 +97,110 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Create New Page - Admin</title>
 <link rel="stylesheet" href="assets/css/styles.css">
 <style>
-    body { font-family: Arial; margin:0; background:#f7f8fc; }
+ /* ===========================
+   Global Styles
+=========================== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f7f8fc;
+}
 
+/* ===========================
+   Navbar
+=========================== */
 .navbar {
-    background:#2c3e50;
-    color:#fff;
-    padding:15px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
+    background: #2c3e50;
+    color: #fff;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     position: fixed;
     top: 0;
     left: 0;
-    width:100%;
-    z-index:1000;
+    width: 100%;
+    z-index: 1000;
     box-sizing: border-box;
 }
 
-.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
-.navbar .navbar-left { font-weight:bold; font-size:22px; }
-.navbar .navbar-right { display:flex; align-items:center; }
-.navbar .navbar-right span { margin-right:10px; font-weight:bold; }
-.navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
-.navbar a.nav-btn:hover { background:#1C86EE; }
-
-.container {
-    max-width:1000px;
-    margin:100px auto 40px auto;
-    background:#fff;
-    border-radius:10px;
-    box-shadow:0 4px 12px #0001;
-    padding:30px 28px;
+.navbar-left {
+    font-size: 22px;
+    font-weight: bold;
 }
 
-input[type=text], select, textarea { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:4px; }
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-right span {
+    margin-right: 12px;
+    font-weight: bold;
+}
+
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 12px;
+    font-weight: bold;
+}
+
+.nav-btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.nav-btn:hover {
+    background: #1C86EE;
+}
+
+/* ===========================
+   Container
+=========================== */
+.container {
+    max-width: 1000px;
+    margin: 100px auto 40px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 30px 28px;
+}
+
+/* ===========================
+   Form Inputs
+=========================== */
+input[type="text"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+/* ===========================
+   Buttons
+=========================== */
+button {
+    padding: 10px 20px;
+    border: none;
+    background: #3498db;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 15px;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background: #1c7ec9;
+}
 
 .form-buttons {
     display: flex;
@@ -139,27 +208,29 @@ input[type=text], select, textarea { width:100%; padding:10px; margin:8px 0; bor
     margin-top: 15px;
 }
 
-button {
-    padding:10px 20px;
-    border:none;
-    background:#3498db;
-    color:#fff;
-    cursor:pointer;
-    border-radius:4px;
-    font-weight:bold;
-    transition: background 0.3s;
+/* ===========================
+   Alerts
+=========================== */
+.error {
+    color: #c0392b;
+    margin-bottom: 15px;
+    font-weight: bold;
 }
 
-.error { color:#c0392b; margin-bottom:15px; }
-.success { color:#27ae60; margin-bottom:15px; }
+.success {
+    color: #27ae60;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
 </style>
 </head>
 <body>
   
   <div class="navbar">
-    <div class="navbar-left">Chandusoft <?= htmlspecialchars($user_role) ?></div>
+    <div class="navbar-left">Chandusoft <?= ucfirst(htmlspecialchars($user_role)) ?></div>
     <div class="navbar-right">
-        <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
+        <span>Welcome <?= ucfirst(htmlspecialchars($user_role)) ?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>
         <?php if ($user_role === 'admin'): ?>
         <a href="/admin/catalog.php">Admin Catalog</a>

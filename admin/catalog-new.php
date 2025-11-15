@@ -184,57 +184,144 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="UTF-8">
 <title>Add New Catalog Item</title>
 <style>
-body { font-family: Arial; margin:0; background:#f7f8fc; }
+    /* ===========================
+   Global Styles
+=========================== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f7f8fc;
+}
 
+/* ===========================
+   Navbar
+=========================== */
 .navbar {
-    background:#2c3e50;
-    color:#fff;
-    padding:15px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
-    /* ✅ new lines */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width:100%;
-    z-index:1000;
-    box-sizing: border-box;
+    background: #2c3e50;
+    color: #fff;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
-.navbar .navbar-left { font-weight:bold; font-size:22px; }
-.navbar .navbar-right { display:flex; align-items:center; }
-.navbar .navbar-right span { margin-right:10px; font-weight:bold; }
-.navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
-.navbar a.nav-btn:hover { background:#1C86EE; }
+.navbar-left {
+    font-size: 22px;
+    font-weight: bold;
+}
 
-/* ✅ Prevent overlap by pushing content down */
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-right span {
+    margin-right: 12px;
+    font-weight: bold;
+}
+
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 12px;
+    font-weight: bold;
+}
+
+.nav-btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.nav-btn:hover {
+    background: #1C86EE;
+}
+
+/* ===========================
+   Container
+=========================== */
 .container {
-    max-width:1000px;
-    margin:100px auto 40px auto; /* Keep your original spacing */
-    background:#fff;
-    border-radius:10px;
-    box-shadow:0 4px 12px #0001;
-    padding:30px 28px;
+    max-width: 1000px;
+    margin: 100px auto 40px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 30px 28px;
 }
-h2 { text-align:center; color:#007BFF; margin-bottom:20px; }
-form input, form textarea { width:100%; padding:8px; margin-bottom:12px; border:1px solid #ccc; border-radius:5px; }
-form button { padding:10px 18px; border:none; border-radius:5px; background:#007BFF; color:#fff; font-weight:bold; cursor:pointer; transition:0.3s; }
-form button:hover { background:#0056b3; }
-.errors { background:#f8d7da; color:#721c24; padding:10px; border-radius:5px; margin-bottom:15px; }
-.success { background:#d4edda; color:#155724; padding:10px; border-radius:5px; margin-bottom:15px; }
-.preview { margin-top:10px; }
-.preview img { max-width:200px; border:1px solid #ccc; padding:5px; border-radius:5px; }
+
+h2 {
+    text-align: center;
+    color: #007BFF;
+    margin-bottom: 20px;
+}
+
+/* ===========================
+   Form Styles
+=========================== */
+form input,
+form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 5px;
+    background: #007BFF;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+form button:hover {
+    background: #0056b3;
+}
+
+/* ===========================
+   Message Alerts
+=========================== */
+.errors {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.success {
+    background: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+/* ===========================
+   Image Preview
+=========================== */
+.preview {
+    margin-top: 10px;
+}
+
+.preview img {
+    max-width: 200px;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+}
 </style>
 </head>
 <body>
 
 <div class="navbar">
-    <div class="navbar-left">Chandusoft Admin</div>
+    <div class="navbar-left">Chandusoft <?= ucfirst(htmlspecialchars($user_role)) ?></div>
     <div class="navbar-right">
-        <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
+        <span>Welcome <?= ucfirst(htmlspecialchars($user_role)) ?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>
         <!-- Dynamic catalog link based on user role -->
     <?php if ($user_role === 'admin'): ?>

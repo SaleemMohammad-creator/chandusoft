@@ -49,22 +49,39 @@ switch ($payment_status) {
 <meta charset="utf-8">
 <title>Order Receipt - <?= htmlspecialchars($order_ref) ?></title>
 <style>
+    /* ===========================
+   Global Styles
+=========================== */
 body {
-  font-family: Arial, sans-serif;
-  background: #f8fafc;
-  margin: 0;
-  padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #f8fafc;
+    margin: 0;
+    padding: 20px;
 }
+
+/* ===========================
+   Container
+=========================== */
 .container {
-  max-width: 700px;
-  background: #fff;
-  margin: 40px auto;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    max-width: 700px;
+    background: #fff;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
-h1 { color: <?= $status_color ?>; text-align:center; }
-p { font-size: 18px; }
+
+/* ===========================
+   Text
+=========================== */
+h1 {
+    color: <?= $status_color ?>;
+    text-align: center;
+}
+
+p {
+    font-size: 18px;
+}
 </style>
 </head>
 <body>

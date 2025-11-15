@@ -53,6 +53,9 @@ $csrf = csrf_token();
 <meta charset="utf-8">
 <title>Invoice #<?= htmlspecialchars($order['order_ref']) ?></title>
 <style>
+/* ===========================
+   Global Styles
+=========================== */
 body {
   font-family: "Segoe UI", Arial, sans-serif;
   background: #f3f4f6;
@@ -60,68 +63,114 @@ body {
   padding: 40px;
   color: #111827;
 }
+
+/* ===========================
+   Invoice Container
+=========================== */
 .invoice-container {
   max-width: 900px;
   background: #fff;
   margin: auto;
   border-radius: 10px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
   padding: 40px 50px;
 }
+
+/* ===========================
+   Header
+=========================== */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 3px solid #1e3a8a;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
   margin-bottom: 25px;
 }
-.header h1 {
-  color: #1e3a8a;
-  font-size: 1.8em;
+
+/* Logo + Company Title */
+.logo-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-title img {
+  width: 150px;
+  height: auto;
+  border-radius: 6px;
+}
+
+.logo-title h1 {
   margin: 0;
+  font-size: 1.8em;
+  color: #1e3a8a;
 }
+
 .header small {
-  color: #6b7280;
   font-size: 0.9em;
+  color: #6b7280;
 }
+
+/* ===========================
+   Sections
+=========================== */
 .section {
   margin-bottom: 25px;
 }
+
 .section h3 {
+  margin-bottom: 10px;
+  padding-bottom: 6px;
   color: #1e3a8a;
   border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 6px;
-  margin-bottom: 10px;
 }
+
 .details p {
   margin: 6px 0;
   font-size: 1.02em;
 }
+
+/* ===========================
+   Table
+=========================== */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
 }
+
 thead {
   background: #1e3a8a;
-  color: white;
+  color: #fff;
 }
-th, td {
+
+th,
+td {
   padding: 12px;
   text-align: left;
 }
+
 tr:nth-child(even) {
   background: #f9fafb;
 }
+
+/* ===========================
+   Totals
+=========================== */
 .total-box {
   text-align: right;
   margin-top: 20px;
 }
+
 .total-box strong {
   font-size: 1.2em;
   color: #111827;
 }
+
+/* ===========================
+   Status Badges
+=========================== */
 .status-badge {
   display: inline-block;
   padding: 6px 12px;
@@ -129,69 +178,110 @@ tr:nth-child(even) {
   font-weight: 600;
   text-transform: capitalize;
 }
-.status-pending { background: #fef3c7; color: #92400e; }
-.status-paid { background: #dcfce7; color: #166534; }
-.status-failed { background: #fee2e2; color: #991b1b; }
-.status-refunded { background: #e0f2fe; color: #075985; }
-.status-cancelled { background: #f3f4f6; color: #374151; }
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-refunded {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.status-cancelled {
+  background: #f3f4f6;
+  color: #374151;
+}
+
 .gateway {
-  text-transform: capitalize;
   font-weight: 600;
+  text-transform: capitalize;
   color: #1e3a8a;
 }
+
+/* ===========================
+   Footer
+=========================== */
 .footer {
   text-align: center;
   margin-top: 40px;
-  color: #6b7280;
   font-size: 0.9em;
+  color: #6b7280;
 }
+
+/* ===========================
+   Buttons / Navigation
+=========================== */
 .action-buttons {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 25px;
 }
-.back-link, .print-btn {
-  display: inline-block;
+
+.back-link,
+.print-btn {
+  font-size: 1em;
+  font-weight: 500;
   color: #2563eb;
   text-decoration: none;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
   background: none;
-  font-size: 1em;
+  border: none;
+  cursor: pointer;
 }
-.back-link:hover, .print-btn:hover { text-decoration: underline; }
 
-/* 🖨️ Print Styles */
+.back-link:hover,
+.print-btn:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   Print Styles
+=========================== */
 @media print {
   body {
     background: #fff;
     padding: 0;
   }
+
   .invoice-container {
     box-shadow: none;
     border: none;
     padding: 20px;
   }
+
   .action-buttons {
     display: none;
   }
 }
+
 </style>
 </head>
 <body>
 
 <div class="invoice-container">
   <div class="header">
-    <div style="display: flex; align-items: center; gap: 15px;">
-      <div>
-        <h1>Chandusoft Pvt. Ltd.</h1>
-        
-      </div>
+    
+    <div class="logo-title">
+      <img src="/admin/images/logo.jpg" alt="Chandusoft Logo">
+      <h2>Chandusoft Pvt. Ltd.</h2>
     </div>
+
     <small>Date: <?= date('d M Y', strtotime($order['created_at'])) ?></small>
+
   </div>
+
 
   <div class="section">
     <h3>Order Summary</h3>

@@ -95,77 +95,140 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 <meta charset="UTF-8">
 <title>Edit Catalog Item</title>
 <style>
-body { font-family: Arial; margin:0; background:#f7f8fc; }
+ /* ===========================
+   Global Styles
+=========================== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f7f8fc;
+}
 
+/* ===========================
+   Navbar
+=========================== */
 .navbar {
-    background:#2c3e50;
-    color:#fff;
-    padding:15px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+    background: #2c3e50;
+    color: #fff;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    /* ✅ new lines */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width:100%;
-    z-index:1000;
+.navbar-left {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-right span {
+    margin-right: 12px;
+    font-weight: bold;
+}
+
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 12px;
+    font-weight: bold;
+}
+
+.nav-btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.nav-btn:hover {
+    background: #1C86EE;
+}
+
+/* ===========================
+   Container
+=========================== */
+.container {
+    max-width: 1000px;
+    margin: 100px auto 40px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 30px 28px;
+}
+
+h2 {
+    text-align: center;
+    color: #007BFF;
+    margin-bottom: 25px;
+}
+
+/* ===========================
+   Form Elements
+=========================== */
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     box-sizing: border-box;
 }
 
-.navbar a { color:#fff; text-decoration:none; margin-left:15px; font-weight:bold; }
-.navbar .navbar-left { font-weight:bold; font-size:22px; }
-.navbar .navbar-right { display:flex; align-items:center; }
-.navbar .navbar-right span { margin-right:10px; font-weight:bold; }
-.navbar a.nav-btn { color:#fff; text-decoration:none; margin-left:5px; font-weight:bold; padding:6px 12px; border-radius:4px; transition:background 0.3s; }
-.navbar a.nav-btn:hover { background:#1C86EE; }
-
-/* ✅ Prevent overlap by pushing content down */
-.container {
-    max-width:1000px;
-    margin:100px auto 40px auto; /* Keep your original spacing */
-    background:#fff;
-    border-radius:10px;
-    box-shadow:0 4px 12px #0001;
-    padding:30px 28px;
-}
-h2{text-align:center;color:#007BFF;margin-bottom:25px;}
-label{display:block;margin-top:15px;font-weight:bold;}
-input,textarea,select{width:100%;padding:12px;border-radius:6px;border:1px solid #ccc;margin-top:5px;box-sizing:border-box;}
-img.current-image{max-width:150px;margin-top:10px;border-radius:6px;}
-
-/* ✅ Success + Error messages */
-.message{
-    text-align:center;
-    font-weight:bold;
-    margin-bottom:10px;
-    padding:12px;
-    border-radius:6px;
-}
-.message-success{
-    background:#d4edda;
-    color:#155724;
-    border:1px solid #c3e6cb;
-}
-.message-error{
-    background:#f8d7da;
-    color:#721c24;
-    border:1px solid #f5c6cb;
+img.current-image {
+    max-width: 150px;
+    margin-top: 10px;
+    border-radius: 6px;
 }
 
-/* ✅ Buttons layout — Update (left), Back to Catalog (right) */
+/* ===========================
+   Messages
+=========================== */
+.message {
+    text-align: center;
+    font-weight: bold;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+
+.message-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ===========================
+   Buttons Layout
+=========================== */
 .button-row {
     display: flex;
-    justify-content: space-between; /* left & right alignment */
+    justify-content: space-between;
     align-items: center;
     margin-top: 15px;
 }
 
-/* ✅ Shared button style */
+/* Shared button base */
 .btn {
     display: inline-block;
-    padding: 8px 16px; /* smaller button size */
+    padding: 8px 16px;
     font-weight: 600;
     font-size: 14px;
     text-align: center;
@@ -176,7 +239,7 @@ img.current-image{max-width:150px;margin-top:10px;border-radius:6px;}
     transition: background 0.3s ease, transform 0.2s ease;
 }
 
-/* ✅ Primary button (Update) */
+/* Primary button */
 .btn-primary {
     background: #007BFF;
     color: #fff;
@@ -187,7 +250,7 @@ img.current-image{max-width:150px;margin-top:10px;border-radius:6px;}
     transform: translateY(-1px);
 }
 
-/* ✅ Secondary button (Back to Catalog) */
+/* Secondary button */
 .btn-secondary {
     background: #007BFF;
     color: #fff;
@@ -197,15 +260,16 @@ img.current-image{max-width:150px;margin-top:10px;border-radius:6px;}
     background: #0056b3;
     transform: translateY(-1px);
 }
+
 </style>
 </head>
 <body>
 
 
 <div class="navbar">
-    <div class="navbar-left">Chandusoft Admin</div>
+    <div class="navbar-left">Chandusoft <?= ucfirst(htmlspecialchars($user_role)) ?></div>
     <div class="navbar-right">
-        <span>Welcome <?= htmlspecialchars($user_role)?>!</span>
+        <span>Welcome <?= ucfirst(htmlspecialchars($user_role)) ?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>
         <!-- Dynamic catalog link based on user role -->
     <?php if ($user_role === 'admin'): ?>

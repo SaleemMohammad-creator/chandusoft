@@ -187,31 +187,203 @@ $jsonLd = [
 <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?></script>
 
 <style>
-/* (CSS unchanged exactly as you provided) */
-body{font-family:Arial;margin:0;background:#f7f8fc;}
-.container{max-width:1000px;margin:50px auto;padding:30px;background:#fff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-h1{margin-top:0;}
-img{max-width:400px;border-radius:8px;display:block;margin:20px auto;}
-.quantity-controls{display:inline-flex;align-items:center;border:1px solid #ccc;border-radius:6px;overflow:hidden;margin:10px 0;}
-.quantity-controls button{background:#007BFF;color:#fff;border:none;width:35px;height:35px;font-size:18px;cursor:pointer;}
-.quantity-controls input{width:50px;text-align:center;border:none;font-size:16px;}
-.action-btns{display:flex;gap:15px;margin:20px 0;}
-.action-btns button{padding:12px 20px;background:#007BFF;color:#fff;border:none;border-radius:6px;font-weight:bold;cursor:pointer;transition:0.3s;}
-.action-btns button:hover{background:#0056b3;}
-button:disabled{background:#ccc;cursor:not-allowed;}
-form{display:flex;flex-direction:column;gap:20px;}
-input,textarea{padding:12px;font-size:16px;border:1px solid:#ddd;border-radius:8px;outline:none;transition:0.3s;}
-input:focus,textarea:focus{border-color:#007BFF;}
-textarea{resize:vertical;min-height:120px;}
-.success{padding:15px;margin-bottom:20px;border-radius:6px;text-align:center;font-size:16px;background:#e0f9e0;color:#28a745;border:1px solid #28a745;}
-.error{padding:15px;margin-bottom:20px;border-radius:6px;text-align:center;font-size:16px;background:#f8d7da;color:#dc3545;border:1px solid #dc3545;}
-.enquiry-buttons{display:flex;justify-content:space-between;align-items:center;margin-top:15px;}
-.send-btn{padding:12px 20px;background:#28a745;color:#fff;border:none;border-radius:6px;font-weight:bold;cursor:pointer;transition:0.3s;}
-.send-btn:hover{background:#218838;}
-.back-btn{font-size:16px;color:#007BFF;text-decoration:none;}
-.back-btn:hover{color:#0056b3;}
-@media(max-width:768px){.container{padding:20px;margin:20px;}input,textarea{font-size:14px;}button{font-size:14px;padding:10px 15px;}}
+/* =========================================================
+   BASE LAYOUT
+   ========================================================= */
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f7f8fc;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    margin-top: 0;
+}
+
+img {
+    max-width: 400px;
+    border-radius: 8px;
+    display: block;
+    margin: 20px auto;
+}
+
+/* =========================================================
+   QUANTITY CONTROLS
+   ========================================================= */
+.quantity-controls {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.quantity-controls button {
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.quantity-controls input {
+    width: 50px;
+    text-align: center;
+    border: none;
+    font-size: 16px;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+.action-btns {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.action-btns button {
+    padding: 12px 20px;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.action-btns button:hover {
+    background: #0056b3;
+}
+
+button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   FORM FIELDS
+   ========================================================= */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+input,
+textarea {
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #007BFF;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* =========================================================
+   ALERT MESSAGES
+   ========================================================= */
+.success {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 16px;
+    background: #e0f9e0;
+    color: #28a745;
+    border: 1px solid #28a745;
+}
+
+.error {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 16px;
+    background: #f8d7da;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+/* =========================================================
+   ENQUIRY BUTTONS
+   ========================================================= */
+.enquiry-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.send-btn {
+    padding: 12px 20px;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.send-btn:hover {
+    background: #218838;
+}
+
+.back-btn {
+    font-size: 16px;
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.back-btn:hover {
+    color: #0056b3;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 20px;
+    }
+
+    input,
+    textarea {
+        font-size: 14px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+}
 </style>
+
 </head>
 <body>
 
