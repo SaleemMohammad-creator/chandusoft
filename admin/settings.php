@@ -57,79 +57,128 @@ $current_logo = '';
 <meta charset="UTF-8">
 <title>Admin Settings</title>
 <style>
+/* =======================================================
+   GLOBAL PAGE STYLE
+======================================================= */
 body {
     font-family: Arial, sans-serif;
-    background: #f0f2f5;
+    background: linear-gradient(135deg, #eaf2ff, #f6f9ff);
     margin: 0;
     height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
+/* =======================================================
+   ADMIN HEADER
+======================================================= */
 .admin-header {
     background: #1E90FF;
     color: #fff;
-    padding: 15px 0;
+    padding: 18px 0;
     text-align: center;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    letter-spacing: 0.5px;
 }
 
-/* Center content vertically and horizontally */
+/* =======================================================
+   CENTER WRAPPER
+======================================================= */
 .wrapper {
     flex: 1;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    padding: 10px;
 }
 
-/* Perfectly centered card */
+/* =======================================================
+   ADMIN CARD
+======================================================= */
 .admin-content {
-    background: #fff;
+    background: #ffffff;
     width: 100%;
     max-width: 420px;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.10);
     box-sizing: border-box;
+    animation: fadeSlideIn 0.5s ease-out;
 }
 
+/* Slide-in animation */
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =======================================================
+   FORM LABELS
+======================================================= */
 label {
     display: block;
     margin-bottom: 6px;
     font-weight: bold;
     color: #333;
+    font-size: 14px;
 }
 
+/* =======================================================
+   INPUTS
+======================================================= */
 input[type="text"], 
 input[type="file"] {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 18px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
     border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 14px;
+    border: 1px solid #ccd4dd;
+    background: #fafbfd;
+    font-size: 15px;
+    transition: border-color 0.25s, box-shadow 0.25s;
     box-sizing: border-box;
 }
 
+input[type="text"]:focus,
+input[type="file"]:focus {
+    border-color: #1E90FF;
+    box-shadow: 0 0 0 3px rgba(30,144,255,0.2);
+    outline: none;
+}
+
+/* =======================================================
+   SUBMIT BUTTON
+======================================================= */
 button {
     width: 100%;
-    padding: 12px;
+    padding: 13px;
     background: #1E90FF;
-    color: #fff;
+    color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: bold;
-    transition: background 0.3s ease;
+    letter-spacing: 0.3px;
+    transition: background 0.3s, transform 0.2s;
 }
 
 button:hover {
     background: #187bcd;
+    transform: translateY(-2px);
 }
 
+/* =======================================================
+   SUCCESS MESSAGE
+======================================================= */
 .success-message {
     background: #d4edda;
     color: #155724;
@@ -138,8 +187,15 @@ button:hover {
     border-radius: 6px;
     text-align: center;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
+    animation: fadeIn 0.5s ease-out;
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
 </style>
 </head>
 <body>

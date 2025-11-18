@@ -82,6 +82,23 @@ h1 {
 p {
     font-size: 18px;
 }
+
+/* ===========================
+   Continue Shopping Button
+=========================== */
+
+.back-btn {
+    display: inline-block;
+    padding: 10px 18px;
+    background: #007BFF;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
 </style>
 </head>
 <body>
@@ -97,7 +114,7 @@ p {
   <!-- ✅ Shows actual pi_xxxxxx once webhook updates DB -->
   <p><strong>Transaction ID:</strong> <?= htmlspecialchars($txn_id) ?></p>
 
-  <a href="catalog.php">← Continue Shopping</a>
+  <a href="catalog.php" class="back-btn">← Continue Shopping</a>
 </div>
 
 <?php if ($payment_status !== 'paid'): ?>

@@ -66,65 +66,129 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Register</title>
+<meta charset="UTF-8">
+<title>Register</title>
+<link rel="stylesheet" href="/styles.css">
     <style>
-       body {
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+      /* ===============================
+   GLOBAL PAGE STYLE
+================================*/
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #e8f1ff, #f7faff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* replace height */
+    margin: 0;
 
-        .form-container {
-            background: white;
-            padding: 30px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.15);
-            border-radius: 8px;
-            width: 350px;
-            box-sizing: border-box;
-        }
+    padding-top: 120px; /* space below header */
+    box-sizing: border-box;
+}
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
+/* ===============================
+   FORM CONTAINER
+================================*/
+.form-container {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 12px;
+    width: 360px;
+    max-width: 90%;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+    animation: fadeInUp 0.5s ease-out;
+}
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #3498db;
-            border: none;
-            color: white;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+/* Smooth fade + slide animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-        button:hover {
-            background: #2980b9;
-        }
+/* ===============================
+   HEADINGS
+================================*/
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2c3e50;
+    letter-spacing: 0.5px;
+}
 
-        .message {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 14px;
-            color: #e74c3c;
-        }
+/* ===============================
+   FORM INPUTS
+================================*/
+input {
+    width: 100%;
+    padding: 12px 14px;
+    margin: 12px 0;
+    border: 1px solid #ccd4dd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 15px;
+    background: #fbfcfe;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    outline: none;
+}
+
+/* ===============================
+   BUTTON
+================================*/
+button {
+    width: 100%;
+    padding: 12px;
+    background: #3498db;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    letter-spacing: 0.3px;
+}
+
+button:hover {
+    background: #2c82c9;
+    transform: translateY(-2px);
+}
+
+/* ===============================
+   MESSAGE BOX
+================================*/
+.message {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #e74c3c;
+    animation: fadeOut 4s forwards;
+}
+
+/* Smooth fade-out for message */
+@keyframes fadeOut {
+    0%   { opacity: 1; }
+    75%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
     </style>
 </head>
 <body>
+
+   
 
 <div class="form-container">
     <h2>Create Account</h2>

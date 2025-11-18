@@ -107,41 +107,144 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="UTF-8">
 <title>Admin Login - <?= sanitize($site_name) ?></title>
 <style>
+/* ===============================
+   GLOBAL PAGE STYLE
+================================*/
 body {
     font-family: Arial, sans-serif;
-    background: #f0f2f5;
+    background: linear-gradient(135deg, #e3f2ff, #f3f7ff);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
 }
+
+/* ===============================
+   LOGIN CONTAINER
+================================*/
 .login-container {
-    background: #fff;
+    background: #ffffff;
     padding: 40px;
-    border-radius: 10px;
-    width: 400px;
+    border-radius: 14px;
+    width: 380px;
     max-width: 90%;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    animation: fadeSlideIn 0.5s ease-out;
 }
-h2 { text-align: center; margin-bottom: 20px; color: #333; }
-label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-input[type="email"], input[type="password"] {
-    width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px;
+
+/* Slide-in animation */
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
+
+/* ===============================
+   HEADINGS
+================================*/
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #007bff;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+}
+
+/* ===============================
+   FORM ELEMENTS
+================================*/
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    border: 1px solid #ccd4dd;
+    border-radius: 6px;
+    font-size: 15px;
+    background: #fafbfd;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.15);
+    outline: none;
+}
+
+/* ===============================
+   LOGIN BUTTON
+================================*/
 button {
-    width: 100%; padding: 12px; background: #1E90FF; color: #fff; border: none; border-radius: 6px;
-    font-weight: bold; cursor: pointer; transition: background 0.3s;
+    width: 100%;
+    padding: 13px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background-color 0.3s, transform 0.2s;
 }
-button:hover { background: #187bcd; }
+
+button:hover {
+    background: #005ecb;
+    transform: translateY(-2px);
+}
+
+/* ===============================
+   MESSAGES
+================================*/
 p.message {
-    background: #f8d7da; color: #721c24; padding: 10px; border-radius: 6px;
-    text-align: center; margin-bottom: 20px; animation: fadeout 5s forwards;
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 20px;
+    animation: fadeMsg 4s forwards;
 }
-@keyframes fadeout { 0% {opacity:1;} 80% {opacity:1;} 100% {opacity:0; display:none;} }
-.register-link { text-align: center; margin-top: 10px; }
-.register-link a { color: #1E90FF; text-decoration: none; }
-.register-link a:hover { text-decoration: underline; }
+
+@keyframes fadeMsg {
+    0%   { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* ===============================
+   REGISTER LINK
+================================*/
+.register-link {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.register-link a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+
 </style>
 </head>
 <body>
@@ -162,5 +265,6 @@ p.message {
         Don’t have an account? <a href="register.php">Register Here</a>
     </div>
 </div>
+
 </body>
 </html>

@@ -883,3 +883,87 @@
 [2025-11-15 10:13:45] Catalog listing viewed. Search: '', Page: 1
 [2025-11-15 10:36:22] Catalog listing viewed. Search: '', Page: 1
 [2025-11-15 10:46:21] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 02:54:15] Unsupported image type.
+[2025-11-17 03:03:07] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'html-course' for key 'catalog.slug_unique'
+[2025-11-17 03:53:42] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'js-course' for key 'catalog.slug_unique'
+[2025-11-17 04:27:36] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 04:28:10] Catalog listing viewed. Search: 'course', Page: 1
+[2025-11-17 04:28:23] Catalog listing viewed. Search: 'html', Page: 1
+[2025-11-17 04:31:27] Catalog listing viewed. Search: 'course', Page: 1
+[2025-11-17 04:32:56] Catalog listing viewed. Search: 'course', Page: 2
+[2025-11-17 04:33:09] Catalog listing viewed. Search: 'course', Page: 2
+[2025-11-17 04:39:33] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 04:39:36] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 04:39:44] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 04:39:55] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 04:40:10] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 04:42:07] Catalog listing viewed. Search: 'C', Page: 1
+[2025-11-17 04:42:23] Catalog listing viewed. Search: 'C course', Page: 1
+[2025-11-17 04:43:41] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 04:43:46] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 04:44:48] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 04:48:29] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 05:00:34] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 05:03:59] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 05:07:31] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 05:10:50] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 05:11:18] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 05:13:04] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 05:15:16] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 05:17:12] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 05:19:40] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 05:20:52] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 06:01:14] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:06:15] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:11:50] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:14:10] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:19:51] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:20:26] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 06:25:55] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 06:26:37] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:30:50] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:31:10] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 06:31:25] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:31:57] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:32:01] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 06:32:35] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:46:51] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 06:51:02] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 07:43:44] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 07:48:04] ATTEMPT: Enquiry for 'Java Course' | Name: AAA | Email: AA@gmail.com
+[2025-11-17 07:48:05] SUCCESS: Enquiry Saved | Item: Java Course (#34) | AA@gmail.com
+[2025-11-17 07:51:09] ATTEMPT: Enquiry for 'Java Course' | Name: AAA | Email: AA@gmail.com
+[2025-11-17 07:51:10] SUCCESS: Enquiry Saved | Item: Java Course (#34) | AA@gmail.com
+[2025-11-17 07:51:41] ATTEMPT: Enquiry for 'Java Course' | Name: Saleem | Email: qwe@gmail.com
+[2025-11-17 07:51:41] SUCCESS: Enquiry Saved | Item: Java Course (#34) | qwe@gmail.com
+[2025-11-17 08:05:01] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 08:05:04] Catalog listing viewed. Search: '', Page: 2
+[2025-11-17 08:13:47] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 08:14:22] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 08:22:02] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 08:34:40] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 08:41:44] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 08:49:23] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 09:06:50] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 09:20:01] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 09:25:56] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 09:34:17] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 09:34:24] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 09:39:15] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 09:43:11] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 09:51:20] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:05:35] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:10:38] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:15:38] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:24:40] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:29:38] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:32:28] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:35:45] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:36:09] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:37:59] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:38:18] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:39:38] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:51:18] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:58:37] Catalog listing viewed. Search: '', Page: 1
+[2025-11-17 10:59:54] Catalog listing viewed. Search: '', Page: 1
+[2025-11-18 02:40:55] Catalog listing viewed. Search: '', Page: 1

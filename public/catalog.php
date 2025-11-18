@@ -19,7 +19,7 @@ function base_url($path = '') {
 }
 
 // Pagination
-$limit = 12;
+$limit = 15;
 $page_no = max(1, intval($_GET['page_no'] ?? 1));
 $offset = ($page_no - 1) * $limit;
 
@@ -55,6 +55,8 @@ logCatalogAction("Catalog listing viewed. Search: '$search', Page: $page_no");
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 <title>Catalog</title>
 
 <style>
@@ -62,60 +64,9 @@ logCatalogAction("Catalog listing viewed. Search: '$search', Page: $page_no");
    BASIC PAGE UI
    ========================================================= */
 body {
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     margin: 0;
     background: #f7f8fc;
-}
-
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #007BFF;
-    padding: 5px 10px;
-}
-
-.logo img {
-    width: 400px;
-    height: 70px;
-}
-
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
-nav {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    background-color: #007BFF;
-    padding: 1px 0;
-}
-
-nav a,
-nav button {
-    padding: 10px 18px;
-    margin: 5px;
-    background: #007BFF;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    border: 1px solid #007BFF;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-nav a.active,
-nav button.active {
-    background: #fff;
-    color: #007BFF;
-    border-color: #fff;
-}
-
-nav a:hover,
-nav button:hover {
-    background: rgb(239, 245, 245);
-    color: #007BFF;
 }
 
 /* =========================================================
@@ -142,6 +93,7 @@ h2 {
 .search-bar {
     text-align: center;
     margin-bottom: 20px;
+    margin-top: 10px; /* ← add this */
 }
 
 .search-bar input {
@@ -165,103 +117,141 @@ h2 {
    ========================================================= */
 .catalog {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
+/* =========================================================
+   PRODUCT CARD (Modern, Rounded, No Border Breaking)
+   ========================================================= */
 .card {
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e2e2;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     display: flex;
     flex-direction: column;
+    padding: 14px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden; /* FIX: no border breaking */
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
 }
 
 /* =========================================================
    CARD IMAGE
    ========================================================= */
+/* Image wrapper fixes */
 .card picture,
 .card img {
     width: 100%;
-    height: 250px;
-    object-fit: contain;
-    background: #ffffff;
-    border-radius: 6px;
-    padding: 5px;
+    height: 140px;
+    object-fit: contain;       /* keeps image inside box */
+    background: #ffffff;       /* clean background */
+    padding: 14px 10px;        /* 🔥 FIX: more padding top/bottom */
+    border-radius: 8px;
     display: block;
+    border: 1px solid #eee;    /* optional inner border */
+    box-sizing: border-box;    /* ensures padding stays inside */
+}
+
+
+/* =========================================================
+   CARD TITLE
+   ========================================================= */
+.card h3 {
+    font-size: 15px;
+    color: #0056d6;
+    margin: 10px 0 4px 0;
+    font-weight: 600;
+    height: 34px;
+    overflow: hidden;
 }
 
 /* =========================================================
-   CARD TEXT
+   CARD PRICE
    ========================================================= */
-.card h3 {
-    margin: 5px 0;
-    color: #007BFF;
-}
-
 .card p {
     font-size: 14px;
     color: #333;
-    margin-bottom: 10px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
 }
 
 /* =========================================================
-   QUANTITY SELECTOR
+   QUANTITY SELECTOR (Modern)
    ========================================================= */
 .qty-selector {
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    gap: 6px;
+    margin-top: auto;
     margin-bottom: 8px;
 }
 
 .qty-selector button {
-    background: #007BFF;
-    color: white;
+    width: 28px;
+    height: 28px;
+    background: #007bff;
     border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
-    cursor: pointer;
+    color: #fff;
     font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
 .qty-selector input {
-    width: 50px;
-    text-align: center;
+    width: 45px;
+    border-radius: 6px;
     border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 5px;
+    text-align: center;
+    font-size: 14px;
+    padding: 5px 0;
 }
 
 /* =========================================================
-   CARD ACTION BUTTONS
+   BUTTONS (Add to Cart / Buy Now)
    ========================================================= */
 .card-buttons {
     display: flex;
-    justify-content: space-between;
     gap: 8px;
-    margin-top: auto;
+    margin-top: 5px;
 }
 
 .card-buttons a {
     flex: 1;
-    text-decoration: none;
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 4px;
     text-align: center;
+    padding: 8px;
+    font-size: 13px;
     font-weight: 600;
-    font-size: 14px;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.2s ease;
 }
 
-.card-buttons a.add { background: #007BFF; }
-.card-buttons a.buy { background: #28a745; }
+.card-buttons .add {
+    background: #007bff;
+    color: #fff;
+}
 
-.card-buttons a:hover.add { background: #0056b3; }
-.card-buttons a:hover.buy { background: #1e7e34; }
+.card-buttons .buy {
+    background: #28a745;
+    color: #fff;
+}
+
+.card-buttons .add:hover {
+    background: #005ec4;
+}
+
+.card-buttons .buy:hover {
+    background: #1f8c39;
+}
 
 /* =========================================================
    PAGINATION
@@ -275,7 +265,7 @@ h2 {
     padding: 6px 12px;
     border: 1px solid #007BFF;
     margin: 0 3px;
-    border-radius: 5px;
+    border-radius: 4px;
     text-decoration: none;
     color: #007BFF;
 }
@@ -292,54 +282,7 @@ h2 {
     .card-buttons { flex-direction: column; }
 }
 
-/* =========================================================
-   COMPACT CARD IMPROVEMENTS (neat reduced version)
-   ========================================================= */
-.card {
-    height: 330px;
-    padding: 12px;
-}
 
-.card picture {
-    height: 150px;
-}
-
-.card img {
-    height: 100%;
-    object-fit: contain;
-}
-
-.card h3 {
-    height: 38px;
-    overflow: hidden;
-    font-size: 16px;
-    line-height: 1.2;
-}
-
-.card p {
-    height: 18px;
-    margin-bottom: 8px;
-}
-
-.qty-selector {
-    gap: 6px;
-    margin-top: auto;
-}
-
-.qty-selector button {
-    padding: 4px 8px;
-    font-size: 14px;
-}
-
-.qty-selector input {
-    width: 45px;
-    padding: 4px;
-}
-
-.card-buttons a {
-    padding: 5px 8px;
-    font-size: 13px;
-}
 </style>
 
 
@@ -438,6 +381,11 @@ document.querySelectorAll('.buy').forEach(btn => {
     });
 });
 </script>
+
+<?php include __DIR__ . '/../admin/footer.php'; ?>
+
+<button id="back-to-top" title="Back to Top">↑</button>
+    <script src="/include.js"></script>
 
 </body>
 </html>

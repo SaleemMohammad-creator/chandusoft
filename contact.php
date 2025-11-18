@@ -89,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chandusoft - Contact</title>
 <link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -98,7 +99,7 @@ body {
 }
 .contact-page {
     max-width: 500px;
-    margin: 40px auto;
+    margin: 40px auto 40px auto; /* ⬅ updated (more space from header) */
     background-color: #fff;
     padding: 30px;
     border-radius: 10px;
@@ -210,7 +211,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<?php include("admin/footer.php"); ?>
+<?php include __DIR__ . '/admin/footer.php'; ?>
 <button id="back-to-top" title="Back to Top">↑</button>
 <script src="include.js"></script>
 </body>

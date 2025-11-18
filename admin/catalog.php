@@ -439,7 +439,7 @@ if(!empty($_SESSION['success_message'])) {
             <img src="<?= UPLOADS_URL . htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['title']) ?>">
         <?php endif; ?>
     </td>
-    <td><?= number_format($item['price'], 2) ?></td>
+    <td>$<?= number_format($item['price'], 2) ?></td>
     <td><?= htmlspecialchars($item['status']) ?></td>
 
     <td class="actions">

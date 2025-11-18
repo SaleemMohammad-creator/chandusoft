@@ -1,6 +1,7 @@
 <?php
 // ===============================================
-// 🛒 Catalog Item Page (Add to Cart + Enquiry, Buy Now Removed)
+// 🛒 Catalog Item Page (Add to Cart + Enquiry)
+// Updated: Hover Zoom (NO modal popup)
 // ===============================================
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -17,7 +18,7 @@ require_once __DIR__ . '/../app/mail-logger.php';
 $user_name = $_SESSION['user_name'] ?? 'User';
 $user_role = $_SESSION['user_role'] ?? 'Admin';
 
-// ✅ Use keys loaded from config.php
+// Turnstile keys
 $siteKey  = TURNSTILE_SITE;
 $secretKey = TURNSTILE_SECRET;
 
@@ -28,7 +29,6 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrf_token = $_SESSION['csrf_token'];
-
 
 // -------------------------
 // Logging
@@ -52,7 +52,7 @@ $item = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$item) die("Item not found or not published.");
 
 // -------------------------
-// Handle POST (Add to Cart, Enquiry)
+// Handle POST
 // -------------------------
 $enquirySuccess = false;
 $errors = [];
@@ -61,10 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $actionType = $_POST['action_type'] ?? '';
 
-    // Quantity only for add_to_cart
+    // Quantity for cart
     $quantity = isset($_POST['quantity']) ? max(1, (int)$_POST['quantity']) : 1;
 
-    // ✅ Add to Cart
+    // Add to cart
     if ($actionType === 'add_to_cart') {
         if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
         $_SESSION['cart'][$item['id']] = [
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // ✅ Enquiry
+    // Enquiry form processing
     if ($actionType === 'enquiry') {
         $name = sanitize($_POST['name'] ?? '');
         $email = sanitize($_POST['email'] ?? '');
@@ -89,22 +89,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         logMessage("ATTEMPT: Enquiry for '{$item['title']}' | Name: {$name} | Email: {$email}");
 
         if (!$csrf || !hash_equals($_SESSION['csrf_token'], $csrf)) {
-
             $errors[] = "Invalid CSRF token.";
         }
 
         if ($turnstileToken) {
             $verify = curl_init("https://challenges.cloudflare.com/turnstile/v0/siteverify");
             curl_setopt_array($verify, [
-           CURLOPT_POST => true,
-           CURLOPT_POSTFIELDS => http_build_query([
-        'secret' => $secretKey,
-        'response' => $turnstileToken,
-        'remoteip' => $_SERVER['REMOTE_ADDR']
-    ]),
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_SSL_VERIFYPEER => false    // ✅ FIX: allow local HTTPS without valid certificate
-]);
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => http_build_query([
+                    'secret' => $secretKey,
+                    'response' => $turnstileToken,
+                    'remoteip' => $_SERVER['REMOTE_ADDR']
+                ]),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => false
+            ]);
             $resp = curl_exec($verify);
             curl_close($verify);
             $result = json_decode($resp, true);
@@ -119,10 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email required.";
         if (!$message) $errors[] = "Message is required.";
 
-        if (!empty($errors)) {
-            logMessage("ERROR: Enquiry failed | ERRORS: " . implode(", ", $errors));
-        }
-
         if (empty($errors)) {
             try {
                 $stmt = $pdo->prepare("INSERT INTO enquiries (catalog_id, name, email, message, created_at) VALUES (:catalog_id, :name, :email, :message, NOW())");
@@ -134,11 +129,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 $enquirySuccess = true;
 
-                // ✅ CLEAR FORM FIELDS AFTER SUCCESS
                 $_POST['name'] = '';
                 $_POST['email'] = '';
                 $_POST['message'] = '';
+
                 logMessage("SUCCESS: Enquiry Saved | Item: {$item['title']} (#{$item['id']}) | {$email}");
+
                 $mailSubject = "New Enquiry | {$item['title']} (#{$item['id']})";
                 $mailBody = "
                     Product: {$item['title']} (#{$item['id']})<br>
@@ -174,288 +170,401 @@ $jsonLd = [
 ?>
 
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title><?= htmlspecialchars($item['title']) ?></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- ✅ Turnstile Script (unchanged) -->
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?></script>
 
 <style>
-/* =========================================================
-   BASE LAYOUT
-   ========================================================= */
-body {
-    font-family: Arial;
-    margin: 0;
-    background: #f7f8fc;
+    /* =========================================================
+   GLOBAL VARIABLES / BASE UI
+========================================================= */
+:root{
+    --primary:#007BFF;
+    --primary-dark:#0056b3;
+    --accent:#28a745;
+    --bg:#f2f4f8;
+    --card-bg:#ffffff;
+    --muted:#6b7280;
+    --border:#d8dce6;
 }
 
-.container {
-    max-width: 1000px;
-    margin: 50px auto;
-    padding: 30px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+*{box-sizing:border-box}
+body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    font-family:Inter, "Segoe UI", Arial;
+    color:#0f172a;
 }
 
-h1 {
-    margin-top: 0;
-}
-
-img {
-    max-width: 400px;
-    border-radius: 8px;
-    display: block;
-    margin: 20px auto;
-}
-
-/* =========================================================
-   QUANTITY CONTROLS
-   ========================================================= */
-.quantity-controls {
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    overflow: hidden;
-    margin: 10px 0;
-}
-
-.quantity-controls button {
-    background: #007BFF;
-    color: #fff;
-    border: none;
-    width: 35px;
-    height: 35px;
-    font-size: 18px;
-    cursor: pointer;
-}
-
-.quantity-controls input {
-    width: 50px;
-    text-align: center;
-    border: none;
-    font-size: 16px;
+.container{
+    max-width:1100px;
+    margin:50px auto;
+    padding:25px;
 }
 
 /* =========================================================
-   ACTION BUTTONS
-   ========================================================= */
-.action-btns {
-    display: flex;
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.action-btns button {
-    padding: 12px 20px;
-    background: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.action-btns button:hover {
-    background: #0056b3;
-}
-
-button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
+   PRODUCT CARD (LEFT image + RIGHT info)
+========================================================= */
+.product-card{
+    background:var(--card-bg);
+    padding:28px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:36px;
+    border-radius:14px;
+    box-shadow:0 8px 30px rgba(15,23,42,0.06);
 }
 
 /* =========================================================
-   FORM FIELDS
-   ========================================================= */
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+   IMAGE: HOVER-ZOOM INSIDE BOX (NO MODAL)
+========================================================= */
+.image-thumb{
+    width:100%;
+    max-width:520px;
+    border-radius:12px;
+    overflow:hidden;
+    cursor:zoom-in;
+    background:#fff;
+    box-shadow:0 6px 18px rgba(15,23,42,0.08);
+    position:relative;
 }
 
-input,
-textarea {
-    padding: 12px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    outline: none;
-    transition: 0.3s;
+.image-thumb img{
+    width:100%;
+    height:auto;
+    transition:transform 0.25s ease;
+    transform-origin:center center;
 }
 
-input:focus,
-textarea:focus {
-    border-color: #007BFF;
+/* =========================================================
+   PRODUCT INFO TEXT
+========================================================= */
+.product-info h1{
+    margin:0 0 8px 0;
+    font-size:28px;
+    font-weight:700;
 }
 
-textarea {
-    resize: vertical;
-    min-height: 120px;
+.product-price{
+    font-size:22px;
+    color:var(--primary);
+    font-weight:700;
+    margin-bottom:12px;
+}
+
+.short-desc{
+    font-size:15px;
+    line-height:1.6;
+    color:#374151;
+    margin-bottom:18px;
+}
+
+/* =========================================================
+   QUANTITY BUTTONS
+========================================================= */
+.quantity-controls{
+    display:inline-flex;
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    background:#fff;
+    align-items:center;
+}
+
+.quantity-controls button{
+    background:var(--primary);
+    color:#fff;
+    width:42px;
+    height:42px;
+    font-size:20px;
+    border:none;
+    cursor:pointer;
+    transition:background .2s;
+}
+
+.quantity-controls button:hover{
+    background:var(--primary-dark);
+}
+
+.quantity-controls input{
+    width:70px;
+    text-align:center;
+    font-size:16px;
+    border:none;
+    font-weight:600;
+    background:#fff;
+}
+
+/* =========================================================
+   ADD TO CART BUTTON
+========================================================= */
+.action-btn{
+    padding:12px 22px;
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,0.10);
+    transition:background .2s ease, transform .1s ease;
+}
+
+.action-btn:hover{
+    background:var(--primary-dark);
+}
+
+.action-btn:active{
+    transform:scale(.97);
+}
+
+/* =========================================================
+   ENQUIRY BOX (CARD STYLE)
+========================================================= */
+.enquiry-box{
+    padding:25px;
+    background:#fff;
+    border-radius:14px;
+    margin-top:30px;
+    box-shadow:0 8px 30px rgba(15,23,42,0.05);
+    border:1px solid #e8ebf2;
+}
+
+.enquiry-box h2{
+    margin:0 0 18px 0;
+    font-size:22px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+/* Inputs + Textarea */
+.enquiry-box input,
+.enquiry-box textarea{
+    width:100%;
+    padding:14px 16px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    font-size:15px;
+    background:#fafbff;
+    transition:all .2s;
+}
+
+.enquiry-box input:focus,
+.enquiry-box textarea:focus{
+    border-color:var(--primary);
+    background:#fff;
+    box-shadow:0 0 0 3px rgba(0,123,255,0.15);
+}
+
+textarea{min-height:120px;resize:vertical}
+
+/* ENQUIRY FOOTER BUTTONS */
+.enquiry-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:18px;
+}
+
+/* Send Button */
+.send-btn{
+    background:var(--accent);
+    color:#fff;
+    padding:12px 22px;
+    border-radius:10px;
+    border:none;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.send-btn:hover{
+    background:#1f8b39;
+}
+
+/* Back Button */
+.back-btn{
+    font-size:15px;
+    font-weight:600;
+    color:var(--primary);
+    text-decoration:none;
+    transition:color .2s;
+}
+
+.back-btn:hover{
+    color:var(--primary-dark);
 }
 
 /* =========================================================
    ALERT MESSAGES
-   ========================================================= */
-.success {
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-    text-align: center;
-    font-size: 16px;
-    background: #e0f9e0;
-    color: #28a745;
-    border: 1px solid #28a745;
+========================================================= */
+.success{
+    background:#e6f9ee;
+    border:1px solid #27ae60;
+    color:#1b7f47;
+    padding:14px;
+    border-radius:10px;
+    font-weight:600;
+    margin-bottom:15px;
 }
 
-.error {
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-    text-align: center;
-    font-size: 16px;
-    background: #f8d7da;
-    color: #dc3545;
-    border: 1px solid #dc3545;
-}
-
-/* =========================================================
-   ENQUIRY BUTTONS
-   ========================================================= */
-.enquiry-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-}
-
-.send-btn {
-    padding: 12px 20px;
-    background: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.send-btn:hover {
-    background: #218838;
-}
-
-.back-btn {
-    font-size: 16px;
-    color: #007BFF;
-    text-decoration: none;
-}
-
-.back-btn:hover {
-    color: #0056b3;
+.error{
+    background:#ffe6e9;
+    border:1px solid #ff8a8a;
+    color:#b71c1c;
+    padding:14px;
+    border-radius:10px;
+    font-weight:600;
+    margin-bottom:15px;
 }
 
 /* =========================================================
    RESPONSIVE
-   ========================================================= */
-@media (max-width: 768px) {
-    .container {
-        padding: 20px;
-        margin: 20px;
+========================================================= */
+@media (max-width: 980px){
+    .product-card{
+        grid-template-columns:1fr;
+        gap:20px;
+        padding:20px;
     }
-
-    input,
-    textarea {
-        font-size: 14px;
-    }
-
-    button {
-        font-size: 14px;
-        padding: 10px 15px;
+    .container{
+        margin:20px auto;
+        padding:16px;
     }
 }
-</style>
 
+</style>
 </head>
+
 <body>
 
 <div class="container">
-<h1><?= htmlspecialchars($item['title']) ?></h1>
-<p><strong>Price:</strong> $<?= htmlspecialchars($item['price']) ?></p>
-<p><?= nl2br(htmlspecialchars($item['short_desc'])) ?></p>
-<?php if(!empty($item['image'])): ?>
-<img src="/uploads/<?= htmlspecialchars($item['image']) ?>">
-<?php endif; ?>
 
-<!-- Add to Cart Form -->
-<form method="post">
-    <div class="quantity-controls">
-        <button type="button" id="minus">−</button>
-        <input type="text" id="quantity" name="quantity" value="1">
-        <button type="button" id="plus">+</button>
-    </div>
-    <div class="action-btns">
-        <button type="submit" name="action_type" value="add_to_cart">🛒 Add to Cart</button>
-    </div>
-</form>
+    <div class="product-card">
 
-<!-- Enquiry Form -->
-<h2>Enquire Now</h2>
-<?php if($enquirySuccess): ?>
-<div class="success" id="successMsg">✅ Enquiry Submitted Successfully</div>
-<?php elseif($errors): ?>
-<div class="error"><?= implode("<br>", $errors) ?></div>
-<?php endif; ?>
+        <!-- IMAGE with Hover Zoom -->
+        <div class="product-image">
+            <div class="image-thumb" id="zoomBox">
+                <img src="/uploads/<?= htmlspecialchars($item['image']) ?>">
+            </div>
+        </div>
 
-<form method="post">
-    <input type="hidden" name="_csrf" value="<?= $csrf_token ?>">
-    <input type="hidden" name="action_type" value="enquiry">
-    <input type="text" name="name" placeholder="Your Name" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
-    <input type="email" name="email" placeholder="Your Email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
-    <textarea name="message" rows="5" placeholder="Your Message" required><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
+        <!-- PRODUCT INFO -->
+        <div class="product-info">
 
-    <!-- ✅ Updated ONLY this line -->
-    <div class="cf-turnstile"
-        data-sitekey="<?= $siteKey ?>"
-        data-callback="turnstileCallback">
+            <h1><?= htmlspecialchars($item['title']) ?></h1>
+
+            <div class="product-meta">
+                <div class="product-price">$<?= htmlspecialchars($item['price']) ?></div>
+            </div>
+
+            <p class="short-desc"><?= nl2br(htmlspecialchars($item['short_desc'])) ?></p>
+
+            <!-- Add to Cart -->
+            <form method="post">
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <div class="quantity-controls">
+                        <button type="button" id="minus">−</button>
+                        <input type="text" id="quantity" name="quantity" value="1">
+                        <button type="button" id="plus">+</button>
+                    </div>
+
+                    <button type="submit" name="action_type" value="add_to_cart"
+                        class="action-btn">🛒 Add to Cart</button>
+                </div>
+            </form>
+
+        </div>
     </div>
 
+    <!-- ENQUIRY BOX -->
+    <div class="enquiry-box">
 
-    <input type="hidden" name="cf-turnstile-response" id="turnstile-token">
+        <h2>Enquire Now</h2>
 
-    <div class="enquiry-buttons">
-        <button type="submit" class="send-btn">Send Enquiry</button>
-        <a href="/public/catalog.php" class="back-btn">← Back To Catalog</a>
+        <?php if($enquirySuccess): ?>
+            <div class="success">Enquiry Submitted Successfully</div>
+        <?php elseif($errors): ?>
+            <div class="error"><?= implode("<br>", array_map('htmlspecialchars', $errors)) ?></div>
+        <?php endif; ?>
+
+        <form method="post">
+            <input type="hidden" name="_csrf" value="<?= $csrf_token ?>">
+            <input type="hidden" name="action_type" value="enquiry">
+
+            <input type="text" name="name" placeholder="Your Name"
+                   value="<?= htmlspecialchars($_POST['name'] ?? '') ?>">
+
+            <div style="height:12px"></div>
+
+            <input type="email" name="email" placeholder="Your Email"
+                   value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+
+            <div style="height:12px"></div>
+
+            <textarea name="message" placeholder="Your Message"><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
+
+            <div class="cf-turnstile"
+                    data-sitekey="<?= $siteKey ?>"
+                    data-mode="always">
+            </div>
+
+            <div class="enquiry-footer">
+                <button type="submit" class="send-btn">Send Enquiry</button>
+                <a href="/public/catalog.php" class="back-btn">← Back To Catalog</a>
+            </div>
+
+        </form>
     </div>
-</form>
+
 </div>
 
 <script>
-const qtyInput = document.getElementById('quantity');
-document.getElementById('plus').addEventListener('click',()=>qtyInput.value=parseInt(qtyInput.value)+1);
-document.getElementById('minus').addEventListener('click',()=>{if(parseInt(qtyInput.value)>1)qtyInput.value=parseInt(qtyInput.value)-1;});
+// Quantity
+const qty = document.getElementById("quantity");
+document.getElementById("plus").onclick = ()=> qty.value = (+qty.value||1)+1;
+document.getElementById("minus").onclick = ()=> qty.value = Math.max(1,(+qty.value||1)-1);
 
-// ✅ Only update: automatic Turnstile token capture
-function turnstileCallback(token) {
-    document.getElementById("turnstile-token").value = token;
-}
+// HOVER ZOOM
+const zoomBox = document.getElementById("zoomBox");
+const zoomImg = zoomBox.querySelector("img");
+
+zoomBox.addEventListener("mousemove", (e) => {
+    const r = zoomBox.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * 100;
+    const y = ((e.clientY - r.top) / r.height) * 100;
+
+    zoomImg.style.transform = "scale(2)";
+    zoomImg.style.transformOrigin = `${x}% ${y}%`;
+});
+
+zoomBox.addEventListener("mouseleave", () => {
+    zoomImg.style.transform = "scale(1)";
+});
+
 </script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const successMsg = document.getElementById("successMsg");
+document.addEventListener("DOMContentLoaded", function () {
+    const successMsg = document.querySelector(".success");
+
     if (successMsg) {
         setTimeout(() => {
-            successMsg.style.display = "none";
-        }, 3000); // 3 seconds
+            successMsg.style.opacity = "0";
+            successMsg.style.transition = "opacity 0.5s ease";
+
+            // Remove completely after fade-out
+            setTimeout(() => successMsg.remove(), 600);
+
+        }, 2500); // 2.5 seconds
     }
 });
 </script>
