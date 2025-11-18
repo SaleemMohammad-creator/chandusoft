@@ -9,6 +9,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+ $csrf = $_SESSION['csrf_token'];  // ← use config.php token
+
 // ✅ Admin check
 if (
     empty($_SESSION['user_id']) ||
@@ -34,17 +36,6 @@ $items = $pdo->prepare("SELECT product_name, quantity, unit_price, total_price F
 $items->execute([$id]);
 $items = $items->fetchAll();
 
-// ✅ CSRF fallback
-if (!function_exists('csrf_token')) {
-    function csrf_token() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        if (empty($_SESSION['csrf'])) {
-            $_SESSION['csrf'] = bin2hex(random_bytes(16));
-        }
-        return $_SESSION['csrf'];
-    }
-}
-$csrf = csrf_token();
 ?>
 
 <!doctype html>

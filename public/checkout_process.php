@@ -54,46 +54,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 2️⃣ PayPal Redirect (sandbox API)
     // ------------------------------------------------------------
     elseif ($method === 'paypal') {
+
+        // 1️⃣ Get OAuth2 Token
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, PAYPAL_BASE_URL . "/v2/checkout/orders");
+        curl_setopt($ch, CURLOPT_URL, PAYPAL_BASE_URL . "/v1/oauth2/token");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERPWD, PAYPAL_CLIENT_ID . ":" . PAYPAL_SECRET);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
+        curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/json",
-            "Authorization: Basic " . base64_encode(PAYPAL_CLIENT_ID . ":" . PAYPAL_SECRET)
+            "Accept: application/json",
+            "Accept-Language: en_US",
         ]);
 
-        $data = [
-            "intent" => "CAPTURE",
-            "purchase_units" => [[
-                "amount" => [
-                    "currency_code" => PAYPAL_CURRENCY,
-                    "value" => number_format($order['total'], 2, '.', '')
-                ]
-            ]],
-            "application_context" => [
-                "return_url" => PAYPAL_RETURN_URL . "?order_ref=" . urlencode($order_ref),
-                "cancel_url" => PAYPAL_CANCEL_URL . "?order_ref=" . urlencode($order_ref)
-            ]
-        ];
+        // ⭐ SSL FIX FOR LOCAL HTTPS
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        $response = curl_exec($ch);
-        $paypalOrder = json_decode($response, true);
+        $tokenResponse = curl_exec($ch);
+        $tokenData = json_decode($tokenResponse, true);
         curl_close($ch);
 
-        if (!empty($paypalOrder['links'])) {
-            foreach ($paypalOrder['links'] as $link) {
-                if ($link['rel'] === 'approve') {
-                    header("Location: " . $link['href']);
-                    exit;
+        if (empty($tokenData['access_token'])) {
+            $errors[] = "Failed to generate PayPal token:<br><pre>" . print_r($tokenData, true) . "</pre>";
+        } else {
+
+            $accessToken = $tokenData['access_token'];
+
+            // 2️⃣ Create PayPal Order
+            $orderData = [
+                "intent" => "CAPTURE",
+                "purchase_units" => [[
+                    "amount" => [
+                        "currency_code" => PAYPAL_CURRENCY,
+                        "value" => number_format($order['total'], 2, '.', '')
+                    ],
+                    "custom_id" => $order_ref
+                ]],
+                "application_context" => [
+                    "return_url" => PAYPAL_RETURN_URL . "?order_ref=" . urlencode($order_ref),
+                    "cancel_url" => PAYPAL_CANCEL_URL . "?order_ref=" . urlencode($order_ref)
+                ]
+            ];
+
+            $ch2 = curl_init();
+            curl_setopt($ch2, CURLOPT_URL, PAYPAL_BASE_URL . "/v2/checkout/orders");
+            curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch2, CURLOPT_POST, true);
+            curl_setopt($ch2, CURLOPT_HTTPHEADER, [
+                "Content-Type: application/json",
+                "Authorization: Bearer " . $accessToken
+            ]);
+            curl_setopt($ch2, CURLOPT_POSTFIELDS, json_encode($orderData));
+
+            // ⭐ SSL FIX FOR LOCAL HTTPS
+            curl_setopt($ch2, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch2, CURLOPT_SSL_VERIFYHOST, false);
+
+            $response = curl_exec($ch2);
+            $paypalOrder = json_decode($response, true);
+            curl_close($ch2);
+
+            if (!empty($paypalOrder['links'])) {
+                foreach ($paypalOrder['links'] as $link) {
+                    if ($link['rel'] === 'approve') {
+                        header("Location: " . $link['href']);
+                        exit;
+                    }
                 }
             }
+
+            $errors[] = "PayPal order creation failed:<br><pre>" . print_r($paypalOrder, true) . "</pre>";
         }
-        $errors[] = "PayPal order creation failed. Response: " . htmlspecialchars($response);
     }
 
     // ------------------------------------------------------------
-    // ✅ 3️⃣ Stripe Redirect (UPDATED!)
+    // 3️⃣ Stripe Redirect
     // ------------------------------------------------------------
     elseif ($method === 'stripe') {
 
@@ -113,18 +149,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-
-            // ✅ Attach to payment intent metadata so webhook can update DB
             'payment_intent_data' => [
                 'metadata' => [
                     'order_ref' => $order_ref
                 ]
             ],
-
-            // ✅ Success → we redirect to success page
             'success_url' => BASE_URL . "/public/success.php?order_ref={$order_ref}",
-
-            // ✅ Cancel → DO NOT store transaction id, just mark as failed
             'cancel_url' => BASE_URL . "/public/cancel.php?order_ref={$order_ref}&session_id={CHECKOUT_SESSION_ID}",
         ]);
 
@@ -132,7 +162,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // ✅ If manual card payment succeeds
+    // ------------------------------------------------------------
+    // Manual Card Success
+    // ------------------------------------------------------------
     if ($paid) {
         $stmt = $pdo->prepare("UPDATE orders SET payment_status = 'paid' WHERE order_ref = :ref");
         $stmt->execute([':ref' => $order_ref]);
