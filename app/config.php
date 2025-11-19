@@ -132,6 +132,12 @@ if (!defined('TURNSTILE_SITE'))   define('TURNSTILE_SITE', $TURNSTILE_SITE);
 if (!defined('TURNSTILE_SECRET')) define('TURNSTILE_SECRET', $TURNSTILE_SECRET);
 
 // ====================
+// 🧠 OpenAI AI Generator Settings
+// ====================
+if (!defined('OPENAI_API_KEY')) define('OPENAI_API_KEY', getenv('OPENAI_API_KEY'));
+
+
+// ====================
 // 🔟 Stripe Configuration
 // ====================
 if (!defined('STRIPE_PUBLISHABLE_KEY')) define('STRIPE_PUBLISHABLE_KEY', getenv('STRIPE_PUBLISHABLE_KEY'));

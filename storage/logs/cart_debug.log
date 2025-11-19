@@ -60,3 +60,5 @@
 [2025-11-18 06:09:31] Added to cart: 35 with qty: 1
 [2025-11-18 06:15:42] Missing or invalid data for cart item with ID: 0. Data: {"product_id":34,"product_name":"Java Course","unit_price":30,"quantity":1}
 [2025-11-18 09:34:25] Missing or invalid data for cart item with ID: 0. Data: {"product_id":35,"product_name":"Python Course","unit_price":45,"quantity":1}
+[2025-11-19 08:23:08] Added to cart: 48 with qty: 2
+[2025-11-19 08:23:08] Missing or invalid data for cart item with ID: 0. Data: {"product_id":49,"product_name":"Beet Root","unit_price":6,"quantity":1}

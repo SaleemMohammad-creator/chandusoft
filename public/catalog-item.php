@@ -51,6 +51,8 @@ $stmt->execute(['slug' => $slug]);
 $item = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$item) die("Item not found or not published.");
 
+
+
 // -------------------------
 // Handle POST
 // -------------------------
@@ -77,6 +79,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: /public/cart.php");
         exit;
     }
+
+    // BUY NOW → add to cart (single item) → go to checkout
+if ($actionType === 'buy_now') {
+
+    if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
+
+    // Replace cart with only this item (Buy Now = single item checkout)
+    $_SESSION['cart'] = [
+        $item['id'] => [
+            'id' => $item['id'],
+            'title' => $item['title'],
+            'price' => $item['price'],
+            'image' => $item['image'],
+            'quantity' => $quantity
+        ]
+    ];
+
+    header("Location: /public/checkout.php");
+    exit;
+}
+
 
     // Enquiry form processing
     if ($actionType === 'enquiry') {
@@ -181,25 +204,30 @@ $jsonLd = [
 <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?></script>
 
 <style>
-    /* =========================================================
+   
+/* =========================================================
    GLOBAL VARIABLES / BASE UI
 ========================================================= */
 :root{
     --primary:#007BFF;
     --primary-dark:#0056b3;
     --accent:#28a745;
+    --accent-dark:#1f8b39;
     --bg:#f2f4f8;
     --card-bg:#ffffff;
     --muted:#6b7280;
     --border:#d8dce6;
 }
 
-*{box-sizing:border-box}
+*{
+    box-sizing:border-box;
+}
+
 body{
     margin:0;
     padding:0;
     background:var(--bg);
-    font-family:Inter, "Segoe UI", Arial;
+    font-family:Inter, "Segoe UI", Arial, sans-serif;
     color:#0f172a;
 }
 
@@ -303,27 +331,54 @@ body{
 }
 
 /* =========================================================
-   ADD TO CART BUTTON
+   BUTTONS (Add to Cart + Buy Now)
 ========================================================= */
 .action-btn{
     padding:12px 22px;
-    background:var(--primary);
-    color:#fff;
     border:none;
     border-radius:10px;
     font-size:15px;
     font-weight:600;
     cursor:pointer;
-    box-shadow:0 4px 12px rgba(0,0,0,0.10);
+    color:#fff;
     transition:background .2s ease, transform .1s ease;
-}
-
-.action-btn:hover{
-    background:var(--primary-dark);
+    box-shadow:0 4px 12px rgba(0,0,0,0.10);
 }
 
 .action-btn:active{
     transform:scale(.97);
+}
+
+.cart-btn{
+    background:var(--primary);
+}
+.cart-btn:hover{
+    background:var(--primary-dark);
+}
+
+.buy-btn{
+    background:var(--accent);
+}
+.buy-btn:hover{
+    background:var(--accent-dark);
+}
+
+/* =========================================================
+   BUTTON + QUANTITY LAYOUT
+========================================================= */
+.product-action-form{
+    margin-top:10px;
+}
+
+.quantity-row{
+    display:flex;
+    justify-content:flex-start;
+    margin-bottom:14px;
+}
+
+.button-row{
+    display:flex;
+    gap:12px;
 }
 
 /* =========================================================
@@ -345,7 +400,6 @@ body{
     color:#0f172a;
 }
 
-/* Inputs + Textarea */
 .enquiry-box input,
 .enquiry-box textarea{
     width:100%;
@@ -364,9 +418,11 @@ body{
     box-shadow:0 0 0 3px rgba(0,123,255,0.15);
 }
 
-textarea{min-height:120px;resize:vertical}
+textarea{
+    min-height:120px;
+    resize:vertical;
+}
 
-/* ENQUIRY FOOTER BUTTONS */
 .enquiry-footer{
     display:flex;
     justify-content:space-between;
@@ -387,7 +443,7 @@ textarea{min-height:120px;resize:vertical}
 }
 
 .send-btn:hover{
-    background:#1f8b39;
+    background:var(--accent-dark);
 }
 
 /* Back Button */
@@ -441,6 +497,9 @@ textarea{min-height:120px;resize:vertical}
     }
 }
 
+
+
+
 </style>
 </head>
 
@@ -469,18 +528,31 @@ textarea{min-height:120px;resize:vertical}
             <p class="short-desc"><?= nl2br(htmlspecialchars($item['short_desc'])) ?></p>
 
             <!-- Add to Cart -->
-            <form method="post">
-                <div style="display:flex; gap:12px; align-items:center;">
-                    <div class="quantity-controls">
-                        <button type="button" id="minus">−</button>
-                        <input type="text" id="quantity" name="quantity" value="1">
-                        <button type="button" id="plus">+</button>
-                    </div>
+   <form method="post" class="product-action-form">
 
-                    <button type="submit" name="action_type" value="add_to_cart"
-                        class="action-btn">🛒 Add to Cart</button>
-                </div>
-            </form>
+    <!-- Quantity Row -->
+    <div class="quantity-row">
+        <div class="quantity-controls">
+            <button type="button" id="minus">−</button>
+            <input type="text" id="quantity" name="quantity" value="1">
+            <button type="button" id="plus">+</button>
+        </div>
+    </div>
+
+    <!-- Buttons Row -->
+    <div class="button-row">
+        <button type="submit" name="action_type" value="add_to_cart" class="action-btn cart-btn">
+            🛒 Add to Cart
+        </button>
+
+        <button type="submit" name="action_type" value="buy_now" class="action-btn buy-btn">
+            ⚡ Buy Now
+        </button>
+    </div>
+
+</form>
+
+
 
         </div>
     </div>
