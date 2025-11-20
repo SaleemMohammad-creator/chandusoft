@@ -52,7 +52,6 @@ $item = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$item) die("Item not found or not published.");
 
 
-
 // -------------------------
 // Handle POST
 // -------------------------
@@ -81,24 +80,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // BUY NOW → add to cart (single item) → go to checkout
-if ($actionType === 'buy_now') {
+    if ($actionType === 'buy_now') {
 
-    if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
+        if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
 
-    // Replace cart with only this item (Buy Now = single item checkout)
-    $_SESSION['cart'] = [
-        $item['id'] => [
-            'id' => $item['id'],
-            'title' => $item['title'],
-            'price' => $item['price'],
-            'image' => $item['image'],
-            'quantity' => $quantity
-        ]
-    ];
+        $_SESSION['cart'] = [
+            $item['id'] => [
+                'id' => $item['id'],
+                'title' => $item['title'],
+                'price' => $item['price'],
+                'image' => $item['image'],
+                'quantity' => $quantity
+            ]
+        ];
 
-    header("Location: /public/checkout.php");
-    exit;
-}
+        header("Location: /public/checkout.php");
+        exit;
+    }
 
 
     // Enquiry form processing
@@ -115,27 +113,38 @@ if ($actionType === 'buy_now') {
             $errors[] = "Invalid CSRF token.";
         }
 
-        if ($turnstileToken) {
-            $verify = curl_init("https://challenges.cloudflare.com/turnstile/v0/siteverify");
-            curl_setopt_array($verify, [
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => http_build_query([
-                    'secret' => $secretKey,
-                    'response' => $turnstileToken,
-                    'remoteip' => $_SERVER['REMOTE_ADDR']
-                ]),
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_SSL_VERIFYPEER => false
-            ]);
-            $resp = curl_exec($verify);
-            curl_close($verify);
-            $result = json_decode($resp, true);
-            if (empty($result['success'])) {
-                $errors[] = "CAPTCHA verification failed.";
+        // -------------------------
+        // NEW: Turnstile verification (same as your FIRST working file)
+        // -------------------------
+        if (!empty($turnstileToken)) {
+
+            $response = file_get_contents(
+                'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+                false,
+                stream_context_create([
+                    'http' => [
+                        'method'  => 'POST',
+                        'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
+                        'content' => http_build_query([
+                            'secret'   => $secretKey,
+                            'response' => $turnstileToken,
+                            'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''
+                        ])
+                    ]
+                ])
+            );
+
+            $json = json_decode($response, true);
+
+            if (empty($json['success'])) {
+                $errors[] = 'CAPTCHA verification failed.';
             }
+
         } else {
-            $errors[] = "Please complete CAPTCHA.";
+            $errors[] = 'CAPTCHA validation is required.';
         }
+        // -------------------------
+
 
         if (!$name) $errors[] = "Name is required.";
         if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email required.";
@@ -200,11 +209,9 @@ $jsonLd = [
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
 <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?></script>
 
 <style>
-   
 /* =========================================================
    GLOBAL VARIABLES / BASE UI
 ========================================================= */
@@ -498,9 +505,8 @@ textarea{
 }
 
 
-
-
 </style>
+
 </head>
 
 <body>
@@ -528,31 +534,27 @@ textarea{
             <p class="short-desc"><?= nl2br(htmlspecialchars($item['short_desc'])) ?></p>
 
             <!-- Add to Cart -->
-   <form method="post" class="product-action-form">
+            <form method="post" class="product-action-form">
 
-    <!-- Quantity Row -->
-    <div class="quantity-row">
-        <div class="quantity-controls">
-            <button type="button" id="minus">−</button>
-            <input type="text" id="quantity" name="quantity" value="1">
-            <button type="button" id="plus">+</button>
-        </div>
-    </div>
+                <div class="quantity-row">
+                    <div class="quantity-controls">
+                        <button type="button" id="minus">−</button>
+                        <input type="text" id="quantity" name="quantity" value="1">
+                        <button type="button" id="plus">+</button>
+                    </div>
+                </div>
 
-    <!-- Buttons Row -->
-    <div class="button-row">
-        <button type="submit" name="action_type" value="add_to_cart" class="action-btn cart-btn">
-            🛒 Add to Cart
-        </button>
+                <div class="button-row">
+                    <button type="submit" name="action_type" value="add_to_cart" class="action-btn cart-btn">
+                        🛒 Add to Cart
+                    </button>
 
-        <button type="submit" name="action_type" value="buy_now" class="action-btn buy-btn">
-            ⚡ Buy Now
-        </button>
-    </div>
+                    <button type="submit" name="action_type" value="buy_now" class="action-btn buy-btn">
+                        ⚡ Buy Now
+                    </button>
+                </div>
 
-</form>
-
-
+            </form>
 
         </div>
     </div>
@@ -584,10 +586,22 @@ textarea{
 
             <textarea name="message" placeholder="Your Message"><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
 
-            <div class="cf-turnstile"
-                    data-sitekey="<?= $siteKey ?>"
-                    data-mode="always">
-            </div>
+            <!-- Turnstile (NEW correct version, same as first working code) -->
+              <div class="cf-turnstile"
+                     data-sitekey="<?= $siteKey ?>"
+                     data-theme="light"
+                    data-mode="managed"
+                   data-callback="onTurnstileSuccess">
+              </div>
+
+           <input type="hidden" name="cf-turnstile-response">
+
+
+            <script>
+            function onTurnstileSuccess(token) {
+                document.querySelector("input[name='cf-turnstile-response']").value = token;
+            }
+            </script>
 
             <div class="enquiry-footer">
                 <button type="submit" class="send-btn">Send Enquiry</button>
@@ -621,7 +635,6 @@ zoomBox.addEventListener("mousemove", (e) => {
 zoomBox.addEventListener("mouseleave", () => {
     zoomImg.style.transform = "scale(1)";
 });
-
 </script>
 
 <script>
@@ -633,10 +646,9 @@ document.addEventListener("DOMContentLoaded", function () {
             successMsg.style.opacity = "0";
             successMsg.style.transition = "opacity 0.5s ease";
 
-            // Remove completely after fade-out
             setTimeout(() => successMsg.remove(), 600);
 
-        }, 2500); // 2.5 seconds
+        }, 2500);
     }
 });
 </script>
