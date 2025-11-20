@@ -1,1 +1,0 @@
-error setting certificate file: D:\Projects\Laragon-installer\8.0-W64\etc\ssl\cacert.pem

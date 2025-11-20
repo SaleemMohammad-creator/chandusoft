@@ -220,6 +220,16 @@ p.message {
     animation: fadeMsg 4s forwards;
 }
 
+.message.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
 @keyframes fadeMsg {
     0%   { opacity: 1; }
     80%  { opacity: 1; }
@@ -251,8 +261,14 @@ p.message {
 <div class="login-container">
     <h2>Login</h2>
     <?php if ($message): ?>
-        <p class="message"><?= htmlspecialchars($message) ?></p>
-    <?php endif; ?>
+    <?php 
+        $isSuccess = stripos($message, 'success') !== false 
+                     || stripos($message, 'registered') !== false;
+    ?>
+    <p class="message <?= $isSuccess ? 'success' : 'error' ?>">
+        <?= htmlspecialchars($message) ?>
+    </p>
+<?php endif; ?>
     <form method="post">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <label>Email</label>

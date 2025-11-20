@@ -20,6 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $name = trim($_POST["name"]);
     $email = trim($_POST["email"]);
+    $phone = trim($_POST["phone"]);
     $password = $_POST["password"];
     $confirm_password = $_POST["confirm_password"];
 
@@ -51,8 +52,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
 
             // Insert into DB
-            $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-            $stmt->execute([$name, $email, $passwordHash]);
+            $stmt = $pdo->prepare(
+    "INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)"
+);
+$stmt->execute([$name, $email, $phone, $passwordHash]);
             $message = "✅ Registration Successful! <a href='login.php'>Login Now</a>";
 
             mailLog("New User Registered", "Email: {$email}", 'register');
@@ -201,6 +204,7 @@ button:hover {
 
         <input type="text" name="name" placeholder="Full Name" required />
         <input type="email" name="email" placeholder="Email Address" required />
+        <input type="phone" name="phone" placeholder="Phone Number" required />
         <input type="password" name="password" placeholder="Password" required />
         <input type="password" name="confirm_password" placeholder="Confirm Password" required />
 

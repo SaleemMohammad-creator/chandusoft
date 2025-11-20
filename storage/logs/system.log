@@ -857,3 +857,25 @@ Time: 2025-10-29 10:09:57
 [2025-11-19 05:57:40][Catalog Item Added: Dragon Fruit] Slug: dragon-fruit | Price: 12 | Admin ID: 2
 [2025-11-19 05:57:40][Catalog List Viewed] Admin ID: 2
 [2025-11-19 07:35:28][Catalog List Viewed] Admin ID: 2
+[2025-11-20 07:23:34][✅ admin Logged In] Email: saleem@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-20 07:23:34
+[2025-11-20 07:23:39][Catalog List Viewed] Admin ID: 2
+[2025-11-20 07:24:27][Catalog List Viewed] Admin ID: 2
+[2025-11-20 07:27:15][Pages Viewed] User: Saleem.M (admin) viewed the pages list (Filter: all).
+[2025-11-20 07:27:34][Pages Viewed] User: Saleem.M (admin) viewed the pages list (Filter: all).
+[2025-11-20 07:27:43][Catalog List Viewed] Admin ID: 2
+[2025-11-20 07:35:47][Catalog List Viewed] Admin ID: 2
+[2025-11-20 07:36:41][Catalog List Viewed] Admin ID: 2
+[2025-11-20 08:46:49][✅ user Logged In] Email: sai@gmail.comRole: userIP Address: 127.0.0.1Time: 2025-11-20 08:46:49
+[2025-11-20 08:59:53][✅ user Logged In] Email: sai@gmail.comRole: userIP Address: 127.0.0.1Time: 2025-11-20 08:59:53
+[2025-11-20 09:00:21][✅ admin Logged In] Email: saleem@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-20 09:00:21
+[2025-11-20 09:03:31][✅ user Logged In] Email: sai@gmail.comRole: userIP Address: 127.0.0.1Time: 2025-11-20 09:03:31
+[2025-11-20 09:31:34][❌ Failed Login Attempt] Email: saleem@gmail.comAttempted Role: UnknownIP Address: 127.0.0.1Time: 2025-11-20 09:31:34
+[2025-11-20 09:32:04][New User Registered] Email: saleem@gmail.com
+[2025-11-20 09:33:31][✅ admin Logged In] Email: saleem@gmail.comRole: adminIP Address: 127.0.0.1Time: 2025-11-20 09:33:31
+[2025-11-20 09:34:58][New User Registered] Email: sai@gmail.com
+[2025-11-20 09:35:09][✅ editor Logged In] Email: sai@gmail.comRole: editorIP Address: 127.0.0.1Time: 2025-11-20 09:35:09
+[2025-11-20 09:38:46][New User Registered] Email: mustafa@gmail.com
+[2025-11-20 09:43:57][Registration Failed - Email Exists] Email: mustafa@gmail.com
+[2025-11-20 09:44:53][New User Registered] Email: krishna@gmail.com
+[2025-11-20 10:00:17][Registration Failed - Email Exists] Email: krishna@gmail.com
+
