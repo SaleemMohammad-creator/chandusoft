@@ -109,7 +109,7 @@ body {
     max-width: 450px;
     margin: 60px auto;
     background: #fff;
-    padding: 35px 40px;
+    padding: 10px 40px;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
@@ -129,10 +129,11 @@ body {
     color: #333;
 }
 
-input[type="email"],
-input[type="password"] {
+/* EMAIL FIXED */
+input[type="email"] {
     width: 100%;
-    padding: 14px 12px;
+    height: 48px;
+    padding: 0 12px;
     margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -140,19 +141,29 @@ input[type="password"] {
     box-sizing: border-box;
 }
 
-/* FIXED PASSWORD HEIGHT (NO SHRINKING BUG) */
+/* PASSWORD WRAPPER – FULLY FIXED */
 .password-wrapper {
     position: relative;
     width: 100%;
+    margin-bottom: 20px;
 }
 
 .password-wrapper input {
     width: 100%;
-    padding: 14px 40px 14px 12px !important; /* FIXED */
+    height: 48px !important;
+    line-height: 48px !important;
+    padding: 0 42px 0 12px !important;
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 15px;
     box-sizing: border-box;
+    appearance: none; /* prevent browser resizing */
+}
+
+/* Remove built-in clear/eye icons (Windows/Chrome) */
+.password-wrapper input::-ms-reveal,
+.password-wrapper input::-ms-clear {
+    display: none !important;
 }
 
 /* Eye Icon */
@@ -162,14 +173,15 @@ input[type="password"] {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    color: #777;
     font-size: 18px;
+    color: #777;
 }
 
 .toggle-password:hover {
     color: #1E90FF;
 }
 
+/* BUTTON */
 button {
     width: 100%;
     padding: 14px;
@@ -181,10 +193,12 @@ button {
     border-radius: 8px;
     cursor: pointer;
 }
+
 button:hover {
     background: #187bcd;
 }
 
+/* MESSAGE BOX */
 .message {
     padding: 12px;
     border-radius: 6px;
@@ -200,17 +214,20 @@ button:hover {
     color: #155724;
 }
 
+/* Forgot Password Link */
 .forgot-password {
     text-align: right;
-    margin-top: -12px;
+    margin-top: -10px;
     margin-bottom: 20px;
 }
+
 .forgot-password a {
     color: #1E90FF;
     font-weight: bold;
     font-size: 14px;
 }
 
+/* Register Link */
 .register-link {
     text-align: center;
     margin-top: 20px;
@@ -219,6 +236,7 @@ button:hover {
     color: #1E90FF;
     font-weight: bold;
 }
+
 </style>
 </head>
 
