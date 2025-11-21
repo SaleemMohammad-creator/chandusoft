@@ -25,7 +25,7 @@ $flash = $_SESSION['flash'] ?? '';
 $_SESSION['flash'] = '';
 
 // ---------------------------
-// Handle Registration (POST)
+// Handle Registration
 // ---------------------------
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -42,38 +42,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Email validation
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-
         $_SESSION['flash'] = "❌ Invalid email format";
         mailLog("Registration Failed - Invalid Email", "Email: {$email}", 'register');
-
         header("Location: register.php");
         exit;
     }
 
     // Password match validation
     if ($password !== $confirm_password) {
-
         $_SESSION['flash'] = "❌ Passwords do not match";
         mailLog("Registration Failed - Password Mismatch", "Email: {$email}", 'register');
-
         header("Location: register.php");
         exit;
     }
 
-    // Check if email exists
+    // Check existing email
     $check = $pdo->prepare("SELECT email FROM users WHERE email = ?");
     $check->execute([$email]);
 
     if ($check->fetch()) {
-
         $_SESSION['flash'] = "⚠️ Email already registered!";
         mailLog("Registration Failed - Email Exists", "Email: {$email}", 'register');
-
         header("Location: register.php");
         exit;
     }
 
-    // Insert new user
+    // Insert user
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
     $stmt = $pdo->prepare("INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)");
     $stmt->execute([$name, $email, $phone, $passwordHash]);
@@ -84,15 +78,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     header("Location: register.php");
     exit;
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Register - <?= sanitize($site_name) ?></title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="stylesheet" href="/styles.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -101,82 +97,122 @@ body {
     padding: 0;
 }
 
-/* Same layout as login page */
+/* MAIN CARD - Same as Login */
 .register-page {
-    max-width: 400px;
-    margin: 40px auto;
+    width: 100%;
+    max-width: 450px;
+    margin: 60px auto;
     background: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 10px 2px rgba(0,0,0,0.1);
+    padding: 35px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
+/* Heading */
 .register-page h2 {
     text-align: center;
     color: #1E90FF;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
+    font-size: 26px;
+    font-weight: bold;
 }
 
-/* Label names */
-
+/* Labels */
 label {
-    font-weight: bold;
-    margin-bottom: 5px;
     display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
     color: #333;
 }
 
+/* Inputs */
 input {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 18px;
+    padding: 14px 12px;
+    margin-bottom: 20px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 8px;
+    font-size: 15px;
     box-sizing: border-box;
 }
 
+input:focus {
+    border-color: #1E90FF;
+    outline: none;
+    box-shadow: 0 0 5px rgba(30,144,255,0.25);
+}
+
+/* Password Wrapper */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 45px !important;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #777;
+}
+
+.toggle-password:hover {
+    color: #1E90FF;
+}
+
+/* Button */
 button {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     background: #1E90FF;
     color: #fff;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: bold;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
 }
 button:hover {
     background: #187bcd;
 }
 
+/* Flash message */
 .message {
-    padding: 10px;
+    padding: 12px;
     border-radius: 6px;
-    text-align: center;
     margin-bottom: 20px;
+    text-align: center;
+    font-size: 15px;
 }
-
 .message.error {
-    background-color: #f8d7da;
+    background: #f8d7da;
     color: #721c24;
 }
-
 .message.success {
-    background-color: #d4edda;
+    background: #d4edda;
     color: #155724;
 }
 
+/* Link */
 .login-link {
     text-align: center;
-    margin-top: 15px;
+    margin-top: 20px;
 }
 .login-link a {
     color: #1E90FF;
     font-weight: bold;
+    text-decoration: none;
 }
-</style>
+.login-link a:hover {
+    text-decoration: underline;
+}
 
+</style>
 </head>
 
 <body>
@@ -184,6 +220,7 @@ button:hover {
 <?php include __DIR__ . '/header.php'; ?>
 
 <main class="register-page">
+
     <h2>Create Account</h2>
 
     <?php if ($flash): ?>
@@ -194,27 +231,35 @@ button:hover {
     <?php endif; ?>
 
     <form method="POST">
-    <!-- CSRF Token -->
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-    <label for="name">Full Name</label>
+    
     <input type="text" id="name" name="name" placeholder="Full Name" required>
 
-    <label for="email">Email Address</label>
+    
     <input type="email" id="email" name="email" placeholder="Email Address" required>
 
-    <label for="phone">Phone Number</label>
+   
     <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
 
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" placeholder="Password" required>
+    
+    <div class="password-wrapper">
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <span class="toggle-password" onclick="togglePassword('password','eye1')">
+            <i class="fa-solid fa-eye" id="eye1"></i>
+        </span>
+    </div>
 
-    <label for="confirm_password">Confirm Password</label>
-    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+   
+    <div class="password-wrapper">
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+        <span class="toggle-password" onclick="togglePassword('confirm_password','eye2')">
+            <i class="fa-solid fa-eye" id="eye2"></i>
+        </span>
+    </div>
 
     <button type="submit">Register</button>
-</form>
-
+    </form>
 
     <div class="login-link">
         Already have an account? <a href="login.php">Login Here</a>
@@ -222,6 +267,24 @@ button:hover {
 </main>
 
 <?php include __DIR__ . '/footer.php'; ?>
+
+<!-- JS -->
+<script>
+function togglePassword(fieldId, eyeId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById(eyeId);
+
+    if (field.type === "password") {
+        field.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        field.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+</script>
 
 </body>
 </html>

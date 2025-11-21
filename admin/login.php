@@ -34,13 +34,13 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Log directory
+// Log setup
 $logDir = __DIR__ . '/../storage/logs';
 if (!is_dir($logDir)) mkdir($logDir, 0755, true);
 $logFile = $logDir . '/login_attempts.log';
 
 // ---------------------------
-// Handle form submission
+// Handle Login Submission
 // ---------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
@@ -65,27 +65,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_name'] = $user['name'] ?? 'User';
         $_SESSION['user_role'] = $user['role'] ?? 'Admin';
 
-        file_put_contents($logFile, "[{$timestamp}] ✅ SUCCESS login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
+        file_put_contents($logFile, "[{$timestamp}] SUCCESS login | {$email} | IP: {$ip}\n", FILE_APPEND);
+        mailLog("Admin Logged In", "Email: $email\nIP: $ip\nTime: $timestamp");
 
-        mailLog(
-            "✅ {$user['role']} Logged In",
-            "Email: {$email}\nRole: {$user['role']}\nIP: {$ip}\nTime: {$timestamp}"
-        );
-
-        log_action($user['id'], 'Login Success', "User {$email} logged in from IP {$ip}");
+        log_action($user['id'], 'Login Success', "User $email logged in from $ip");
 
         header("Location: dashboard.php");
         exit;
-    } else {
+    } 
+    else {
+        file_put_contents($logFile, "[{$timestamp}] FAILED login | {$email} | IP: {$ip}\n", FILE_APPEND);
+        mailLog("Failed Login Attempt", "Email: $email\nIP: $ip\nTime: $timestamp");
 
-        file_put_contents($logFile, "[{$timestamp}] ❌ FAILED login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
-
-        mailLog(
-            "❌ Failed Login Attempt",
-            "Email: {$email}\nIP: {$ip}\nTime: {$timestamp}"
-        );
-
-        log_action(null, 'Login Failed', "Failed login attempt for {$email} from {$ip}");
+        log_action(null, 'Login Failed', "Failed login attempt for $email from $ip");
 
         $_SESSION['flash_message'] = "Invalid email or password";
         header("Location: login.php");
@@ -101,7 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Login - <?= sanitize($site_name) ?></title>
 <link rel="stylesheet" href="/styles.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -110,7 +103,7 @@ body {
     padding: 0;
 }
 
-/* LOGIN CONTAINER */
+/* LOGIN CARD */
 .login-page {
     width: 100%;
     max-width: 450px;
@@ -121,7 +114,6 @@ body {
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
-/* Title */
 .login-page h2 {
     text-align: center;
     color: #1E90FF;
@@ -130,7 +122,6 @@ body {
     font-weight: bold;
 }
 
-/* Labels */
 .login-page label {
     display: block;
     margin-bottom: 6px;
@@ -138,7 +129,6 @@ body {
     color: #333;
 }
 
-/* Inputs */
 input[type="email"],
 input[type="password"] {
     width: 100%;
@@ -150,7 +140,36 @@ input[type="password"] {
     box-sizing: border-box;
 }
 
-/* Button */
+/* FIXED PASSWORD HEIGHT (NO SHRINKING BUG) */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding: 14px 40px 14px 12px !important; /* FIXED */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+/* Eye Icon */
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #777;
+    font-size: 18px;
+}
+
+.toggle-password:hover {
+    color: #1E90FF;
+}
+
 button {
     width: 100%;
     padding: 14px;
@@ -166,38 +185,40 @@ button:hover {
     background: #187bcd;
 }
 
-/* Messages */
 .message {
     padding: 12px;
     border-radius: 6px;
     text-align: center;
     margin-bottom: 20px;
-    font-size: 15px;
 }
 .message.error {
-    background-color: #f8d7da;
+    background: #f8d7da;
     color: #721c24;
 }
 .message.success {
-    background-color: #d4edda;
+    background: #d4edda;
     color: #155724;
 }
 
-/* Register link */
+.forgot-password {
+    text-align: right;
+    margin-top: -12px;
+    margin-bottom: 20px;
+}
+.forgot-password a {
+    color: #1E90FF;
+    font-weight: bold;
+    font-size: 14px;
+}
+
 .register-link {
     text-align: center;
     margin-top: 20px;
-    font-size: 15px;
 }
 .register-link a {
     color: #1E90FF;
     font-weight: bold;
-    text-decoration: none;
 }
-.register-link a:hover {
-    text-decoration: underline;
-}
-
 </style>
 </head>
 
@@ -222,7 +243,16 @@ button:hover {
         <input type="email" name="email" required placeholder="Enter your email">
 
         <label>Password</label>
-        <input type="password" name="password" required placeholder="Enter your password">
+        <div class="password-wrapper">
+            <input type="password" name="password" id="password" required placeholder="Enter your password">
+            <span class="toggle-password" onclick="togglePassword()">
+                <i class="fa-solid fa-eye" id="eyeIcon"></i>
+            </span>
+        </div>
+
+        <div class="forgot-password">
+            <a href="forgot_password.php">Forgot Password?</a>
+        </div>
 
         <button type="submit">Login</button>
     </form>
@@ -233,6 +263,23 @@ button:hover {
 </main>
 
 <?php include __DIR__ . '/footer.php'; ?>
+
+<script>
+function togglePassword() {
+    const field = document.getElementById("password");
+    const icon = document.getElementById("eyeIcon");
+
+    if (field.type === "password") {
+        field.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        field.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+</script>
 
 </body>
 </html>
