@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/helpers.php';
-require_once __DIR__ . '/../app/mail-logger.php'; // ✅ For Mailpit Logging
-require_once __DIR__ . '/../utilities/log_action.php'; // ✅ For Admin Activity Logging
+require_once __DIR__ . '/../app/mail-logger.php';
+require_once __DIR__ . '/../utilities/log_action.php';
 
 // ---------------------------
 // Secure session start
@@ -60,37 +60,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-        // ✅ Session Set
+
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'] ?? 'User';
         $_SESSION['user_role'] = $user['role'] ?? 'Admin';
 
-        // ✅ File Log
         file_put_contents($logFile, "[{$timestamp}] ✅ SUCCESS login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
 
-        // ✅ Mailpit Log
-        $role = $user['role'] ?? 'User';
         mailLog(
-            "✅ {$role} Logged In",
-            "Email: {$email}\nRole: {$role}\nIP Address: {$ip}\nTime: {$timestamp}"
+            "✅ {$user['role']} Logged In",
+            "Email: {$email}\nRole: {$user['role']}\nIP: {$ip}\nTime: {$timestamp}"
         );
 
-        // ✅ Database Log (SUCCESS)
         log_action($user['id'], 'Login Success', "User {$email} logged in from IP {$ip}");
 
         header("Location: dashboard.php");
         exit;
     } else {
-        // ✅ File Log
+
         file_put_contents($logFile, "[{$timestamp}] ❌ FAILED login | Email: {$email} | IP: {$ip}\n", FILE_APPEND | LOCK_EX);
 
-        // ✅ Mailpit Log
         mailLog(
             "❌ Failed Login Attempt",
-            "Email: {$email}\nAttempted Role: Unknown\nIP Address: {$ip}\nTime: {$timestamp}"
+            "Email: {$email}\nIP: {$ip}\nTime: {$timestamp}"
         );
 
-        // ✅ Database Log (FAILED)
         log_action(null, 'Login Failed', "Failed login attempt for {$email} from {$ip}");
 
         $_SESSION['flash_message'] = "Invalid email or password";
@@ -100,187 +94,145 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Login - <?= sanitize($site_name) ?></title>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <style>
-/* ===============================
-   GLOBAL PAGE STYLE
-================================*/
 body {
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #e3f2ff, #f3f7ff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    background-color: #f5f7fa;
     margin: 0;
+    padding: 0;
 }
 
-/* ===============================
-   LOGIN CONTAINER
-================================*/
-.login-container {
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 14px;
-    width: 380px;
-    max-width: 90%;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    animation: fadeSlideIn 0.5s ease-out;
+/* LOGIN CONTAINER */
+.login-page {
+    width: 100%;
+    max-width: 450px;
+    margin: 60px auto;
+    background: #fff;
+    padding: 35px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
-/* Slide-in animation */
-@keyframes fadeSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ===============================
-   HEADINGS
-================================*/
-h2 {
+/* Title */
+.login-page h2 {
     text-align: center;
-    margin-bottom: 25px;
-    color: #007bff;
+    color: #1E90FF;
+    margin-bottom: 30px;
     font-size: 26px;
-    letter-spacing: 0.5px;
+    font-weight: bold;
 }
 
-/* ===============================
-   FORM ELEMENTS
-================================*/
-label {
+/* Labels */
+.login-page label {
     display: block;
     margin-bottom: 6px;
     font-weight: bold;
     color: #333;
 }
 
+/* Inputs */
 input[type="email"],
 input[type="password"] {
     width: 100%;
-    padding: 12px 14px;
-    margin-bottom: 18px;
-    border: 1px solid #ccd4dd;
-    border-radius: 6px;
+    padding: 14px 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
     font-size: 15px;
-    background: #fafbfd;
-    transition: border-color 0.25s, box-shadow 0.25s;
+    box-sizing: border-box;
 }
 
-input[type="email"]:focus,
-input[type="password"]:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0,123,255,0.15);
-    outline: none;
-}
-
-/* ===============================
-   LOGIN BUTTON
-================================*/
+/* Button */
 button {
     width: 100%;
-    padding: 13px;
-    background: #007bff;
+    padding: 14px;
+    background: #1E90FF;
     color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: bold;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: background-color 0.3s, transform 0.2s;
 }
-
 button:hover {
-    background: #005ecb;
-    transform: translateY(-2px);
+    background: #187bcd;
 }
 
-/* ===============================
-   MESSAGES
-================================*/
-p.message {
-    background: #f8d7da;
-    color: #721c24;
+/* Messages */
+.message {
     padding: 12px;
     border-radius: 6px;
     text-align: center;
     margin-bottom: 20px;
-    animation: fadeMsg 4s forwards;
+    font-size: 15px;
 }
-
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
 .message.success {
-    background: #d4edda;
+    background-color: #d4edda;
     color: #155724;
 }
 
-.message.error {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-@keyframes fadeMsg {
-    0%   { opacity: 1; }
-    80%  { opacity: 1; }
-    100% { opacity: 0; }
-}
-
-/* ===============================
-   REGISTER LINK
-================================*/
+/* Register link */
 .register-link {
     text-align: center;
-    margin-top: 15px;
+    margin-top: 20px;
+    font-size: 15px;
 }
-
 .register-link a {
-    color: #007bff;
-    text-decoration: none;
+    color: #1E90FF;
     font-weight: bold;
+    text-decoration: none;
 }
-
 .register-link a:hover {
     text-decoration: underline;
 }
 
-
 </style>
 </head>
+
 <body>
-<div class="login-container">
+
+<?php include __DIR__ . '/header.php'; ?>
+
+<main class="login-page">
     <h2>Login</h2>
+
     <?php if ($message): ?>
-    <?php 
-        $isSuccess = stripos($message, 'success') !== false 
-                     || stripos($message, 'registered') !== false;
-    ?>
-    <p class="message <?= $isSuccess ? 'success' : 'error' ?>">
-        <?= htmlspecialchars($message) ?>
-    </p>
-<?php endif; ?>
+        <?php $isSuccess = stripos($message, 'success') !== false; ?>
+        <p class="message <?= $isSuccess ? 'success' : 'error' ?>">
+            <?= htmlspecialchars($message) ?>
+        </p>
+    <?php endif; ?>
+
     <form method="post">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
         <label>Email</label>
         <input type="email" name="email" required placeholder="Enter your email">
+
         <label>Password</label>
         <input type="password" name="password" required placeholder="Enter your password">
+
         <button type="submit">Login</button>
     </form>
+
     <div class="register-link">
-        Don’t have an account? <a href="register.php">Register Here</a>
+        Don't have an account? <a href="register.php">Register Here</a>
     </div>
-</div>
+</main>
+
+<?php include __DIR__ . '/footer.php'; ?>
 
 </body>
 </html>

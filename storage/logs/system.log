@@ -879,3 +879,10 @@ Time: 2025-10-29 10:09:57
 [2025-11-20 09:44:53][New User Registered] Email: krishna@gmail.com
 [2025-11-20 10:00:17][Registration Failed - Email Exists] Email: krishna@gmail.com
 
+[2025-11-20 10:34:57][❌ Failed Login Attempt] Email: qwe@gmail.comAttempted Role: UnknownIP Address: 127.0.0.1Time: 2025-11-20 10:34:57
+[2025-11-20 11:06:48][New User Registered] Email: eee@gmail.com
+[2025-11-20 11:10:26][Registration Failed - Email Exists] Email: eee@gmail.com
+[2025-11-20 11:10:50][Registration Failed - Email Exists] Email: eee@gmail.com
+[2025-11-20 11:15:54][Registration Failed - Email Exists] Email: eee@gmail.com
+[2025-11-21 03:43:47][✅ admin Logged In] Email: saleem@gmail.comRole: adminIP: 127.0.0.1Time: 2025-11-21 03:43:47
+[2025-11-21 04:04:13][Pages Viewed] User: saleem (admin) viewed the pages list (Filter: all).

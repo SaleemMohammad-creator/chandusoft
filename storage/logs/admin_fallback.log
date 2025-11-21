@@ -12,3 +12,4 @@
 2025-11-17 04:17:53 [Log failed] SQLSTATE[HY000]: General error: 1366 Incorrect integer value: 'Unknown' for column 'admin_id' at row 1
 2025-11-17 04:27:28 [Log failed] SQLSTATE[HY000]: General error: 1366 Incorrect integer value: 'Unknown' for column 'admin_id' at row 1
 2025-11-20 09:31:35 [Log failed] SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'admin_id' cannot be null
+2025-11-20 10:34:57 [Log failed] SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'admin_id' cannot be null
