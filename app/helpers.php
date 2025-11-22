@@ -234,4 +234,37 @@ if (!function_exists('verify_csrf')) {
     }
 }
 
+// -------------------------
+// AI Desc Function
+// -------------------------
 
+function aiGenerateDescription($title)
+{
+    $apiKey = getenv('GEMINI_API_KEY');
+
+    $data = [
+        "contents" => [
+            [
+                "parts" => [
+                    ["text" =>
+                        "Write a short, clean, simple product description for the item named '$title'. 
+                         Limit to 30–40 words. Do not repeat the title as first word."
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    $ch = curl_init("https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=" . $apiKey);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $result = json_decode($response, true);
+
+    return trim($result["candidates"][0]["content"]["parts"][0]["text"] ?? "");
+}

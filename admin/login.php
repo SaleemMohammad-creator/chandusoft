@@ -216,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     max-width: 450px;
     margin: 60px auto;
     background: #fff;
-    padding: 10px 40px;
+    padding: 5px 40px;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
@@ -496,16 +496,22 @@ button:hover {
     <button type="submit">Login</button>
 </form>
 
+<!-- ========== OR DIVIDER ========== -->
+<div class="divider">
+    <span>or</span>
+</div>
 
-    <div class="register-link">
-        Don't have an account? <a href="register.php">Register Here</a>
-    </div>
+<!-- GOOGLE BUTTON -->
+<button type="button" class="google-btn" onclick="window.location.href='/admin/google_login.php'">
+    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+    Continue with Google
+</button>
 
-    <!-- GOOGLE BUTTON -->
-    <button type="button" class="google-btn" onclick="window.location.href='/admin/google_login.php'">
-        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
-        Continue with Google
-    </button>
+<!-- REGISTER LINK AT BOTTOM -->
+<div class="register-link">
+    Don't Have An Account? <a href="register.php">Register Here</a>
+</div>
+
 
 </main>
 

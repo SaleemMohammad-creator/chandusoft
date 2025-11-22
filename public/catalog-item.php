@@ -51,7 +51,6 @@ $stmt->execute(['slug' => $slug]);
 $item = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$item) die("Item not found or not published.");
 
-
 // -------------------------
 // Handle POST
 // -------------------------

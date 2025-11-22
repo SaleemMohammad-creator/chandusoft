@@ -207,6 +207,3 @@ if (!function_exists('generate_order_ref')) {
         }
     }
 }
-
-
-
