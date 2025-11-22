@@ -4,9 +4,9 @@ require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../app/mail-logger.php';
 require_once __DIR__ . '/../utilities/log_action.php';
 
-// ---------------------------
-// Secure session start
-// ---------------------------
+/* ============================================================
+   Secure Session
+============================================================ */
 if (session_status() === PHP_SESSION_NONE) {
     $secure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
     session_start([
@@ -16,73 +16,180 @@ if (session_status() === PHP_SESSION_NONE) {
     ]);
 }
 
-// ---------------------------
-// Redirect if already logged in
-// ---------------------------
-if (isset($_SESSION['user_id']) && basename($_SERVER['PHP_SELF']) !== 'login.php') {
-    $_SESSION['flash_message'] = "You are already logged in!";
+/* ============================================================
+   Remember Me (Auto Login)
+============================================================ */
+$tokenDir  = __DIR__ . '/../storage/tokens';
+if (!is_dir($tokenDir)) mkdir($tokenDir, 0755, true);
+$tokenFile = $tokenDir . '/remember_me_tokens.json';
+
+function load_json($file) {
+    return file_exists($file) ? json_decode(file_get_contents($file), true) ?: [] : [];
+}
+function save_json($file, $data) {
+    file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
+}
+
+if (!isset($_SESSION['user_id']) && !empty($_COOKIE['remember_me'])) {
+    $token = $_COOKIE['remember_me'];
+    $tokenHash = hash('sha256', $token);
+    $stored = load_json($tokenFile);
+
+    if (!empty($stored[$tokenHash])) {
+        $entry = $stored[$tokenHash];
+
+        if ($entry['expires'] > time()) {
+            // Fetch user
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+            $stmt->execute([$entry['user_id']]);
+            $user = $stmt->fetch();
+
+            if ($user) {
+                // Auto-login
+                $_SESSION['user_id']   = $user['id'];
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_role'] = $user['role'];
+
+                header("Location: dashboard.php");
+                exit;
+            }
+        }
+    }
+}
+
+/* ============================================================
+   Redirect if already logged in
+============================================================ */
+if (isset($_SESSION['user_id'])) {
     header("Location: dashboard.php");
     exit;
 }
 
-// Flash message
+/* ============================================================
+   Flash Message + CSRF
+============================================================ */
 $message = $_SESSION['flash_message'] ?? '';
 $_SESSION['flash_message'] = '';
 
-// Generate CSRF token if not exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Log setup
+/* ============================================================
+   Login Attempt Protection
+============================================================ */
 $logDir = __DIR__ . '/../storage/logs';
 if (!is_dir($logDir)) mkdir($logDir, 0755, true);
-$logFile = $logDir . '/login_attempts.log';
 
-// ---------------------------
-// Handle Login Submission
-// ---------------------------
+$attemptFile = $logDir . "/login_attempts.json";
+$attempts = load_json($attemptFile);
+
+define('MAX_LOGIN_ATTEMPTS', 3);
+define('LOCK_TIME', 01 * 60);  // 5 minutes lock
+
+/* ============================================================
+   Handle LOGIN POST
+============================================================ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $csrf = $_POST['csrf_token'] ?? '';
-    $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown IP';
-    $timestamp = date('Y-m-d H:i:s');
 
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
+    $csrf = $_POST['csrf_token'];
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+    $key = $ip . "_" . strtolower($email);
+    $now = time();
+    $timestamp = date("Y-m-d H:i:s");
+
+    // CSRF check
     if (!hash_equals($_SESSION['csrf_token'], $csrf)) {
         $_SESSION['flash_message'] = "Invalid CSRF token";
         header("Location: login.php");
         exit;
     }
 
+    // Check lockout
+    if (!empty($attempts[$key]['lock_until']) && $attempts[$key]['lock_until'] > $now) {
+        $_SESSION['flash_message'] = "Too many login attempts. Try again after 1 minutes.";
+        header("Location: login.php");
+        exit;
+    }
+
+    // Fetch user
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
+    /* ============================================================
+       SUCCESSFUL LOGIN
+    ============================================================ */
     if ($user && password_verify($password, $user['password'])) {
 
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_name'] = $user['name'] ?? 'User';
-        $_SESSION['user_role'] = $user['role'] ?? 'Admin';
+        // Clear attempts
+        unset($attempts[$key]);
+        save_json($attemptFile, $attempts);
 
-        file_put_contents($logFile, "[{$timestamp}] SUCCESS login | {$email} | IP: {$ip}\n", FILE_APPEND);
+        // Set session
+        $_SESSION['user_id']   = $user['id'];
+        $_SESSION['user_name'] = $user['name'];
+        $_SESSION['user_role'] = $user['role'];
+
+        // Log success
         mailLog("Admin Logged In", "Email: $email\nIP: $ip\nTime: $timestamp");
+        log_action($user['id'], "Login Success", "$email logged in.");
 
-        log_action($user['id'], 'Login Success', "User $email logged in from $ip");
+        /* --------------------------- 
+           Remember Me
+        --------------------------- */
+        if (!empty($_POST['remember_me'])) {
+            $tokens = load_json($tokenFile);
+
+            $token = bin2hex(random_bytes(32));
+            $hash = hash('sha256', $token);
+
+            $expires = time() + (30 * 24 * 60 * 60); // 30 days
+
+            $tokens[$hash] = [
+                'user_id' => $user['id'],
+                'expires' => $expires
+            ];
+            save_json($tokenFile, $tokens);
+
+            setcookie(
+                "remember_me",
+                $token,
+                [
+                    "expires" => $expires,
+                    "path" => "/",
+                    "secure" => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                    "httponly" => true,
+                    "samesite" => "Strict"
+                ]
+            );
+        }
 
         header("Location: dashboard.php");
         exit;
-    } 
-    else {
-        file_put_contents($logFile, "[{$timestamp}] FAILED login | {$email} | IP: {$ip}\n", FILE_APPEND);
-        mailLog("Failed Login Attempt", "Email: $email\nIP: $ip\nTime: $timestamp");
-
-        log_action(null, 'Login Failed', "Failed login attempt for $email from $ip");
-
-        $_SESSION['flash_message'] = "Invalid email or password";
-        header("Location: login.php");
-        exit;
     }
+
+    /* ============================================================
+       FAILED LOGIN
+    ============================================================ */
+    $attempts[$key]['attempts'][] = $now;
+
+    if (count($attempts[$key]['attempts']) >= MAX_LOGIN_ATTEMPTS) {
+        $attempts[$key]['lock_until'] = $now + LOCK_TIME;
+        $_SESSION['flash_message'] = "Too many login attempts. Try again after 5 minutes.";
+    } else {
+        $_SESSION['flash_message'] = "Invalid email or password";
+    }
+
+    save_json($attemptFile, $attempts);
+
+    // Log attempt
+    mailLog("Failed Login Attempt", "Email: $email\nIP: $ip\nTime: $timestamp");
+
+    header("Location: login.php");
+    exit;
 }
 ?>
 
@@ -96,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
 <style>
-body {
+    body {
     font-family: Arial, sans-serif;
     background-color: #f5f7fa;
     margin: 0;
@@ -157,7 +264,7 @@ input[type="email"] {
     border-radius: 8px;
     font-size: 15px;
     box-sizing: border-box;
-    appearance: none; /* prevent browser resizing */
+    appearance: none;
 }
 
 /* Remove built-in clear/eye icons (Windows/Chrome) */
@@ -237,6 +344,46 @@ button:hover {
     font-weight: bold;
 }
 
+
+/* ==========================================================
+   NEW CSS ADDED BELOW (No changes above)
+   Remember Me (left) + Forgot Password (right)
+========================================================== */
+
+/* Row: Remember Me + Forgot Password */
+.remember-forgot-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* LEFT: Remember Me */
+.remember-me {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.remember-me input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+/* RIGHT: Forgot Password (new class) */
+.forgot-password-link a {
+    color: #1E90FF;
+    font-weight: bold;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.forgot-password-link a:hover {
+    text-decoration: underline;
+}
+
+
 </style>
 </head>
 
@@ -248,39 +395,48 @@ button:hover {
     <h2>Login</h2>
 
     <?php if ($message): ?>
-        <?php $isSuccess = stripos($message, 'success') !== false; ?>
-        <p class="message <?= $isSuccess ? 'success' : 'error' ?>">
-            <?= htmlspecialchars($message) ?>
-        </p>
+        <p class="message error"><?= htmlspecialchars($message) ?></p>
     <?php endif; ?>
 
-    <form method="post">
-        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+   <form method="post">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-        <label>Email</label>
-        <input type="email" name="email" required placeholder="Enter your email">
+    <label>Email</label>
+    <input type="email" name="email" required placeholder="Enter your email">
 
-        <label>Password</label>
-        <div class="password-wrapper">
-            <input type="password" name="password" id="password" required placeholder="Enter your password">
-            <span class="toggle-password" onclick="togglePassword()">
-                <i class="fa-solid fa-eye" id="eyeIcon"></i>
-            </span>
-        </div>
+    <label>Password</label>
+    <div class="password-wrapper">
+        <input type="password" name="password" id="password" required placeholder="Enter your password">
+        <span class="toggle-password" onclick="togglePassword()">
+            <i class="fa-solid fa-eye" id="eyeIcon"></i>
+        </span>
+    </div>
 
-        <div class="forgot-password">
+    <!-- Remember Me + Forgot Password -->
+    <div class="remember-forgot-row">
+
+        <!-- LEFT: Remember Me -->
+        <label class="remember-me">
+            <input type="checkbox" name="remember_me">
+            Remember Me
+        </label>
+
+        <!-- RIGHT: Forgot Password -->
+        <div class="forgot-password-link">
             <a href="forgot_password.php">Forgot Password?</a>
         </div>
 
-        <button type="submit">Login</button>
-    </form>
+    </div>
+
+    <button type="submit">Login</button>
+</form>
+
 
     <div class="register-link">
         Don't have an account? <a href="register.php">Register Here</a>
     </div>
-</main>
 
-<?php include __DIR__ . '/footer.php'; ?>
+</main>
 
 <script>
 function togglePassword() {
@@ -289,15 +445,15 @@ function togglePassword() {
 
     if (field.type === "password") {
         field.type = "text";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
+        icon.classList.replace("fa-eye", "fa-eye-slash");
     } else {
         field.type = "password";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
+        icon.classList.replace("fa-eye-slash", "fa-eye");
     }
 }
 </script>
+
+<?php include __DIR__ . '/footer.php'; ?>
 
 </body>
 </html>
