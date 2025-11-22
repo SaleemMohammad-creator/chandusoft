@@ -383,6 +383,71 @@ button:hover {
     text-decoration: underline;
 }
 
+/* Google Login Container */
+.google-login {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* Main Button */
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #444;
+    font-weight: 500;
+    font-size: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover Effect */
+.google-btn:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+}
+
+/* Google Icon Style */
+.google-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Divider (OR) */
+.divider {
+    text-align: center;
+    margin: 15px 0;
+    position: relative;
+}
+
+.divider span {
+    background: #fff;
+    padding: 0 12px;
+    color: #777;
+    font-size: 13px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Divider Line */
+.divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #e0e0e0;
+    z-index: 1;
+}
+
+
 
 </style>
 </head>
@@ -435,6 +500,12 @@ button:hover {
     <div class="register-link">
         Don't have an account? <a href="register.php">Register Here</a>
     </div>
+
+    <!-- GOOGLE BUTTON -->
+    <button type="button" class="google-btn" onclick="window.location.href='/admin/google_login.php'">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+        Continue with Google
+    </button>
 
 </main>
 
