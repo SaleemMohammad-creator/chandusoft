@@ -242,29 +242,46 @@ function aiGenerateDescription($title)
 {
     $apiKey = getenv('GEMINI_API_KEY');
 
-    $data = [
+    if (!$apiKey) {
+        return "AI Error: Missing API Key";
+    }
+
+    $payload = [
         "contents" => [
             [
                 "parts" => [
-                    ["text" =>
-                        "Write a short, clean, simple product description for the item named '$title'. 
-                         Limit to 30–40 words. Do not repeat the title as first word."
+                    [
+                        "text" =>
+                        "Write a clear, clean, simple 30–40 word product description for '$title'. 
+                         Avoid repeating the title. Focus on benefits and quality."
                     ]
                 ]
             ]
         ]
     ];
 
-    $ch = curl_init("https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=" . $apiKey);
+    // ✔ Correct model from your list
+    $url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=$apiKey";
+
+    $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     $response = curl_exec($ch);
-    curl_close($ch);
+
+    if ($response === false) {
+        return "AI Error (curl): " . curl_error($ch);
+    }
 
     $result = json_decode($response, true);
 
+    // Handle error structure
+    if (!isset($result["candidates"][0])) {
+        return "AI Error: " . json_encode($result);
+    }
+
+    // Extract text
     return trim($result["candidates"][0]["content"]["parts"][0]["text"] ?? "");
 }

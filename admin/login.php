@@ -201,9 +201,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Admin Login - <?= sanitize($site_name) ?></title>
 <link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
-    body {
+/* =========================================================
+   GLOBAL BASE STYLES
+========================================================= */
+body {
     font-family: Arial, sans-serif;
     background-color: #f5f7fa;
     margin: 0;
@@ -236,44 +240,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     color: #333;
 }
 
-/* EMAIL FIXED */
-input[type="email"] {
-    width: 100%;
-    height: 48px;
-    padding: 0 12px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 15px;
-    box-sizing: border-box;
-}
-
-/* PASSWORD WRAPPER – FULLY FIXED */
-.password-wrapper {
+/* =========================================================
+   INPUT FIELD WITH LEFT ICON (UNIVERSAL)
+========================================================= */
+.input-with-icon {
     position: relative;
     width: 100%;
     margin-bottom: 20px;
 }
 
-.password-wrapper input {
+.input-with-icon input {
     width: 100%;
-    height: 48px !important;
-    line-height: 48px !important;
-    padding: 0 42px 0 12px !important;
+    height: 48px;
+    padding: 0 45px 0 44px;    /* left + right spacing */
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 15px;
     box-sizing: border-box;
-    appearance: none;
 }
 
-/* Remove built-in clear/eye icons (Windows/Chrome) */
-.password-wrapper input::-ms-reveal,
-.password-wrapper input::-ms-clear {
+/* Left-side icon */
+.field-icon-left {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #555;
+    font-size: 18px;
+}
+
+/* =========================================================
+   PASSWORD FIELD — LEFT ICON + RIGHT EYE ICON
+========================================================= */
+.input-with-icon input::-ms-reveal,
+.input-with-icon input::-ms-clear {
     display: none !important;
 }
 
-/* Eye Icon */
+/* Eye icon */
 .toggle-password {
     position: absolute;
     right: 12px;
@@ -288,7 +292,9 @@ input[type="email"] {
     color: #1E90FF;
 }
 
-/* BUTTON */
+/* =========================================================
+   BUTTON
+========================================================= */
 button {
     width: 100%;
     padding: 14px;
@@ -305,7 +311,9 @@ button:hover {
     background: #187bcd;
 }
 
-/* MESSAGE BOX */
+/* =========================================================
+   MESSAGE BOX
+========================================================= */
 .message {
     padding: 12px;
     border-radius: 6px;
@@ -321,36 +329,9 @@ button:hover {
     color: #155724;
 }
 
-/* Forgot Password Link */
-.forgot-password {
-    text-align: right;
-    margin-top: -10px;
-    margin-bottom: 20px;
-}
-
-.forgot-password a {
-    color: #1E90FF;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-/* Register Link */
-.register-link {
-    text-align: center;
-    margin-top: 20px;
-}
-.register-link a {
-    color: #1E90FF;
-    font-weight: bold;
-}
-
-
-/* ==========================================================
-   NEW CSS ADDED BELOW (No changes above)
-   Remember Me (left) + Forgot Password (right)
-========================================================== */
-
-/* Row: Remember Me + Forgot Password */
+/* =========================================================
+   REMEMBER ME + FORGOT PASSWORD
+========================================================= */
 .remember-forgot-row {
     display: flex;
     justify-content: space-between;
@@ -358,20 +339,16 @@ button:hover {
     margin-bottom: 20px;
 }
 
-/* LEFT: Remember Me */
 .remember-me {
     display: flex;
     align-items: center;
     font-size: 14px;
-    margin: 0;
-    cursor: pointer;
 }
 
 .remember-me input[type="checkbox"] {
     margin-right: 6px;
 }
 
-/* RIGHT: Forgot Password (new class) */
 .forgot-password-link a {
     color: #1E90FF;
     font-weight: bold;
@@ -383,13 +360,9 @@ button:hover {
     text-decoration: underline;
 }
 
-/* Google Login Container */
-.google-login {
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-/* Main Button */
+/* =========================================================
+   GOOGLE LOGIN BUTTON
+========================================================= */
 .google-btn {
     display: flex;
     align-items: center;
@@ -403,23 +376,23 @@ button:hover {
     color: #444;
     font-weight: 500;
     font-size: 15px;
+    width: 100%;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: all 0.2s ease-in-out;
+    transition: all 0.2s;
 }
 
-/* Hover Effect */
 .google-btn:hover {
     background: #f5f5f5;
     border-color: #ccc;
 }
 
-/* Google Icon Style */
 .google-btn img {
     width: 20px;
-    height: 20px;
 }
 
-/* Divider (OR) */
+/* =========================================================
+   DIVIDER (OR)
+========================================================= */
 .divider {
     text-align: center;
     margin: 15px 0;
@@ -435,7 +408,6 @@ button:hover {
     z-index: 2;
 }
 
-/* Divider Line */
 .divider::before {
     content: "";
     position: absolute;
@@ -447,7 +419,32 @@ button:hover {
     z-index: 1;
 }
 
+/* =========================================================
+   REGISTER LINK
+========================================================= */
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+}
 
+.register-link a {
+    color: #1E90FF;
+    font-weight: bold;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 500px) {
+    .login-page {
+        margin: 30px 10px;
+        padding: 20px;
+    }
+
+    .input-with-icon input {
+        padding-left: 42px;
+    }
+}
 
 </style>
 </head>
@@ -467,15 +464,19 @@ button:hover {
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <label>Email</label>
+      <div class="input-with-icon">
+    <i class="bi bi-envelope field-icon-left"></i>
     <input type="email" name="email" required placeholder="Enter your email">
+</div>
 
     <label>Password</label>
-    <div class="password-wrapper">
-        <input type="password" name="password" id="password" required placeholder="Enter your password">
-        <span class="toggle-password" onclick="togglePassword()">
-            <i class="fa-solid fa-eye" id="eyeIcon"></i>
-        </span>
-    </div>
+<div class="input-with-icon">
+    <i class="bi bi-shield-lock-fill field-icon-left"></i>
+    <input type="password" name="password" id="password" required placeholder="Enter your password">
+    <span class="toggle-password" onclick="togglePassword()">
+        <i class="fa-solid fa-eye" id="eyeIcon"></i>
+    </span>
+</div>
 
     <!-- Remember Me + Forgot Password -->
     <div class="remember-forgot-row">

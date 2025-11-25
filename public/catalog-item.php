@@ -1,15 +1,15 @@
 <?php
 // ===============================================
 // 🛒 Catalog Item Page (Add to Cart + Enquiry)
-// Updated: Hover Zoom (NO modal popup)
+// Updated: Hover Zoom (NO modal popup) + Gemini AI Description
 // ===============================================
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../app/config.php';
-require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/helpers.php';   // <--- Load AI function FIRST
+require_once __DIR__ . '/../app/config.php';    // <--- Load config AFTER
 require_once __DIR__ . '/../app/mail-logger.php';
 
 // -------------------------
@@ -31,7 +31,7 @@ if (empty($_SESSION['csrf_token'])) {
 $csrf_token = $_SESSION['csrf_token'];
 
 // -------------------------
-// Logging
+// Logging (for this page)
 // -------------------------
 $logFile = __DIR__ . '/../storage/logs/catalog.logs';
 function logMessage($msg) {
@@ -50,6 +50,34 @@ $stmt = $pdo->prepare("SELECT * FROM catalog WHERE slug=:slug AND status='publis
 $stmt->execute(['slug' => $slug]);
 $item = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$item) die("Item not found or not published.");
+
+
+
+// ⭐ NEW — Generate AI Description Using Gemini (once)
+try {
+    if (function_exists('aiGenerateDescription')) {
+
+        if (!isset($item['short_desc']) || trim($item['short_desc']) === "") {
+
+            $ai_desc = aiGenerateDescription($item['title']);
+
+            if (!empty($ai_desc)) {
+                $upd = $pdo->prepare("UPDATE catalog SET short_desc = :d WHERE id = :id");
+                $upd->execute([
+                    ':d' => $ai_desc,
+                    ':id' => $item['id']
+                ]);
+
+                $item['short_desc'] = $ai_desc;
+
+                logMessage("AI desc generated for '{$item['title']}' (#{$item['id']})");
+            }
+        }
+    }
+} catch (Throwable $e) {
+    logMessage("Gemini AI error: " . $e->getMessage());
+}
+
 
 // -------------------------
 // Handle POST
@@ -113,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // -------------------------
-        // NEW: Turnstile verification (same as your FIRST working file)
+        // Turnstile verification
         // -------------------------
         if (!empty($turnstileToken)) {
 
@@ -142,8 +170,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $errors[] = 'CAPTCHA validation is required.';
         }
-        // -------------------------
-
 
         if (!$name) $errors[] = "Name is required.";
         if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email required.";
@@ -184,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // -------------------------
-// JSON-LD SEO
+// JSON-LD SEO (uses final short_desc — AI or manual)
 // -------------------------
 $jsonLd = [
     "@context" => "https://schema.org/",
@@ -206,6 +232,11 @@ $jsonLd = [
 <meta charset="UTF-8">
 <title><?= htmlspecialchars($item['title']) ?></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Optional: SEO meta description using AI text -->
+<?php if (!empty($item['short_desc'])): ?>
+<meta name="description" content="<?= htmlspecialchars($item['short_desc']) ?>">
+<?php endif; ?>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?></script>
@@ -503,6 +534,38 @@ textarea{
     }
 }
 
+/* =========================================================
+   IMPROVED SHORT DESCRIPTION LAYOUT (AI TEXT SUPPORT)
+   — No design changes, only enhancements
+========================================================= */
+
+.short-desc {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #2f3640;
+    white-space: pre-line;      /* keeps AI line breaks */
+    word-break: break-word;     /* prevents long words breaking layout */
+    margin-top: 15px;
+}
+
+/* Optional: limit width for cleaner text block */
+.product-info .short-desc {
+    max-width: 90%;
+}
+
+/* Make paragraphs smoother */
+.short-desc p {
+    margin-bottom: 10px;
+}
+
+/* Better spacing on mobile */
+@media (max-width: 600px){
+    .short-desc{
+        font-size: 15px;
+        line-height: 1.6;
+        max-width: 100%;
+    }
+}
 
 </style>
 
@@ -530,7 +593,14 @@ textarea{
                 <div class="product-price">$<?= htmlspecialchars($item['price']) ?></div>
             </div>
 
-            <p class="short-desc"><?= nl2br(htmlspecialchars($item['short_desc'])) ?></p>
+            <!-- PRODUCT DESCRIPTION -->
+       <?php if (!empty($item['short_desc'])): ?>
+                       <div class="product-description">
+        <h2 class="desc-title">Description</h2>
+        <p><?= nl2br(htmlspecialchars((string)($item['short_desc'] ?? ""))) ?></p>
+    </div>
+<?php endif; ?>
+
 
             <!-- Add to Cart -->
             <form method="post" class="product-action-form">
@@ -585,16 +655,15 @@ textarea{
 
             <textarea name="message" placeholder="Your Message"><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
 
-            <!-- Turnstile (NEW correct version, same as first working code) -->
-              <div class="cf-turnstile"
-                     data-sitekey="<?= $siteKey ?>"
-                     data-theme="light"
-                    data-mode="managed"
-                   data-callback="onTurnstileSuccess">
-              </div>
+            <!-- Turnstile -->
+            <div class="cf-turnstile"
+                 data-sitekey="<?= $siteKey ?>"
+                 data-theme="light"
+                 data-mode="managed"
+                 data-callback="onTurnstileSuccess">
+            </div>
 
-           <input type="hidden" name="cf-turnstile-response">
-
+            <input type="hidden" name="cf-turnstile-response">
 
             <script>
             function onTurnstileSuccess(token) {
