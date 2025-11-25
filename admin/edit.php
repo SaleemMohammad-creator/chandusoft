@@ -226,6 +226,59 @@ button:hover {
     font-weight: bold;
 }
 
+/* =========================================
+   Left Label - Right Input Form Layout
+========================================= */
+.form-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.form-row label {
+    width: 200px;
+    font-weight: bold;
+    color: #333;
+    padding-top: 10px;
+}
+
+.form-row input,
+.form-row textarea,
+.form-row select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.form-row textarea {
+    height: 120px;
+}
+
+.button-row {
+    display: flex;
+    justify-content: space-between;   /* Left & Right */
+    align-items: center;
+    margin-left: 200px;               /* Line up with inputs */
+    margin-top: 20px;
+    width: calc(100% - 200px);        /* Full width minus label space */
+}
+
+.button-row button {
+    padding: 10px 20px;
+    background: #3498db;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button-row button:hover {
+    background: #1d6fa5;
+}
+
+
 </style>
 
 </head>
@@ -258,27 +311,41 @@ button:hover {
     <?php endif; ?>
 
     <form method="post">
-        <label>Title</label>
+
+    <div class="form-row">
+        <label>Title:</label>
         <input type="text" name="title" value="<?= htmlspecialchars($page['title'] ?? '') ?>" required>
+    </div>
 
-        <label>Slug</label>
+    <div class="form-row">
+        <label>Slug:</label>
         <input type="text" name="slug" value="<?= htmlspecialchars($page['slug'] ?? '') ?>" required>
+    </div>
 
-        <label>Content (HTML allowed)</label>
-        <textarea name="content_html" rows="10"><?= $page['content_html'] ?? '' ?></textarea>
+    <div class="form-row">
+        <label>Content (HTML allowed):</label>
+        <textarea name="content_html"><?= $page['content_html'] ?? '' ?></textarea>
+    </div>
 
-        <label>Status</label>
+    <div class="form-row">
+        <label>Status:</label>
         <select name="status">
             <option value="draft" <?= ($page['status'] ?? '') === 'draft' ? 'selected' : '' ?>>Draft</option>
             <option value="published" <?= ($page['status'] ?? '') === 'published' ? 'selected' : '' ?>>Published</option>
             <option value="archived" <?= ($page['status'] ?? '') === 'archived' ? 'selected' : '' ?>>Archived</option>
         </select>
+    </div>
 
-        <div class="form-buttons">
-            <button type="submit">Update Page</button>
-            <a href="pages.php"><button type="button">← Back to Pages</button></a>
-        </div>
-    </form>
+    <div class="button-row">
+        <button type="submit">Update Page</button>
+
+        <a href="pages.php">
+            <button type="button">← Back to Pages</button>
+        </a>
+    </div>
+
+</form>
+
 </div>
 </body>
 </html>

@@ -223,6 +223,66 @@ button:hover {
     font-weight: bold;
 }
 
+/* =========================================
+   Left Label - Right Input Form Layout
+========================================= */
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.form-row label {
+    width: 200px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-row input,
+.form-row textarea,
+.form-row select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.form-row textarea {
+    height: 120px;
+}
+
+.button-row {
+    display: flex;
+    justify-content: space-between;   /* left button + right button */
+    align-items: center;
+    margin-left: 200px;               /* aligns with input fields */
+    margin-top: 20px;
+}
+
+.button-row button {
+    padding: 10px 18px;
+    background: #3498db;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+.button-row a button {
+    padding: 10px 18px;
+    background: #3498db;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button-row button:hover {
+    background: #1c7ec9;
+}
+
+
 </style>
 </head>
 <body>
@@ -254,29 +314,42 @@ button:hover {
     <?php endif; ?>
 
     <form method="post">
-        <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+    <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
 
-        <label>Title</label>
+    <div class="form-row">
+        <label>Title:</label>
         <input type="text" name="title" value="<?= htmlspecialchars($title ?? '') ?>" required>
+    </div>
 
-        <label>Slug</label>
+    <div class="form-row">
+        <label>Slug:</label>
         <input type="text" name="slug" value="<?= htmlspecialchars($slug ?? '') ?>" placeholder="Leave empty to auto-generate">
+    </div>
 
-        <label>Content (HTML allowed)</label>
-        <textarea name="content_html" rows="10"><?= htmlspecialchars($content_html ?? '') ?></textarea>
+    <div class="form-row">
+        <label>Content (HTML allowed):</label>
+        <textarea name="content_html"><?= htmlspecialchars($content_html ?? '') ?></textarea>
+    </div>
 
-        <label>Status</label>
+    <div class="form-row">
+        <label>Status:</label>
         <select name="status">
             <option value="draft" <?= ($status ?? '') === 'draft' ? 'selected' : '' ?>>Draft</option>
             <option value="published" <?= ($status ?? '') === 'published' ? 'selected' : '' ?>>Published</option>
             <option value="archived" <?= ($status ?? '') === 'archived' ? 'selected' : '' ?>>Archived</option>
         </select>
+    </div>
 
-        <div class="form-buttons">
-            <button type="submit">Create Page</button>
-            <a href="pages.php"><button type="button">← Back to Pages</button></a>
-        </div>
-    </form>
+    <div class="button-row">
+    <button type="submit">Create Page</button>
+
+    <a href="pages.php">
+        <button type="button">← Back to Pages</button>
+    </a>
+</div>
+
+</form>
+
 </div>
 </body>
 </html>

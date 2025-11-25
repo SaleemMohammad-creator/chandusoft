@@ -261,26 +261,74 @@ img.current-image {
     transform: translateY(-1px);
 }
 
+/* =========================================
+   Left Label - Right Input Form Layout
+========================================= */
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.form-row label {
+    width: 200px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-row input,
+.form-row textarea,
+.form-row select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.form-row textarea {
+    height: 70px;
+}
+
+.form-row img.current-image {
+    max-width: 150px;
+    border-radius: 6px;
+}
+
+.button-row {
+    margin-left: 200px; /* aligns buttons with input */
+}
+
+
 </style>
 </head>
 <body>
 
+<?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
 
 <div class="navbar">
     <div class="navbar-left">Chandusoft <?= ucfirst(htmlspecialchars($user_role)) ?></div>
     <div class="navbar-right">
         <span>Welcome <?= ucfirst(htmlspecialchars($user_role)) ?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>
-        <!-- Dynamic catalog link based on user role -->
-    <?php if ($user_role === 'admin'): ?>
-    <a href="/admin/catalog.php">Admin Catalog</a>
-    <?php endif; ?>
-    <a href="/public/catalog.php">Public Catalog</a>
+
+        <?php if ($user_role === 'admin'): ?>
+        <a href="/admin/catalog.php"
+           style="<?= ($currentPage === 'catalog.php' || 
+                       $currentPage === 'catalog-new.php' || 
+                       $currentPage === 'catalog-edit.php') 
+                   ? 'background:#1E90FF; padding:6px 12px; border-radius:4px;' 
+                   : '' ?>">
+            Admin Catalog
+        </a>
+        <?php endif; ?>
+
+        <a href="/public/catalog.php">Public Catalog</a>
         <a href="/admin/pages.php">Pages</a>
         <a href="/admin/admin-leads.php">Leads</a>
         <a href="/admin/logout.php">Logout</a>
     </div>
 </div>
+
 
 <div class="container">
 <h2>Edit Catalog Item</h2>
@@ -294,42 +342,58 @@ img.current-image {
 <?php endif; ?>
 
 <form method="post" enctype="multipart/form-data">
-    <label>Title</label>
-    <input type="text" name="title" value="<?= htmlspecialchars($item['title']) ?>" required>
 
-    <label>Slug</label>
-    <input type="text" name="slug" value="<?= htmlspecialchars($item['slug']) ?>" required>
+    <div class="form-row">
+        <label>Title:</label>
+        <input type="text" name="title" value="<?= htmlspecialchars($item['title']) ?>" required>
+    </div>
 
-    <label>Price</label>
-    <input type="number" step="0.01" name="price" value="<?= $item['price'] ?>" required>
+    <div class="form-row">
+        <label>Slug:</label>
+        <input type="text" name="slug" value="<?= htmlspecialchars($item['slug']) ?>" required>
+    </div>
 
-    <label>Current Image</label>
-    <?php if($item['image'] && file_exists(UPLOAD_DIR . $item['image'])): ?>
-        <img src="/uploads/<?= htmlspecialchars($item['image']) ?>" class="current-image">
-    <?php else: ?>
-        <p>No image uploaded</p>
-    <?php endif; ?>
+    <div class="form-row">
+        <label>Price:</label>
+        <input type="number" step="0.01" name="price" value="<?= $item['price'] ?>" required>
+    </div>
 
-    <label>Change Image (Max 2MB)</label>
-    <input type="file" name="image" accept="image/*">
+    <div class="form-row">
+        <label>Current Image:</label>
 
-    <label>Short Description</label>
-    <textarea name="short_desc"><?= htmlspecialchars($item['short_desc']) ?></textarea>
+        <?php if($item['image'] && file_exists(UPLOAD_DIR . $item['image'])): ?>
+            <img src="/uploads/<?= htmlspecialchars($item['image']) ?>" class="current-image">
+        <?php else: ?>
+            <span>No image uploaded</span>
+        <?php endif; ?>
+    </div>
 
-    <label>Status</label>
-    <select name="status">
-        <option value="draft" <?= $item['status']==='draft'?'selected':'' ?>>Draft</option>
-        <option value="published" <?= $item['status']==='published'?'selected':'' ?>>Published</option>
-        <option value="archived" <?= $item['status']==='archived'?'selected':'' ?>>Archived</option>
-    </select>
+    <div class="form-row">
+        <label>Change Image (Max 2MB):</label>
+        <input type="file" name="image" accept="image/*">
+    </div>
 
-    <!-- ✅ Same color + width buttons -->
+    <div class="form-row">
+        <label>Short Description:</label>
+        <textarea name="short_desc"><?= htmlspecialchars($item['short_desc']) ?></textarea>
+    </div>
+
+    <div class="form-row">
+        <label>Status:</label>
+        <select name="status">
+            <option value="draft"     <?= $item['status']==='draft'?'selected':'' ?>>Draft</option>
+            <option value="published" <?= $item['status']==='published'?'selected':'' ?>>Published</option>
+            <option value="archived"  <?= $item['status']==='archived'?'selected':'' ?>>Archived</option>
+        </select>
+    </div>
+
     <div class="button-row">
         <button type="submit" class="btn btn-primary">Update</button>
         <a href="/admin/catalog.php" class="btn btn-secondary">← Back to Catalog</a>
-   </div>
+    </div>
 
 </form>
+
 </div>
 
 </body>

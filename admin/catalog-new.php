@@ -314,25 +314,67 @@ form button:hover {
     padding: 5px;
     border-radius: 5px;
 }
+
+/* =========================================
+   Left Label - Right Input Form Layout
+========================================= */
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.form-row label {
+    width: 200px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-row input,
+.form-row textarea {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.form-row textarea {
+    height: 70px;
+}
+
+.button-row {
+    margin-left: 200px; /* aligns button with input fields */
+}
+
 </style>
 </head>
 <body>
 
+<?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
+
 <div class="navbar">
     <div class="navbar-left">Chandusoft <?= ucfirst(htmlspecialchars($user_role)) ?></div>
+
     <div class="navbar-right">
         <span>Welcome <?= ucfirst(htmlspecialchars($user_role)) ?>!</span>
         <a href="/admin/dashboard.php">Dashboard</a>
-        <!-- Dynamic catalog link based on user role -->
-    <?php if ($user_role === 'admin'): ?>
-    <a href="/admin/catalog.php">Admin Catalog</a>
-    <?php endif; ?>
-    <a href="/public/catalog.php">Public Catalog</a>
+
+        <?php if ($user_role === 'admin'): ?>
+        <a href="/admin/catalog.php"
+           style="<?= ($currentPage === 'catalog.php' || $currentPage === 'catalog-new.php') 
+                     ? 'background:#1E90FF; padding:6px 12px; border-radius:4px;' 
+                     : '' ?>">
+            Admin Catalog
+        </a>
+        <?php endif; ?>
+
+        <a href="/public/catalog.php">Public Catalog</a>
         <a href="/admin/pages.php">Pages</a>
         <a href="/admin/admin-leads.php">Leads</a>
         <a href="/admin/logout.php">Logout</a>
     </div>
 </div>
+
 
 <div class="container">
 <h2>Add New Catalog Item</h2>
@@ -349,27 +391,39 @@ form button:hover {
 
 <form method="post" enctype="multipart/form-data">
     <?= csrf_input() ?>
-    <label>Title:</label>
-    <input type="text" name="title" value="<?= sanitize($_POST['title'] ?? '') ?>" required>
 
-    <label>Short Description:</label>
-    <textarea name="short_desc"><?= sanitize($_POST['short_desc'] ?? '') ?></textarea>
+    <div class="form-row">
+        <label>Title:</label>
+        <input type="text" name="title" value="<?= sanitize($_POST['title'] ?? '') ?>" required>
+    </div>
 
-    <label>Price:</label>
-    <input type="number" name="price" step="0.01" value="<?= sanitize($_POST['price'] ?? '') ?>" required>
+    <div class="form-row">
+        <label>Short Description:</label>
+        <textarea name="short_desc"><?= sanitize($_POST['short_desc'] ?? '') ?></textarea>
+    </div>
 
-    <label>Upload Image:(Max Size 2MB)</label>
-    <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp">
+    <div class="form-row">
+        <label>Price:</label>
+        <input type="number" name="price" step="0.01" value="<?= sanitize($_POST['price'] ?? '') ?>" required>
+    </div>
+
+    <div class="form-row">
+        <label>Upload Image (Max 2MB):</label>
+        <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp">
+    </div>
 
     <?php if(!empty($uploaded['webp'])): ?>
-    <div class="preview">
-        <strong>WebP Preview:</strong><br>
-        <img src="/uploads/<?= $uploaded['webp'] ?>" alt="WebP Image">
+    <div class="form-row">
+        <label>WebP Preview:</label>
+        <img src="/uploads/<?= $uploaded['webp'] ?>" alt="WebP Image" style="max-width:200px;">
     </div>
     <?php endif; ?>
 
-    <button type="submit">Add Item</button>
+    <div class="button-row">
+        <button type="submit">Add Item</button>
+    </div>
 </form>
+
 </div>
 
 </body>
