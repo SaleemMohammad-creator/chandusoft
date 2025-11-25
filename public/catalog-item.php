@@ -51,32 +51,35 @@ $stmt->execute(['slug' => $slug]);
 $item = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$item) die("Item not found or not published.");
 
-
-
-// ⭐ NEW — Generate AI Description Using Gemini (once)
+// ⭐ Generate AI Description ONLY IF short_desc is empty (first time)
 try {
     if (function_exists('aiGenerateDescription')) {
 
         if (!isset($item['short_desc']) || trim($item['short_desc']) === "") {
 
+            // Generate description for the FIRST time only
             $ai_desc = aiGenerateDescription($item['title']);
 
             if (!empty($ai_desc)) {
+
+                // Save permanently inside catalog table
                 $upd = $pdo->prepare("UPDATE catalog SET short_desc = :d WHERE id = :id");
                 $upd->execute([
                     ':d' => $ai_desc,
                     ':id' => $item['id']
                 ]);
 
+                // Update current page variable
                 $item['short_desc'] = $ai_desc;
 
-                logMessage("AI desc generated for '{$item['title']}' (#{$item['id']})");
+                logMessage("AI Description created FIRST TIME for '{$item['title']}'");
             }
         }
     }
 } catch (Throwable $e) {
     logMessage("Gemini AI error: " . $e->getMessage());
 }
+
 
 
 // -------------------------

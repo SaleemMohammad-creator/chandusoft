@@ -88,9 +88,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
-body {
+    body {
     font-family: Arial, sans-serif;
     background-color: #f5f7fa;
     margin: 0;
@@ -212,6 +213,52 @@ button:hover {
     text-decoration: underline;
 }
 
+/* =====================================================
+   ADDED BLOCK — ICON INPUT SUPPORT (same as login)
+   (Does NOT modify your existing CSS)
+===================================================== */
+
+/* WRAPPER WITH LEFT ICON */
+.input-with-icon {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.input-with-icon input {
+    width: 100%;
+    height: 48px;
+    padding: 0 45px 0 44px;   /* left icon + right eye */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+/* LEFT ICON */
+.field-icon-left {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    font-size: 19px;
+    color: #555;
+    transform: translateY(-50%);
+}
+
+/* RIGHT EYE ICON */
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #777;
+}
+
+.toggle-password:hover {
+    color: #1E90FF;
+}
 </style>
 </head>
 
@@ -231,38 +278,51 @@ button:hover {
     <?php endif; ?>
 
     <form method="POST">
-    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+<input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-    
+<!-- Full Name -->
+<div class="input-with-icon">
+    <i class="bi bi-person field-icon-left"></i>
     <input type="text" id="name" name="name" placeholder="Full Name" required>
+</div>
 
-    
+<!-- Email -->
+<div class="input-with-icon">
+    <i class="bi bi-envelope field-icon-left"></i>
     <input type="email" id="email" name="email" placeholder="Email Address" required>
+</div>
 
-   
+<!-- Phone -->
+<div class="input-with-icon">
+    <i class="bi bi-telephone field-icon-left"></i>
     <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
+</div>
 
+<!-- Password -->
+<div class="input-with-icon">
+    <i class="bi bi-shield-lock-fill field-icon-left"></i>
+    <input type="password" id="password" name="password" placeholder="Password" required>
     
-    <div class="password-wrapper">
-        <input type="password" id="password" name="password" placeholder="Password" required>
-        <span class="toggle-password" onclick="togglePassword('password','eye1')">
-            <i class="fa-solid fa-eye" id="eye1"></i>
-        </span>
-    </div>
+    <span class="toggle-password" onclick="togglePassword('password','eye1')">
+        <i class="fa-solid fa-eye" id="eye1"></i>
+    </span>
+</div>
 
-   
-    <div class="password-wrapper">
-        <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
-        <span class="toggle-password" onclick="togglePassword('confirm_password','eye2')">
-            <i class="fa-solid fa-eye" id="eye2"></i>
-        </span>
-    </div>
+<!-- Confirm Password -->
+<div class="input-with-icon">
+    <i class="bi bi-shield-lock-fill field-icon-left"></i>
+    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
 
-    <button type="submit">Register</button>
-    </form>
+    <span class="toggle-password" onclick="togglePassword('confirm_password','eye2')">
+        <i class="fa-solid fa-eye" id="eye2"></i>
+    </span>
+</div>
+
+<button type="submit">Register</button>
+</form>
 
     <div class="login-link">
-        Already have an account? <a href="login.php">Login Here</a>
+        Already Have An Account? <a href="login.php">Login Here</a>
     </div>
 </main>
 
