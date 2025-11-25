@@ -287,20 +287,49 @@ button:hover {
 </head>
 <body>
   
-  <div class="navbar">
+  <?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
+
+<div class="navbar">
     <div class="navbar-left">Chandusoft <?= ucfirst(htmlspecialchars($user_role)) ?></div>
+
     <div class="navbar-right">
         <span>Welcome <?= ucfirst(htmlspecialchars($user_role)) ?>!</span>
+
         <a href="/admin/dashboard.php">Dashboard</a>
+
         <?php if ($user_role === 'admin'): ?>
-        <a href="/admin/catalog.php">Admin Catalog</a>
+        <a href="/admin/catalog.php"
+           style="<?= (
+                        $currentPage === 'catalog.php' ||
+                        $currentPage === 'catalog-new.php' ||
+                        $currentPage === 'catalog-edit.php' ||
+                        $currentPage === 'catalog-delete.php'
+                    )
+                    ? 'background:#1E90FF; padding:6px 12px; border-radius:4px;'
+                    : '' ?>">
+            Admin Catalog
+        </a>
         <?php endif; ?>
+
         <a href="/public/catalog.php">Public Catalog</a>
-        <a href="/admin/pages.php">Pages</a>
+
+        <a href="/admin/pages.php"
+           style="<?= (
+                        $currentPage === 'pages.php' ||
+                        $currentPage === 'create.php' ||
+                        $currentPage === 'page-create.php' ||
+                        $currentPage === 'page-edit.php'
+                    )
+                    ? 'background:#1E90FF; padding:6px 12px; border-radius:4px;'
+                    : '' ?>">
+            Pages
+        </a>
+
         <a href="/admin/admin-leads.php">Leads</a>
         <a href="/admin/logout.php">Logout</a>
     </div>
 </div>
+
 
 <div class="container">
     <h2>Create New Page</h2>
