@@ -53,8 +53,8 @@ if (!function_exists('log_message')) {
 }
 
 if (!function_exists('mailLog')) {
-    function mailLog($subject, $message) {
-        log_message($subject, $message);
+    function mailLog($subject, $message, $category = 'system') {
+        log_message("$category - $subject", $message);
     }
 }
 

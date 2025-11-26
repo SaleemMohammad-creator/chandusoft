@@ -36,6 +36,21 @@ $items = $pdo->prepare("SELECT product_name, quantity, unit_price, total_price F
 $items->execute([$id]);
 $items = $items->fetchAll();
 
+// ======================
+//  CANCEL ORDER SETTINGS
+// ======================
+
+// Time after which admin can cancel (0 = immediately)
+$cancel_wait_minutes = 0;
+
+// Convert created time
+$order_time = strtotime($order['created_at']);
+$now = time();
+$diff_minutes = ($now - $order_time) / 60;
+
+// Allow cancel only if status is pending (no wait time)
+$can_cancel = (strtolower($order['payment_status']) === 'pending');
+
 ?>
 
 <!doctype html>
@@ -257,6 +272,32 @@ tr:nth-child(even) {
   }
 }
 
+/* ===========================
+   Cancel Order Button (Centered)
+=========================== */
+
+/* Center the cancel button */
+.cancel-form {
+  margin: 0 auto; /* This pushes form to center */
+}
+
+/* Cancel button styling */
+.cancel-btn {
+  background: #dc2626;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: #b91c1c;
+}
+
+
 </style>
 </head>
 <body>
@@ -325,9 +366,20 @@ tr:nth-child(even) {
   </div>
 
   <div class="action-buttons">
+
     <button onclick="window.print()" class="print-btn">🖨️ Print Invoice</button>
-    <a href="orders.php" class="back-link">← Back to Orders</a>
-  </div>
+
+    <?php if ($can_cancel): ?>
+    <form method="post" action="/admin/cancel_order" class="cancel-form">
+        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+        <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+        <button type="submit" class="cancel-btn">❌ Cancel Order</button>
+    </form>
+    <?php endif; ?>
+
+    <a href="/admin/orders" class="back-link">← Back to Orders</a>
+</div>
+
 
   <div class="footer">
     <p>Thank you for your shopping!</p>

@@ -102,6 +102,9 @@ RewriteRule ^admin/catalog-edit/([0-9]+)/?$ admin/catalog-edit.php?id=$1 [L,QSA,
 RewriteRule ^admin/catalog-archive/?$ admin/catalog-archive.php [L,QSA,NC]
 RewriteRule ^admin/catalog-store/?$ admin/catalog-store.php [L,QSA,NC]
 
+# ✅ NEW: Cancel Order (Pretty URL)
+RewriteRule ^admin/cancel_order/?$ admin/cancel_order.php [L,QSA,NC]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^admin/([a-zA-Z0-9\-_]+)/?$ admin/$1.php [L,QSA,NC]
