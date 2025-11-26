@@ -6,7 +6,8 @@
         "paypal/paypal-checkout-sdk": "^1.0",
         "openai-php/client": "^0.18.0",
         "symfony/http-client": "^7.3",
-        "nyholm/psr7": "^1.8"
+        "nyholm/psr7": "^1.8",
+        "razorpay/razorpay": "^2.9"
     },
     "config": {
         "allow-plugins": {

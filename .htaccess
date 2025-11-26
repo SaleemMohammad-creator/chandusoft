@@ -76,8 +76,11 @@ RewriteRule ^public/catalog-item/([a-zA-Z0-9\-_]+)/?$ public/catalog-item.php?sl
 
 RewriteRule ^public/success/?$ public/success.php [L,QSA,NC]
 RewriteRule ^public/cancel/?$ public/cancel.php [L,QSA,NC]
-
 RewriteRule ^public/payment-webhook\.php$ - [L]
+
+# Razorpay routes
+RewriteRule ^public/razorpay_checkout/?$ public/razorpay_checkout.php [L,QSA,NC]
+RewriteRule ^public/razorpay_callback/?$ public/razorpay_callback.php [L,QSA,NC]
 
 # ------------------------------------------------------------
 # 🛒 ✅ PUBLIC CATALOG PAGE (Clean URL /catalog)

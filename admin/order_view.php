@@ -36,21 +36,6 @@ $items = $pdo->prepare("SELECT product_name, quantity, unit_price, total_price F
 $items->execute([$id]);
 $items = $items->fetchAll();
 
-// ======================
-//  CANCEL ORDER SETTINGS
-// ======================
-
-// Time after which admin can cancel (0 = immediately)
-$cancel_wait_minutes = 0;
-
-// Convert created time
-$order_time = strtotime($order['created_at']);
-$now = time();
-$diff_minutes = ($now - $order_time) / 60;
-
-// Allow cancel only if status is pending (no wait time)
-$can_cancel = (strtolower($order['payment_status']) === 'pending');
-
 ?>
 
 <!doctype html>
@@ -367,18 +352,23 @@ tr:nth-child(even) {
 
   <div class="action-buttons">
 
+    <!-- PRINT -->
     <button onclick="window.print()" class="print-btn">🖨️ Print Invoice</button>
 
-    <?php if ($can_cancel): ?>
-    <form method="post" action="/admin/cancel_order" class="cancel-form">
-        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-        <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
-        <button type="submit" class="cancel-btn">❌ Cancel Order</button>
-    </form>
+    <!-- CANCEL BUTTON (always visible for pending orders) -->
+    <?php if ($order['payment_status'] === 'pending'): ?>
+        <form method="post" action="/admin/cancel_order" class="cancel-form">
+            <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+            <button type="submit" class="cancel-btn">❌ Cancel Order</button>
+        </form>
     <?php endif; ?>
 
+    <!-- BACK -->
     <a href="/admin/orders" class="back-link">← Back to Orders</a>
+
 </div>
+
 
 
   <div class="footer">

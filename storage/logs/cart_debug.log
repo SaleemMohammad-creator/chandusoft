@@ -66,3 +66,7 @@
 [2025-11-20 06:01:13] Added to cart: 49 with qty: 1
 [2025-11-26 04:37:01] Added to cart: 58 with qty: 1
 [2025-11-26 04:39:32] Added to cart: 53 with qty: 1
+[2025-11-26 06:37:08] Added to cart: 49 with qty: 1
+[2025-11-26 06:47:36] Added to cart: 49 with qty: 1
+[2025-11-26 08:46:23] Missing or invalid data for cart item with ID: 0. Data: {"product_id":52,"product_name":"Carrot","unit_price":5,"quantity":1}
+[2025-11-26 08:46:27] Cart cleared completely

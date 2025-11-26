@@ -25,37 +25,21 @@ if (!$order) {
     die("Invalid order reference.");
 }
 
-$paid = false;
 $errors = [];
 
-// ✅ Handle payment form submit
+// ===================================================================
+//  Handle payment submit
+// ===================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $method = $_POST['method'] ?? '';
 
     // ------------------------------------------------------------
-    // 1️⃣ Manual Card Entry
+    // 🅿️ PayPal Redirect
     // ------------------------------------------------------------
-    if ($method === 'card') {
-        $cardName = trim($_POST['card_name'] ?? '');
-        $cardNumber = trim($_POST['card_number'] ?? '');
-        $expiry = trim($_POST['expiry'] ?? '');
-        $cvv = trim($_POST['cvv'] ?? '');
+    if ($method === 'paypal') {
 
-        if ($cardName === '' || $cardNumber === '' || $expiry === '' || $cvv === '') {
-            $errors[] = "Please fill in all card details.";
-        } elseif (strlen($cardNumber) < 12) {
-            $errors[] = "Invalid card number.";
-        } else {
-            $paid = true;
-        }
-    }
-
-    // ------------------------------------------------------------
-    // 2️⃣ PayPal Redirect (sandbox API)
-    // ------------------------------------------------------------
-    elseif ($method === 'paypal') {
-
-        // 1️⃣ Get OAuth2 Token
+        // Step 1 — Get OAuth2 token
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, PAYPAL_BASE_URL . "/v1/oauth2/token");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -67,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "Accept-Language: en_US",
         ]);
 
-        // ⭐ SSL FIX FOR LOCAL HTTPS
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
@@ -76,12 +59,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         curl_close($ch);
 
         if (empty($tokenData['access_token'])) {
-            $errors[] = "Failed to generate PayPal token:<br><pre>" . print_r($tokenData, true) . "</pre>";
+            $errors[] = "PayPal token generation failed.";
         } else {
 
             $accessToken = $tokenData['access_token'];
 
-            // 2️⃣ Create PayPal Order
+            // Step 2 — Create PayPal Order
             $orderData = [
                 "intent" => "CAPTURE",
                 "purchase_units" => [[
@@ -107,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             curl_setopt($ch2, CURLOPT_POSTFIELDS, json_encode($orderData));
 
-            // ⭐ SSL FIX FOR LOCAL HTTPS
             curl_setopt($ch2, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch2, CURLOPT_SSL_VERIFYHOST, false);
 
@@ -124,19 +106,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            $errors[] = "PayPal order creation failed:<br><pre>" . print_r($paypalOrder, true) . "</pre>";
+            $errors[] = "PayPal order creation failed.";
         }
     }
 
     // ------------------------------------------------------------
-    // 3️⃣ Stripe Redirect
+    // 💠 Stripe Redirect
     // ------------------------------------------------------------
     elseif ($method === 'stripe') {
 
         require_once __DIR__ . '/../vendor/autoload.php';
         \Stripe\Stripe::setApiKey(STRIPE_SECRET_KEY);
 
-        $amount = floatval($order['total']) * 100; // cents
+        $amount = floatval($order['total']) * 100;
 
         $checkout_session = \Stripe\Checkout\Session::create([
             'payment_method_types' => ['card'],
@@ -155,23 +137,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]
             ],
             'success_url' => BASE_URL . "/public/success.php?order_ref={$order_ref}",
-            'cancel_url' => BASE_URL . "/public/cancel.php?order_ref={$order_ref}&session_id={CHECKOUT_SESSION_ID}",
+            'cancel_url'  => BASE_URL . "/public/cancel.php?order_ref={$order_ref}",
         ]);
 
         header("Location: " . $checkout_session->url);
         exit;
     }
 
-    // ------------------------------------------------------------
-    // Manual Card Success
-    // ------------------------------------------------------------
-    if ($paid) {
-        $stmt = $pdo->prepare("UPDATE orders SET payment_status = 'paid' WHERE order_ref = :ref");
-        $stmt->execute([':ref' => $order_ref]);
-        header("Location: success.php?order_ref=" . urlencode($order_ref));
-        exit;
+    else {
+        $errors[] = "Please choose a payment method.";
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -179,8 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="UTF-8">
 <title>Complete Payment</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-/* ---- your original styling untouched ----- */
+/* No changes - original styling */
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
   background: #f7f9fc;
@@ -205,18 +183,24 @@ p {
   color: #444;
   margin-bottom: 20px;
 }
-label {
-  display: block;
-  margin-top: 10px;
-  font-weight: 600;
+.payment-options {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
 }
-input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  border: 1px solid #ccc;
+.option {
+  border: 2px solid #ccc;
   border-radius: 8px;
-  font-size: 1em;
+  padding: 12px 20px;
+  cursor: pointer;
+}
+.option:hover {
+  border-color: #007bff;
+  background: #f0f7ff;
+}
+.option.active {
+  border-color: #007bff;
+  background: #e9f2ff;
 }
 button {
   display: block;
@@ -232,38 +216,24 @@ button {
 }
 button:hover { background: #0056b3; }
 .error { background: #f8d7da; padding: 10px; border-radius: 8px; }
-.payment-options { display: flex; justify-content: space-around; margin: 20px 0; }
-.option {
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  padding: 12px 20px;
-  cursor: pointer;
-}
-.option:hover {
-  border-color: #007bff;
-  background: #f0f7ff;
-}
-.option.active {
-  border-color: #007bff;
-  background: #e9f2ff;
-}
-.card-form { margin-top: 20px; }
-.back-link { text-align: center; margin-top: 20px; }
 a.button { text-decoration: none; background: #6c757d; color: #fff; padding: 10px 16px; border-radius: 6px; }
-a.button:hover { background: #5a6268; }
+.back-link { text-align: center; margin-top: 20px; }
 </style>
+
 <script>
 function selectMethod(method) {
   document.querySelectorAll('.option').forEach(el => el.classList.remove('active'));
   document.getElementById(method).classList.add('active');
   document.getElementById('method').value = method;
-  document.getElementById('cardDetails').style.display = (method === 'card') ? 'block' : 'none';
 }
 </script>
+
 </head>
 <body>
+
 <div class="container">
   <h1>Complete Your Payment</h1>
+
   <p>Order Reference: <strong><?= htmlspecialchars($order_ref) ?></strong></p>
   <p>Amount Due: <strong>$<?= number_format($order['total'], 2) ?></strong></p>
 
@@ -275,23 +245,15 @@ function selectMethod(method) {
     <input type="hidden" name="method" id="method" value="">
 
     <div class="payment-options">
-      <div class="option" id="card" onclick="selectMethod('card')">💳 Credit / Debit Card</div>
-      <div class="option" id="paypal" onclick="selectMethod('paypal')">🅿️ PayPal</div>
-      <div class="option" id="stripe" onclick="selectMethod('stripe')">💠 Stripe</div>
-    </div>
 
-    <div id="cardDetails" class="card-form" style="display:none;">
-      <label>Cardholder Name</label>
-      <input type="text" name="card_name" placeholder="John Doe">
+      <div class="option" id="paypal" onclick="selectMethod('paypal')">
+        🅿️ PayPal
+      </div>
 
-      <label>Card Number</label>
-      <input type="text" name="card_number" placeholder="1234 5678 9012 3456">
+      <div class="option" id="stripe" onclick="selectMethod('stripe')">
+        💠 Stripe
+      </div>
 
-      <label>Expiry Date (MM/YY)</label>
-      <input type="text" name="expiry" placeholder="12/27">
-
-      <label>CVV</label>
-      <input type="text" name="cvv" placeholder="123">
     </div>
 
     <button type="submit">Pay Securely</button>
@@ -300,6 +262,8 @@ function selectMethod(method) {
   <div class="back-link">
     <a href="checkout.php" class="button">← Back to Checkout</a>
   </div>
+
 </div>
+
 </body>
 </html>
