@@ -70,3 +70,6 @@
 [2025-11-26 06:47:36] Added to cart: 49 with qty: 1
 [2025-11-26 08:46:23] Missing or invalid data for cart item with ID: 0. Data: {"product_id":52,"product_name":"Carrot","unit_price":5,"quantity":1}
 [2025-11-26 08:46:27] Cart cleared completely
+[2025-11-26 10:08:59] Missing or invalid data for cart item with ID: 0. Data: {"product_id":53,"product_name":"Dragon Fruit","unit_price":12,"quantity":1}
+[2025-11-26 10:09:08] Cart cleared completely
+[2025-11-26 10:47:49] Missing or invalid data for cart item with ID: 0. Data: {"product_id":59,"product_name":"Watch","unit_price":25,"quantity":1}

@@ -95,30 +95,32 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 <meta charset="UTF-8">
 <title>Edit Catalog Item</title>
 <style>
- /* ===========================
+/* ===========================
    Global Styles
 =========================== */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Inter", Arial, sans-serif;
     margin: 0;
-    background: #f7f8fc;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* ===========================
    Navbar
 =========================== */
 .navbar {
-    background: #2c3e50;
+    background: #1f2937;
     color: #fff;
-    padding: 15px 20px;
+    padding: 16px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .navbar-left {
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .navbar-right {
@@ -127,177 +129,167 @@ body {
 }
 
 .navbar-right span {
-    margin-right: 12px;
-    font-weight: bold;
+    margin-right: 14px;
+    font-weight: 600;
 }
 
 .navbar a {
-    color: #fff;
+    padding: 8px 14px;
+    margin-left: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #e5e7eb;
     text-decoration: none;
-    margin-left: 12px;
-    font-weight: bold;
+    transition: 0.25s ease-in-out;
 }
 
-.nav-btn {
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: background 0.3s ease;
+.navbar a:hover {
+    background: #374151;
 }
 
-.nav-btn:hover {
-    background: #1C86EE;
+.navbar a.active {
+    background: #2563eb !important;
+    color: #fff;
 }
 
 /* ===========================
-   Container
+   Container / Card
 =========================== */
 .container {
-    max-width: 1000px;
-    margin: 100px auto 40px;
+    max-width: 900px;
+    margin: 90px auto 40px;
+    padding: 0 20px;
+}
+
+.card {
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    padding: 30px 28px;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
 h2 {
     text-align: center;
-    color: #007BFF;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1f2937;
     margin-bottom: 25px;
 }
 
 /* ===========================
-   Form Elements
-=========================== */
-label {
-    display: block;
-    margin-top: 15px;
-    font-weight: bold;
-}
-
-input,
-textarea,
-select {
-    width: 100%;
-    padding: 12px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box;
-}
-
-img.current-image {
-    max-width: 150px;
-    margin-top: 10px;
-    border-radius: 6px;
-}
-
-/* ===========================
-   Messages
+   Messages (success / error)
 =========================== */
 .message {
-    text-align: center;
-    font-weight: bold;
     padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 6px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    font-weight: 600;
+    text-align: center;
 }
 
 .message-success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    background: #dcfce7;
+    color: #14532d;
+    border: 1px solid #86efac;
 }
 
 .message-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
 }
 
 /* ===========================
-   Buttons Layout
+   Form Layout
 =========================== */
-.button-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-}
-
-/* Shared button base */
-.btn {
-    display: inline-block;
-    padding: 8px 16px;
-    font-weight: 600;
-    font-size: 14px;
-    text-align: center;
-    border-radius: 6px;
-    cursor: pointer;
-    text-decoration: none;
-    border: none;
-    transition: background 0.3s ease, transform 0.2s ease;
-}
-
-/* Primary button */
-.btn-primary {
-    background: #007BFF;
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background: #0056b3;
-    transform: translateY(-1px);
-}
-
-/* Secondary button */
-.btn-secondary {
-    background: #007BFF;
-    color: #fff;
-}
-
-.btn-secondary:hover {
-    background: #0056b3;
-    transform: translateY(-1px);
-}
-
-/* =========================================
-   Left Label - Right Input Form Layout
-========================================= */
 .form-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    gap: 18px;
     margin-bottom: 18px;
 }
 
 .form-row label {
     width: 200px;
-    font-weight: bold;
-    color: #333;
+    font-size: 15px;
+    font-weight: 600;
+    color: #374151;
+    padding-top: 8px;
 }
 
 .form-row input,
 .form-row textarea,
 .form-row select {
     flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    background: #fff;
+    transition: border 0.25s, box-shadow 0.25s;
 }
 
-.form-row textarea {
-    height: 70px;
+.form-row input:focus,
+.form-row textarea:focus,
+.form-row select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
-.form-row img.current-image {
-    max-width: 150px;
-    border-radius: 6px;
+textarea {
+    height: 90px;
+    resize: vertical;
 }
 
+/* ===========================
+   Current Image Preview
+=========================== */
+.current-image {
+    max-width: 160px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+/* ===========================
+   Buttons
+=========================== */
 .button-row {
-    margin-left: 200px; /* aligns buttons with input */
+    margin-left: 200px;
+    margin-top: 10px;
+    display: flex;
+    gap: 12px;
 }
 
+.btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+/* Primary – Save */
+.btn-primary {
+    background: #2563eb;
+    color: #fff;
+}
+.btn-primary:hover {
+    background: #1e4fd4;
+    transform: translateY(-1px);
+}
+
+/* Secondary – Back */
+.btn-secondary {
+    background: #6b7280;
+    color: #fff;
+}
+.btn-secondary:hover {
+    background: #4b5563;
+    transform: translateY(-1px);
+}
 
 </style>
 </head>

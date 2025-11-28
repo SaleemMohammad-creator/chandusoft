@@ -65,36 +65,36 @@ $leads = $leadsStmt->fetchAll(PDO::FETCH_ASSOC);
 <meta charset="UTF-8">
 <title>Admin Dashboard</title>
 <style>
+
 /* ===========================
    Global Styles
 =========================== */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Inter", Arial, sans-serif;
     margin: 0;
-    background: #f7f8fc;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* ===========================
    Navbar
 =========================== */
 .navbar {
-    background: #2c3e50;
+    background: #1f2937;
     color: #fff;
-    padding: 15px 20px;
+    padding: 16px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.navbar a.active {
-    background: #4da6ff;
-    padding: 6px 12px;
-    border-radius: 4px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .navbar-left {
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .navbar-right {
@@ -103,66 +103,52 @@ body {
 }
 
 .navbar-right span {
-    margin-right: 12px;
-    font-weight: bold;
+    margin-right: 14px;
+    font-weight: 600;
 }
 
 .navbar a {
-    color: #fff;
+    padding: 8px 14px;
+    margin-left: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #e5e7eb;
     text-decoration: none;
-    margin-left: 12px;
-    font-weight: bold;
+    transition: 0.25s ease-in-out;
 }
 
-.nav-btn {
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: background 0.3s ease;
+.navbar a:hover {
+    background: #374151;
+    color: #fff;
 }
 
-.nav-btn:hover {
-    background: #1C86EE;
+.navbar a.active {
+    background: #2563eb;
+    color: #fff;
 }
 
 /* ===========================
-   Container
+   Container / Card Layout
 =========================== */
 .container {
-    max-width: 1000px;
-    margin: 100px auto 40px;
+    max-width: 1150px;
+    margin: 90px auto 40px;
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    padding: 30px 28px;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
-/* ===========================
-   Table Styling
-=========================== */
-.leads-table {
-    width: 100%;
-    border-collapse: collapse;
+h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 18px;
 }
 
-.leads-table th,
-.leads-table td {
-    border: 1px solid #ccc;
-    padding: 12px;
-    text-align: left;
-}
-
-.leads-table th {
-    background: #2980b9;
-    color: #fff;
-    font-size: 15px;
-}
-
-.leads-table tr:nth-child(even) {
-    background: #f2f2f2;
-}
-
-.leads-table tr:hover {
-    background: #e6f7ff;
+h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 22px 0 12px;
 }
 
 /* ===========================
@@ -171,25 +157,59 @@ body {
 .status-box {
     display: inline-block;
     padding: 10px 20px;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    border-radius: 6px;
-    font-weight: bold;
+    margin-right: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    font-weight: 600;
     color: #fff;
+    font-size: 14px;
 }
 
 .status-box.published {
-    background: #27ae60;
+    background: #16a34a;
 }
 
 .status-box.archived {
-    background: #7f8c8d;
+    background: #6b7280;
 }
 
 .status-box.draft {
-    background: #f1c40f;
+    background: #facc15;
     color: #000;
 }
+
+/* ===========================
+   Table Styling
+=========================== */
+.leads-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+.leads-table thead {
+    background: #2563eb;
+    color: #fff;
+}
+
+.leads-table th,
+.leads-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.leads-table tr:nth-child(even) {
+    background: #f9fafb;
+}
+
+.leads-table tr:hover {
+    background: #eef7ff;
+}
+
 
 </style>
 </head>

@@ -96,38 +96,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Edit Page - Admin</title>
 <link rel="stylesheet" href="assets/css/styles.css">
 <style>
+
 /* ===========================
    Global Styles
 =========================== */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Inter", Arial, sans-serif;
     margin: 0;
-    background: #f7f8fc;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* ===========================
    Navbar
 =========================== */
 .navbar {
-    background: #2c3e50;
+    background: #1f2937;
     color: #fff;
-    padding: 15px 20px;
+    padding: 16px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    /* Fixed Navbar */
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    box-sizing: border-box;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .navbar-left {
-    font-weight: bold;
     font-size: 22px;
+    font-weight: 700;
 }
 
 .navbar-right {
@@ -136,109 +134,89 @@ body {
 }
 
 .navbar-right span {
-    margin-right: 10px;
-    font-weight: bold;
+    margin-right: 14px;
+    font-weight: 600;
 }
 
 .navbar a {
-    color: #fff;
+    padding: 8px 14px;
+    margin-left: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #e5e7eb;
     text-decoration: none;
-    margin-left: 15px;
-    font-weight: bold;
+    transition: 0.25s ease-in-out;
 }
 
-.nav-btn {
+.navbar a:hover {
+    background: #374151;
     color: #fff;
-    margin-left: 5px;
-    padding: 6px 12px;
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background 0.3s ease;
 }
 
-.nav-btn:hover {
-    background: #1C86EE;
+.navbar a.active {
+    background: #2563eb;
+    color: #fff;
 }
 
 /* ===========================
    Container
 =========================== */
 .container {
-    max-width: 1000px;
-    margin: 100px auto 40px;
+    max-width: 950px;
+    margin: 110px auto 40px;
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    padding: 30px 28px;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
 }
 
 /* ===========================
-   Form Inputs
+   Header
 =========================== */
-input[type="text"],
-select,
-textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+h2 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 25px;
 }
 
 /* ===========================
-   Form Buttons
-=========================== */
-.form-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-}
-
-button {
-    padding: 10px 20px;
-    border: none;
-    background: #3498db;
-    color: #fff;
-    cursor: pointer;
-    border-radius: 4px;
-    font-weight: bold;
-    transition: background 0.3s ease;
-}
-
-button:hover {
-    background: #1d6fa5;
-}
-
-/* ===========================
-   Messages
+   Alerts
 =========================== */
 .error {
-    color: #c0392b;
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 12px;
+    border-radius: 8px;
     margin-bottom: 15px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .success {
-    color: #27ae60;
+    background: #dcfce7;
+    color: #14532d;
+    padding: 12px;
+    border-radius: 8px;
     margin-bottom: 15px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
-/* =========================================
-   Left Label - Right Input Form Layout
-========================================= */
+/* ===========================
+   Form Layout
+=========================== */
 .form-row {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
+    gap: 18px;
 }
 
 .form-row label {
     width: 200px;
-    font-weight: bold;
-    color: #333;
+    font-weight: 600;
+    font-size: 15px;
+    color: #374151;
     padding-top: 10px;
 }
 
@@ -246,38 +224,60 @@ button:hover {
 .form-row textarea,
 .form-row select {
     flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 15px;
+    background: #fff;
+    transition: border 0.25s, box-shadow 0.25s;
 }
 
-.form-row textarea {
-    height: 120px;
+.form-row input:focus,
+.form-row textarea:focus,
+.form-row select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
+textarea {
+    height: 160px;
+}
+
+/* ===========================
+   Buttons
+=========================== */
 .button-row {
+    margin-left: 200px;
+    margin-top: 12px;
     display: flex;
-    justify-content: space-between;   /* Left & Right */
-    align-items: center;
-    margin-left: 200px;               /* Line up with inputs */
-    margin-top: 20px;
-    width: calc(100% - 200px);        /* Full width minus label space */
+    gap: 14px;
 }
 
 .button-row button {
-    padding: 10px 20px;
-    background: #3498db;
+    padding: 12px 20px;
+    background: #2563eb;
     border: none;
-    border-radius: 6px;
-    color: white;
-    font-weight: bold;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #fff;
+    font-weight: 600;
     cursor: pointer;
+    transition: 0.25s;
 }
 
 .button-row button:hover {
-    background: #1d6fa5;
+    background: #1e4fd4;
+    transform: translateY(-1px);
 }
 
+.button-row a button {
+    background: #6b7280;
+}
+
+.button-row a button:hover {
+    background: #4b5563;
+    transform: translateY(-1px);
+}
 
 </style>
 

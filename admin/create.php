@@ -2,8 +2,8 @@
 session_start();
 require_once __DIR__ . '/../app/config.php'; // PDO connection + verify_csrf()
 require_once __DIR__ . '/../app/helpers.php';
-require_once __DIR__ . '/../app/mail-logger.php'; // ✅ Added for Mailpit logging
-require_once __DIR__ . '/../utilities/log_action.php'; // ✅ Added logging helper
+require_once __DIR__ . '/../app/mail-logger.php';
+require_once __DIR__ . '/../utilities/log_action.php';
 
 // Safe user info
 $user_name = $_SESSION['user_name'] ?? 'User';
@@ -12,13 +12,9 @@ $user_id   = $_SESSION['user_id'] ?? null;
 
 // Allow both admin and editor
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'])) {
-    header("Location: login.php"); // Or dashboard.php
+    header("Location: login.php");
     exit;
 }
-
-// Safe user info
-$user_role = $_SESSION['user_role'] ?? 'Admin';
-$user_name = $_SESSION['user_name'] ?? 'User';
 
 // CSRF token
 $csrf_token = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
@@ -27,7 +23,7 @@ $_SESSION['csrf_token'] = $csrf_token;
 $errors = [];
 $success = "";
 
-// Handle form submission
+// Handle form submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title        = trim($_POST['title'] ?? '');
     $slug         = trim($_POST['slug'] ?? '');
@@ -35,19 +31,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status       = $_POST['status'] ?? 'draft';
     $csrf         = $_POST['csrf_token'] ?? '';
 
-    // CSRF check
+    // CSRF Validation
     if (!verify_csrf($csrf)) $errors[] = "Invalid CSRF token.";
 
-    // Validation
     if ($title === '') $errors[] = "Title is required.";
     if ($slug === '') $slug = strtolower(str_replace(' ', '-', $title));
 
-    // Check for duplicate slug
+    // Check duplicate slug
     $stmt = $pdo->prepare("SELECT id FROM pages WHERE slug = :slug LIMIT 1");
     $stmt->execute([':slug' => $slug]);
     if ($stmt->fetch()) $errors[] = "Slug already exists. Choose another.";
 
-    // If no errors, insert page
     if (empty($errors)) {
         $stmt = $pdo->prepare("
             INSERT INTO pages (title, slug, status, content_html)
@@ -62,32 +56,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $success = "Page created successfully!";
 
-        // ✅ Log to Mailpit inbox
-        $subject = "New Page Created by {$user_name}";
-        $message = "
-        A new page has been created by {$user_name} ({$user_role}).
-        <br><br>
-        <b>Title:</b> {$title}<br>
-        <b>Slug:</b> {$slug}<br>
-        <b>Status:</b> {$status}
-        ";
-        mailLog($subject, $message);
+        // Log Email
+        mailLog("Page Created", "Title: $title, Slug: $slug, Status: $status", "pages");
 
-        // ✅ Log to Database (admin_logs)
-        log_action($user_id, 'Page Created', "Title: {$title}, Slug: {$slug}, Status: {$status}");
+        // DB Log
+        log_action($user_id, 'Page Created', "Title: $title, Slug: $slug, Status: $status");
 
-        // Reset form
+        // Reset
         $title = $slug = $content_html = '';
     } else {
-        // ✅ Log failed creation attempt
-        $errorText = implode(', ', $errors);
-        log_action($user_id, 'Page Create Failed', $errorText);
+        log_action($user_id, 'Page Create Failed', implode(', ', $errors));
     }
 }
 ?>
-
-
-<!-- Your existing HTML form remains unchanged -->
 
 
 <!DOCTYPE html>
@@ -95,38 +76,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8">
 <title>Create New Page - Admin</title>
-<link rel="stylesheet" href="assets/css/styles.css">
+
 <style>
- /* ===========================
+
+/* ===========================
    Global Styles
 =========================== */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Inter", Arial, sans-serif;
     margin: 0;
-    background: #f7f8fc;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* ===========================
    Navbar
 =========================== */
 .navbar {
-    background: #2c3e50;
+    background: #1f2937;
     color: #fff;
-    padding: 15px 20px;
+    padding: 16px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    box-sizing: border-box;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .navbar-left {
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .navbar-right {
@@ -135,159 +116,156 @@ body {
 }
 
 .navbar-right span {
-    margin-right: 12px;
-    font-weight: bold;
+    margin-right: 14px;
+    font-weight: 600;
 }
 
 .navbar a {
-    color: #fff;
+    padding: 8px 14px;
+    margin-left: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #e5e7eb;
     text-decoration: none;
-    margin-left: 12px;
-    font-weight: bold;
+    transition: 0.25s ease-in-out;
 }
 
-.nav-btn {
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: background 0.3s ease;
+.navbar a:hover {
+    background: #374151;
+    color: #fff;
 }
 
-.nav-btn:hover {
-    background: #1C86EE;
+.navbar a.active {
+    background: #2563eb;
+    color: #fff;
 }
 
 /* ===========================
    Container
 =========================== */
 .container {
-    max-width: 1000px;
-    margin: 100px auto 40px;
+    max-width: 950px;
+    margin: 110px auto 40px;
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    padding: 30px 28px;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
 }
 
 /* ===========================
-   Form Inputs
+   Header
 =========================== */
-input[type="text"],
-select,
-textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 15px;
-    box-sizing: border-box;
-}
-
-/* ===========================
-   Buttons
-=========================== */
-button {
-    padding: 10px 20px;
-    border: none;
-    background: #3498db;
-    color: #fff;
-    cursor: pointer;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 15px;
-    transition: background 0.3s ease;
-}
-
-button:hover {
-    background: #1c7ec9;
-}
-
-.form-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
+h2 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 25px;
 }
 
 /* ===========================
    Alerts
 =========================== */
 .error {
-    color: #c0392b;
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 12px;
+    border-radius: 8px;
     margin-bottom: 15px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .success {
-    color: #27ae60;
+    background: #dcfce7;
+    color: #14532d;
+    padding: 12px;
+    border-radius: 8px;
     margin-bottom: 15px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
-/* =========================================
-   Left Label - Right Input Form Layout
-========================================= */
+/* ===========================
+   Form Layout
+=========================== */
 .form-row {
     display: flex;
-    align-items: center;
-    margin-bottom: 18px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 18px;
 }
 
 .form-row label {
     width: 200px;
-    font-weight: bold;
-    color: #333;
+    font-weight: 600;
+    font-size: 15px;
+    color: #374151;
+    padding-top: 10px;
 }
 
 .form-row input,
 .form-row textarea,
 .form-row select {
     flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 15px;
+    background: #fff;
+    transition: border 0.25s, box-shadow 0.25s;
 }
 
-.form-row textarea {
-    height: 120px;
+.form-row input:focus,
+.form-row textarea:focus,
+.form-row select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
+textarea {
+    height: 150px;
+}
+
+/* ===========================
+   Buttons
+=========================== */
 .button-row {
+    margin-left: 200px;
+    margin-top: 12px;
     display: flex;
-    justify-content: space-between;   /* left button + right button */
-    align-items: center;
-    margin-left: 200px;               /* aligns with input fields */
-    margin-top: 20px;
+    gap: 14px;
 }
 
 .button-row button {
-    padding: 10px 18px;
-    background: #3498db;
+    padding: 12px 20px;
+    background: #2563eb;
     border: none;
-    border-radius: 6px;
-    color: white;
-    font-weight: bold;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #fff;
+    font-weight: 600;
     cursor: pointer;
-}
-.button-row a button {
-    padding: 10px 18px;
-    background: #3498db;
-    border: none;
-    border-radius: 6px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
+    transition: 0.25s;
 }
 
 .button-row button:hover {
-    background: #1c7ec9;
+    background: #1e4fd4;
+    transform: translateY(-1px);
 }
 
+.button-row a button {
+    background: #6b7280;
+}
 
+.button-row a button:hover {
+    background: #4b5563;
+    transform: translateY(-1px);
+}
 </style>
 </head>
+
 <body>
-  
-  <?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
+
+<?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
 
 <div class="navbar">
     <div class="navbar-left">Chandusoft <?= ucfirst(htmlspecialchars($user_role)) ?></div>
@@ -295,37 +273,26 @@ button:hover {
     <div class="navbar-right">
         <span>Welcome <?= ucfirst(htmlspecialchars($user_role)) ?>!</span>
 
-        <a href="/admin/dashboard.php">Dashboard</a>
+        <a href="/admin/dashboard.php"
+           class="<?= $currentPage === 'dashboard.php' ? 'active' : '' ?>">Dashboard</a>
 
         <?php if ($user_role === 'admin'): ?>
         <a href="/admin/catalog.php"
-           style="<?= (
-                        $currentPage === 'catalog.php' ||
-                        $currentPage === 'catalog-new.php' ||
-                        $currentPage === 'catalog-edit.php' ||
-                        $currentPage === 'catalog-delete.php'
-                    )
-                    ? 'background:#1E90FF; padding:6px 12px; border-radius:4px;'
-                    : '' ?>">
-            Admin Catalog
+           class="<?= in_array($currentPage, ['catalog.php','catalog-new.php','catalog-edit.php','catalog-delete.php']) ? 'active' : '' ?>">
+           Admin Catalog
         </a>
         <?php endif; ?>
 
         <a href="/public/catalog.php">Public Catalog</a>
 
         <a href="/admin/pages.php"
-           style="<?= (
-                        $currentPage === 'pages.php' ||
-                        $currentPage === 'create.php' ||
-                        $currentPage === 'page-create.php' ||
-                        $currentPage === 'page-edit.php'
-                    )
-                    ? 'background:#1E90FF; padding:6px 12px; border-radius:4px;'
-                    : '' ?>">
-            Pages
+           class="<?= in_array($currentPage, ['pages.php','create.php','edit.php','page-create.php','page-edit.php']) ? 'active' : '' ?>">
+           Pages
         </a>
 
-        <a href="/admin/admin-leads.php">Leads</a>
+        <a href="/admin/admin-leads.php"
+           class="<?= $currentPage === 'admin-leads.php' ? 'active' : '' ?>">Leads</a>
+
         <a href="/admin/logout.php">Logout</a>
     </div>
 </div>
@@ -370,15 +337,13 @@ button:hover {
     </div>
 
     <div class="button-row">
-    <button type="submit">Create Page</button>
-
-    <a href="pages.php">
-        <button type="button">← Back to Pages</button>
-    </a>
-</div>
+        <button type="submit">Create Page</button>
+        <a href="pages.php"><button type="button">← Back to Pages</button></a>
+    </div>
 
 </form>
 
 </div>
+
 </body>
 </html>

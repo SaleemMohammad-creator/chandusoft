@@ -69,36 +69,35 @@ if ($search !== '' && !$wildcard_only) {
 <meta charset="UTF-8">
 <title>Leads - Admin</title>
 <style>
-/* ===========================
+ /* ===========================
    Global Styles
 =========================== */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Inter", Arial, sans-serif;
     margin: 0;
-    background: #f7f8fc;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* ===========================
    Navbar
 =========================== */
 .navbar {
-    background: #2c3e50;
+    background: #1f2937;
     color: #fff;
-    padding: 15px 20px;
+    padding: 16px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.navbar a.active {
-    background: #4da6ff;
-    padding: 6px 12px;
-    border-radius: 4px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .navbar-left {
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .navbar-right {
@@ -107,104 +106,120 @@ body {
 }
 
 .navbar-right span {
-    margin-right: 12px;
-    font-weight: bold;
+    margin-right: 14px;
+    font-weight: 600;
 }
 
 .navbar a {
-    color: #fff;
+    padding: 8px 14px;
+    margin-left: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #e5e7eb;
     text-decoration: none;
-    margin-left: 12px;
-    font-weight: bold;
+    transition: 0.25s ease-in-out;
 }
 
-.nav-btn {
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: background 0.3s ease;
+.navbar a:hover {
+    background: #374151;
+    color: #fff;
 }
 
-.nav-btn:hover {
-    background: #1C86EE;
+.navbar a.active {
+    background: #2563eb;
+    color: #fff;
 }
 
 /* ===========================
    Container
 =========================== */
 .container {
-    max-width: 1000px;
-    margin: 100px auto 40px;
+    max-width: 1150px;
+    margin: 90px auto 40px;
+}
+
+/* Card for content */
+.card {
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    padding: 30px 28px;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    margin-top: 20px;
 }
 
 h1 {
-    margin-bottom: 20px;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 22px;
 }
 
 /* ===========================
    Search Form
 =========================== */
-form.search-form {
+.search-box {
+    max-width: 380px;
     display: flex;
-    align-items: center;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 25px;
 }
 
-form.search-form input[type="text"] {
-    padding: 10px;
-    width: 450px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
+.search-box input {
+    flex: 1;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+    background: #fff;
 }
 
-form.search-form button {
-    padding: 10px 20px;
-    margin-left: 10px;
-    background: #1E90FF;
+.search-box button {
+    padding: 12px 18px;
+    background: #2563eb;
     color: #fff;
     border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 16px;
+    border-radius: 8px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: 0.2s;
 }
 
-form.search-form button:hover {
-    background: #1C86EE;
+.search-box button:hover {
+    background: #1e4fd4;
 }
 
 /* ===========================
-   Table
+   Leads Table
 =========================== */
 table {
-    border-collapse: collapse;
     width: 100%;
-    margin-top: 20px;
+    border-collapse: collapse;
+    margin-top: 15px;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
-th,
-td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-}
-
-th {
-    background: #1E90FF;
+thead {
+    background: #2563eb;
     color: #fff;
 }
 
+th, td {
+    padding: 14px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+
 tr:nth-child(even) {
-    background: #f2f2f2;
+    background: #f9fafb;
 }
 
 tr:hover {
-    background: #e6f7ff;
+    background: #eef7ff;
+}
+
+/* Sub text (IP / Message) */
+td small {
+    color: #6b7280;
 }
 
 </style>
@@ -235,12 +250,14 @@ tr:hover {
 
 
 <div class="container">
-    <h1>Leads</h1>
-     <!-- Search form -->
-    <form class="search-form" method="GET" action="">
-        <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search name/email">
-        <button type="submit">Search</button>
-    </form>
+    <div class="card">
+
+        <h1>Leads</h1>
+
+        <form class="search-box" method="get">
+            <input type="text" name="search" placeholder="Search name/email">
+            <button type="submit">Search</button>
+        </form>
     <table>
         <thead>
             <tr>

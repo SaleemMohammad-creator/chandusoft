@@ -103,36 +103,35 @@ $total_pages = max(1, ceil($total_orders / $limit));
 <title>Admin Orders</title>
 
 <style>
- /* ===========================
+/* ===========================
    Global Styles
 =========================== */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Inter", Arial, sans-serif;
     margin: 0;
-    background: #f7f8fc;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* ===========================
    Navbar
 =========================== */
 .navbar {
-    background: #2c3e50;
+    background: #1f2937;
     color: #fff;
-    padding: 15px 20px;
+    padding: 16px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.navbar a.active {
-    background: #4da6ff;
-    padding: 6px 12px;
-    border-radius: 4px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .navbar-left {
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .navbar-right {
@@ -141,124 +140,126 @@ body {
 }
 
 .navbar-right span {
-    margin-right: 12px;
-    font-weight: bold;
+    margin-right: 14px;
+    font-weight: 600;
 }
 
 .navbar a {
-    color: #fff;
+    padding: 8px 14px;
+    margin-left: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #e5e7eb;
     text-decoration: none;
-    margin-left: 12px;
-    font-weight: bold;
+    transition: 0.25s ease-in-out;
 }
 
-.nav-btn {
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: background 0.3s ease;
+.navbar a:hover {
+    background: #374151;
+    color: #fff;
 }
 
-.nav-btn:hover {
-    background: #1C86EE;
+.navbar a.active {
+    background: #2563eb;
+    color: #fff;
 }
 
-/* ===============================
-   ORIGINAL STYLES
-=============================== */
+/* ===========================
+   Page Container
+=========================== */
 h1 {
     text-align: center;
-    color: #1e3a8a;
+    font-size: 26px;
+    font-weight: 700;
+    margin-top: 35px;
+    margin-bottom: 25px;
+    color: #1f2937;
+}
+
+/* ===========================
+   Search Box (side-by-side)
+=========================== */
+.search-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 25px;
 }
 
-/* -------------------------------
-   Search Box
-------------------------------- */
-.search-box {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
 .search-box input[type="text"] {
-    width: 280px;
-    padding: 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
+    padding: 12px 14px;
+    width: 350px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+    background: #fff;
 }
 
 .search-box button {
-    padding: 10px 16px;
+    padding: 12px 20px;
     background: #2563eb;
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s;
 }
 
-/* -------------------------------
-   Table
-------------------------------- */
+.search-box button:hover {
+    background: #1e4fd4;
+}
+
+
+/* ===========================
+   Orders Table
+=========================== */
 table {
-    width: 100%;
+    width: 95%;
+    margin: 0 auto;
     border-collapse: collapse;
     background: #fff;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
 thead {
-    background: #1e3a8a;
+    background: #2563eb;
     color: #fff;
 }
 
-th,
-td {
-    padding: 12px 16px;
+th, td {
+    padding: 13px 16px;
     text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 tr:nth-child(even) {
-    background: #f1f5f9;
+    background: #f9fafb;
+}
+
+tr:hover {
+    background: #eef6ff;
 }
 
 .empty {
     padding: 20px;
     text-align: center;
-    color: #64748b;
+    color: #6b7280;
 }
 
-/* -------------------------------
-   Pagination
-------------------------------- */
-.pagination {
-    margin-top: 25px;
-    text-align: center;
-}
-
-.pagination a {
-    display: inline-block;
-    padding: 8px 14px;
-    margin: 0 4px;
-    background: #e2e8f0;
-    color: #1e3a8a;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.pagination a.active {
-    background: #2563eb;
-    color: #fff;
-}
-
-/* -------------------------------
+/* ===========================
    Status Badges
-------------------------------- */
+=========================== */
 .status {
-    padding: 6px 10px;
+    padding: 6px 12px;
     border-radius: 20px;
     font-weight: 600;
     display: inline-block;
+    font-size: 13px;
 }
 
 .status.paid {
@@ -282,23 +283,54 @@ tr:nth-child(even) {
     color: #075985;
 }
 
-/* -------------------------------
+/* ===========================
    View Button
-------------------------------- */
+=========================== */
 .view-btn {
-    display: inline-block;
-    padding: 6px 12px;
+    padding: 7px 14px;
     background: #2563eb;
     color: #fff !important;
     border-radius: 6px;
     text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
 }
 
 .view-btn:hover {
     background: #1e40af;
 }
+
+/* ===========================
+   Pagination
+=========================== */
+.pagination {
+    margin: 30px 0;
+    text-align: center;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 9px 15px;
+    margin: 0 4px;
+    background: #e5e7eb;
+    color: #1f2937;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.pagination a:hover {
+    background: #d1d5db;
+}
+
+.pagination a.active {
+    background: #2563eb;
+    color: #fff;
+}
+
 
 </style>
 

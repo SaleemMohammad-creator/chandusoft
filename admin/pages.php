@@ -140,33 +140,31 @@ if (!isset($_GET['archive_id']) && !isset($_GET['unarchive_id']) && $search === 
    Global Styles
 =========================== */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Inter", Arial, sans-serif;
     margin: 0;
-    background: #f7f8fc;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* ===========================
    Navbar
 =========================== */
 .navbar {
-    background: #2c3e50;
+    background: #1f2937;
     color: #fff;
-    padding: 15px 20px;
+    padding: 16px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
-
-.navbar a.active {
-    background: #4da6ff;
-    padding: 6px 12px;
-    border-radius: 4px;
-}
-
 
 .navbar-left {
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .navbar-right {
@@ -175,219 +173,213 @@ body {
 }
 
 .navbar-right span {
-    margin-right: 12px;
-    font-weight: bold;
+    margin-right: 14px;
+    font-weight: 600;
 }
 
 .navbar a {
-    color: #fff;
+    padding: 8px 14px;
+    margin-left: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #e5e7eb;
     text-decoration: none;
-    margin-left: 12px;
-    font-weight: bold;
+    transition: 0.25s ease-in-out;
 }
 
-.nav-btn {
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: background 0.3s ease;
+.navbar a:hover {
+    background: #374151;
+    color: #fff;
 }
 
-.nav-btn:hover {
-    background: #1C86EE;
+.navbar a.active {
+    background: #2563eb;
+    color: #fff;
 }
 
 /* ===========================
-   Container
+   Container Card
 =========================== */
 .container {
-    max-width: 1000px;
-    margin: 100px auto 40px;
+    max-width: 1150px;
+    margin: 90px auto 40px;
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    padding: 30px 28px;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
 /* ===========================
-   Top Bar / Filters
+   Top Bar / Filters / Buttons
 =========================== */
 .top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
 }
 
-.filters { 
-    display: flex; 
-    gap: 12px; 
+.filters {
+    display: flex;
+    gap: 12px;
 }
 
-.filters a { 
-    padding: 8px 16px; 
-    font-weight: bold; 
-    text-decoration: none; 
-    color: #3498db; 
-    border-bottom: 2px solid transparent; 
-    transition: 0.25s ease; 
+.filters a {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #2563eb;
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    transition: 0.2s;
 }
 
-.filters a:hover { 
-    color: #1d6fa5; 
-    border-bottom: 2px solid #1d6fa5; 
+.filters a:hover {
+    background: #dbe4ff;
+    border-color: #93b4ff;
 }
 
-.filters a.active { 
-    color: #1d6fa5; 
-    border-bottom: 2px solid #1d6fa5; 
+.filters a.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
 }
 
 /* ===========================
-   Search + Right Side
+   Search / Create Button
 =========================== */
 .right-side {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-left: auto; /* pushes to right */
 }
 
-/* Search Box */
+/* Search Form */
 .search-form {
     display: flex;
     align-items: center;
     gap: 6px;
-    transform: translateX(-20px); /* move slightly left */
 }
 
 .search-form input[type="text"] {
-    padding: 8px 12px;
+    padding: 10px 12px;
     width: 260px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
     font-size: 14px;
 }
 
 .search-form button {
-    padding: 8px 16px;
+    padding: 10px 16px;
+    border-radius: 6px;
     border: none;
-    border-radius: 4px;
-    background: #3498db;
+    background: #2563eb;
     color: #fff;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 14px;
     transition: 0.25s ease;
 }
 
-.search-form button:hover { 
-    background: #1d6fa5; 
+.search-form button:hover {
+    background: #1e4fd4;
 }
 
-/* ===========================
-   Create Button (Reduced Size)
-=========================== */
-.create-btn { 
-    background: #27ae60; 
-    color: #fff; 
-    padding: 6px 14px;      /* reduced from 8px 18px */
-    border-radius: 4px; 
-    font-weight: bold; 
-    font-size: 13px;        /* smaller text */
-    text-decoration: none; 
-    white-space: nowrap; 
+/* Create Button */
+.create-btn {
+    background: #16a34a;
+    color: #fff;
+    padding: 9px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
     transition: 0.25s ease;
 }
 
 .create-btn:hover {
-    background: #1e8c4d;
+    background: #11803b;
 }
 
 /* ===========================
-   Table Styles
+   Pages Table
 =========================== */
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    font-size: 15px; 
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
-th, td { 
-    padding: 10px 12px; 
-    border: 1px solid #ddd; 
-    vertical-align: middle; 
-    text-align: left; 
+thead {
+    background: #2563eb;
+    color: #fff;
 }
 
-th { 
-    background: #3498db; 
-    color: #fff; 
+th, td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-tr:nth-child(even) { 
-    background: #f9f9f9; 
+tr:nth-child(even) {
+    background: #f9fafb;
 }
 
-tr:hover { 
-    background: #eef7ff; 
+tr:hover {
+    background: #eef7ff;
 }
 
 /* ===========================
    Action Buttons
 =========================== */
-.actions button { 
-    margin-right: 5px; 
-    padding: 6px 14px; 
-    border: none; 
-    border-radius: 4px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    font-size: 14px; 
-    transition: 0.2s ease; 
+.actions button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
     min-width: 105px;
-    text-align: center;
 }
 
 /* Edit */
-.edit-btn { 
-    background: #23b07d; 
-    color: #fff; 
+.edit-btn {
+    background: #10b981;
+    color: #fff;
 }
 .edit-btn:hover {
-    background: #1e9167;
+    background: #0d9466;
 }
 
 /* Archive */
-.archive-btn { 
-    background: #f39c12; 
-    color: #fff; 
+.archive-btn {
+    background: #f59e0b;
+    color: #fff;
 }
 .archive-btn:hover {
-    background: #d9830d;
+    background: #d98304;
 }
 
 /* Unarchive */
-.unarchive-btn { 
-    background: #8e44ad; 
-    color: #fff; 
+.unarchive-btn {
+    background: #8b5cf6;
+    color: #fff;
 }
-.unarchive-btn:hover { 
-    background: #71368a; 
+.unarchive-btn:hover {
+    background: #6d3ecf;
 }
 
-/* Delete (Disabled) */
-.delete-btn { 
-    background: #c0392b; 
-    color: #fff; 
-    opacity: 0.6;
+/* Delete (disabled) */
+.delete-btn {
+    background: #dc2626;
+    color: #fff;
+    opacity: 0.5;
     cursor: not-allowed !important;
     pointer-events: none;
-    border: none; 
-    padding: 6px 14px; 
-    border-radius: 4px; 
-    font-weight: bold; 
-    font-size: 14px;
 }
+
 
 </style>
 </head>

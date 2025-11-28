@@ -184,30 +184,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="UTF-8">
 <title>Add New Catalog Item</title>
 <style>
-    /* ===========================
+   /* ===========================
    Global Styles
 =========================== */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Inter", Arial, sans-serif;
     margin: 0;
-    background: #f7f8fc;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* ===========================
    Navbar
 =========================== */
 .navbar {
-    background: #2c3e50;
+    background: #1f2937;
     color: #fff;
-    padding: 15px 20px;
+    padding: 16px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .navbar-left {
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .navbar-right {
@@ -216,135 +221,148 @@ body {
 }
 
 .navbar-right span {
-    margin-right: 12px;
-    font-weight: bold;
+    margin-right: 14px;
+    font-weight: 600;
 }
 
 .navbar a {
-    color: #fff;
+    padding: 8px 14px;
+    margin-left: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #e5e7eb;
     text-decoration: none;
-    margin-left: 12px;
-    font-weight: bold;
+    transition: 0.25s ease-in-out;
 }
 
-.nav-btn {
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: background 0.3s ease;
+.navbar a:hover {
+    background: #374151;
 }
 
-.nav-btn:hover {
-    background: #1C86EE;
+.navbar a.active {
+    background: #2563eb !important;
+    color: #fff;
 }
 
 /* ===========================
-   Container
+   Container Card
 =========================== */
 .container {
-    max-width: 1000px;
-    margin: 100px auto 40px;
+    max-width: 850px;
+    margin: 90px auto 40px;
+    padding: 0 15px;
+}
+
+.card {
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    padding: 30px 28px;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
 h2 {
     text-align: center;
-    color: #007BFF;
-    margin-bottom: 20px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 25px;
 }
 
 /* ===========================
-   Form Styles
-=========================== */
-form input,
-form textarea {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-form button {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 5px;
-    background: #007BFF;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-form button:hover {
-    background: #0056b3;
-}
-
-/* ===========================
-   Message Alerts
+   Error / Success Messages
 =========================== */
 .errors {
-    background: #f8d7da;
-    color: #721c24;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-weight: 600;
 }
 
 .success {
-    background: #d4edda;
-    color: #155724;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
+    background: #dcfce7;
+    color: #14532d;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-weight: 600;
 }
 
 /* ===========================
-   Image Preview
+   Form Layout
 =========================== */
-.preview {
-    margin-top: 10px;
-}
-
-.preview img {
-    max-width: 200px;
-    border: 1px solid #ccc;
-    padding: 5px;
-    border-radius: 5px;
-}
-
-/* =========================================
-   Left Label - Right Input Form Layout
-========================================= */
 .form-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    gap: 18px;
     margin-bottom: 18px;
 }
 
 .form-row label {
     width: 200px;
-    font-weight: bold;
-    color: #333;
+    font-size: 15px;
+    font-weight: 600;
+    color: #374151;
+    padding-top: 8px;
 }
 
 .form-row input,
 .form-row textarea {
     flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    background: #fff;
+    transition: 0.25s;
 }
 
-.form-row textarea {
-    height: 70px;
+.form-row input:focus,
+.form-row textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
 }
 
+textarea {
+    height: 90px;
+    resize: vertical;
+}
+
+/* ===========================
+   File Input Preview
+=========================== */
+.preview img {
+    max-width: 200px;
+    border-radius: 8px;
+    margin-top: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* ===========================
+   Submit Button
+=========================== */
 .button-row {
-    margin-left: 200px; /* aligns button with input fields */
+    margin-left: 200px;
 }
+
+.button-row button {
+    padding: 12px 20px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.button-row button:hover {
+    background: #1e4fd4;
+}
+
 
 </style>
 </head>

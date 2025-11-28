@@ -1,7 +1,7 @@
 <?php
 // ===============================================
 // 🛒 Catalog Item Page (Add to Cart + Enquiry)
-// Updated: Hover Zoom (NO modal popup) + Gemini AI Description
+// Updated: Amazon-style UI + Extra Sections
 // ===============================================
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -236,7 +236,6 @@ $jsonLd = [
 <title><?= htmlspecialchars($item['title']) ?></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Optional: SEO meta description using AI text -->
 <?php if (!empty($item['short_desc'])): ?>
 <meta name="description" content="<?= htmlspecialchars($item['short_desc']) ?>">
 <?php endif; ?>
@@ -245,370 +244,380 @@ $jsonLd = [
 <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?></script>
 
 <style>
-/* =========================================================
-   GLOBAL VARIABLES / BASE UI
-========================================================= */
-:root{
-    --primary:#007BFF;
-    --primary-dark:#0056b3;
-    --accent:#28a745;
-    --accent-dark:#1f8b39;
-    --bg:#f2f4f8;
+/* ============================================================
+   PREMIUM OPTIMIZED STYLE — AMAZON THEME + DARK MODE SUPPORT
+   Light + Dark Mode | Cleaner | Faster | No Unused Code
+============================================================ */
+
+:root {
+    --primary:#131921;
+    --accent:#ffa41c;
+    --accent-hover:#ff8f00;
+    --buy:#ffd814;
+    --buy-hover:#f7ca00;
+    --bg:#f3f4f6;
     --card-bg:#ffffff;
+    --text:#111827;
     --muted:#6b7280;
-    --border:#d8dce6;
+    --border:#d1d5db;
+    --success-bg:#ecfdf3;
+    --success-border:#bbf7d0;
+    --success-text:#15803d;
+    --danger-bg:#fef2f2;
+    --danger-border:#fecaca;
+    --danger-text:#b91c1c;
 }
 
-*{
-    box-sizing:border-box;
+/* -------- DARK MODE -------- */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg:#0f172a;
+        --card-bg:#1e293b;
+        --text:#f1f5f9;
+        --muted:#94a3b8;
+        --border:#334155;
+        --accent:#ffb347;
+        --accent-hover:#ffa41c;
+        --buy:#ffe766;
+        --buy-hover:#ffd814;
+    }
 }
 
-body{
+* { box-sizing:border-box; }
+
+body {
     margin:0;
     padding:0;
-    background:var(--bg);
     font-family:Inter, "Segoe UI", Arial, sans-serif;
-    color:#0f172a;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.55;
 }
 
-.container{
-    max-width:1100px;
-    margin:50px auto;
-    padding:25px;
+a { text-decoration:none; color:#007185; }
+
+/* ---------------- Container ---------------- */
+.container {
+    max-width:1150px;
+    margin:20px auto 40px;
+    padding:0 14px;
 }
 
-/* =========================================================
-   PRODUCT CARD (LEFT image + RIGHT info)
-========================================================= */
-.product-card{
+/* ---------------- Breadcrumb ---------------- */
+.breadcrumb {
+    font-size:13px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+.breadcrumb span.sep { color:var(--muted); }
+
+/* ---------------- Product Card ---------------- */
+.product-card {
     background:var(--card-bg);
-    padding:28px;
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:36px;
-    border-radius:14px;
-    box-shadow:0 8px 30px rgba(15,23,42,0.06);
+    gap:26px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    box-shadow:0 6px 20px rgba(0,0,0,0.08);
+    padding:22px;
 }
 
-/* =========================================================
-   IMAGE: HOVER-ZOOM INSIDE BOX (NO MODAL)
-========================================================= */
-.image-thumb{
+@media(max-width:900px){
+    .product-card {
+        grid-template-columns:1fr;
+        padding:16px;
+        gap:18px;
+    }
+}
+
+/* ---------------- Product Image ---------------- */
+.image-thumb {
     width:100%;
-    max-width:520px;
-    border-radius:12px;
+    border-radius:8px;
     overflow:hidden;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
     cursor:zoom-in;
-    background:#fff;
-    box-shadow:0 6px 18px rgba(15,23,42,0.08);
-    position:relative;
 }
-
-.image-thumb img{
+.image-thumb img {
     width:100%;
-    height:auto;
-    transition:transform 0.25s ease;
-    transform-origin:center center;
+    transition:transform .25s ease;
 }
 
-/* =========================================================
-   PRODUCT INFO TEXT
-========================================================= */
-.product-info h1{
-    margin:0 0 8px 0;
-    font-size:28px;
+/* ---------------- Product Info ---------------- */
+.product-info h1 {
+    font-size:26px;
+    font-weight:700;
+    margin:0 0 8px;
+}
+
+.meta-row {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:14px;
+}
+
+.rating { color:#f59e0b; }
+
+.stock-badge {
+    font-size:12px;
+    padding:3px 9px;
+    border-radius:999px;
+    border:1px solid #22c55e;
+    background:#dcfce7;
+    color:#166534;
+}
+
+.price-main {
+    font-size:26px;
+    color:#b12704;
     font-weight:700;
 }
 
-.product-price{
-    font-size:22px;
-    color:var(--primary);
-    font-weight:700;
+.price-note {
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:10px;
+}
+
+.badge-row {
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-bottom:14px;
+}
+.badge-pill {
+    font-size:12px;
+    padding:4px 10px;
+    border-radius:999px;
+    border:1px solid var(--border);
+}
+
+/* ---------------- Description ---------------- */
+.product-description {
+    margin-bottom:18px;
+}
+.product-description p {
+    white-space:pre-line;
+    font-size:15px;
+    color:var(--text);
+}
+
+/* ---------------- Quantity ---------------- */
+.quantity-row {
+    display:flex;
+    align-items:center;
+    gap:10px;
     margin-bottom:12px;
 }
 
-.short-desc{
-    font-size:15px;
-    line-height:1.6;
-    color:#374151;
-    margin-bottom:18px;
-}
-
-/* =========================================================
-   QUANTITY BUTTONS
-========================================================= */
-.quantity-controls{
-    display:inline-flex;
+.quantity-controls {
+    display:flex;
     border:1px solid var(--border);
-    border-radius:10px;
+    border-radius:6px;
     overflow:hidden;
-    background:#fff;
-    align-items:center;
 }
-
-.quantity-controls button{
-    background:var(--primary);
-    color:#fff;
-    width:42px;
-    height:42px;
-    font-size:20px;
+.quantity-controls button {
+    width:38px;
+    height:38px;
+    background:#e5e7eb;
     border:none;
     cursor:pointer;
-    transition:background .2s;
+    font-size:18px;
 }
-
-.quantity-controls button:hover{
-    background:var(--primary-dark);
-}
-
-.quantity-controls input{
-    width:70px;
+.quantity-controls input {
+    width:60px;
+    border:none;
     text-align:center;
     font-size:16px;
-    border:none;
-    font-weight:600;
-    background:#fff;
+    background:var(--card-bg);
 }
 
-/* =========================================================
-   BUTTONS (Add to Cart + Buy Now)
-========================================================= */
-.action-btn{
-    padding:12px 22px;
-    border:none;
-    border-radius:10px;
-    font-size:15px;
-    font-weight:600;
-    cursor:pointer;
-    color:#fff;
-    transition:background .2s ease, transform .1s ease;
-    box-shadow:0 4px 12px rgba(0,0,0,0.10);
-}
-
-.action-btn:active{
-    transform:scale(.97);
-}
-
-.cart-btn{
-    background:var(--primary);
-}
-.cart-btn:hover{
-    background:var(--primary-dark);
-}
-
-.buy-btn{
-    background:var(--accent);
-}
-.buy-btn:hover{
-    background:var(--accent-dark);
-}
-
-/* =========================================================
-   BUTTON + QUANTITY LAYOUT
-========================================================= */
-.product-action-form{
-    margin-top:10px;
-}
-
-.quantity-row{
-    display:flex;
-    justify-content:flex-start;
-    margin-bottom:14px;
-}
-
-.button-row{
+/* ---------------- Buttons ---------------- */
+.button-row {
     display:flex;
     gap:12px;
+    flex-wrap:wrap;
 }
 
-/* =========================================================
-   ENQUIRY BOX (CARD STYLE)
-========================================================= */
-.enquiry-box{
-    padding:25px;
-    background:#fff;
-    border-radius:14px;
-    margin-top:30px;
-    box-shadow:0 8px 30px rgba(15,23,42,0.05);
-    border:1px solid #e8ebf2;
+.action-btn {
+    padding:11px 22px;
+    border:none;
+    border-radius:20px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .2s, transform .1s;
 }
 
-.enquiry-box h2{
-    margin:0 0 18px 0;
-    font-size:22px;
-    font-weight:700;
-    color:#0f172a;
+.cart-btn {
+    background:var(--accent);
+}
+.cart-btn:hover { background:var(--accent-hover); }
+
+.buy-btn {
+    background:var(--buy);
+}
+.buy-btn:hover { background:var(--buy-hover); }
+
+.action-btn:active { transform:scale(.97); }
+
+/* ---------------- Enquiry Box ---------------- */
+.enquiry-box {
+    margin-top:26px;
+    background:var(--card-bg);
+    padding:20px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    box-shadow:0 4px 16px rgba(0,0,0,0.06);
+}
+
+.enquiry-box h2 {
+    margin:0 0 12px;
+    font-size:18px;
+    font-weight:600;
 }
 
 .enquiry-box input,
-.enquiry-box textarea{
+.enquiry-box textarea {
     width:100%;
-    padding:14px 16px;
-    border-radius:10px;
+    padding:11px;
+    border-radius:6px;
     border:1px solid var(--border);
-    font-size:15px;
-    background:#fafbff;
-    transition:all .2s;
+    background:#f9fafb;
+    font-size:14px;
+    margin-bottom:10px;
+}
+
+/* FIX TEXTAREA OVERFLOW */
+.enquiry-box textarea {
+    resize: vertical;     
+    max-width: 100%;      
+    box-sizing: border-box;
 }
 
 .enquiry-box input:focus,
-.enquiry-box textarea:focus{
-    border-color:var(--primary);
+.enquiry-box textarea:focus {
+    border-color:#007185;
     background:#fff;
-    box-shadow:0 0 0 3px rgba(0,123,255,0.15);
+    outline:none;
 }
 
-textarea{
-    min-height:120px;
-    resize:vertical;
-}
 
-.enquiry-footer{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-top:18px;
-}
-
-/* Send Button */
-.send-btn{
-    background:var(--accent);
+.send-btn {
+    background:#007185;
     color:#fff;
-    padding:12px 22px;
-    border-radius:10px;
+    padding:10px 22px;
+    border-radius:20px;
     border:none;
-    font-weight:700;
+    font-size:14px;
+    font-weight:600;
     cursor:pointer;
-    transition:.2s;
 }
 
-.send-btn:hover{
-    background:var(--accent-dark);
+/* ---------------- Alerts ---------------- */
+.success {
+    background:var(--success-bg);
+    color:var(--success-text);
+    border:1px solid var(--success-border);
+    padding:10px;
+    border-radius:6px;
+    margin-bottom:10px;
 }
 
-/* Back Button */
-.back-btn{
-    font-size:15px;
-    font-weight:600;
-    color:var(--primary);
-    text-decoration:none;
-    transition:color .2s;
+.error {
+    background:var(--danger-bg);
+    color:var(--danger-text);
+    border:1px solid var(--danger-border);
+    padding:10px;
+    border-radius:6px;
+    margin-bottom:10px;
 }
 
-.back-btn:hover{
-    color:var(--primary-dark);
+/* ---------------- Responsive Tweaks ---------------- */
+@media(max-width:640px){
+    .product-info h1 { font-size:22px; }
+    .price-main { font-size:22px; }
+    .button-row { flex-direction:column; }
 }
 
-/* =========================================================
-   ALERT MESSAGES
-========================================================= */
-.success{
-    background:#e6f9ee;
-    border:1px solid #27ae60;
-    color:#1b7f47;
-    padding:14px;
-    border-radius:10px;
-    font-weight:600;
-    margin-bottom:15px;
+/* ---------------- Enquiry Footer: Back Button Right ---------------- */
+.enquiry-footer {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-.error{
-    background:#ffe6e9;
-    border:1px solid #ff8a8a;
-    color:#b71c1c;
-    padding:14px;
-    border-radius:10px;
-    font-weight:600;
-    margin-bottom:15px;
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-@media (max-width: 980px){
-    .product-card{
-        grid-template-columns:1fr;
-        gap:20px;
-        padding:20px;
-    }
-    .container{
-        margin:20px auto;
-        padding:16px;
-    }
-}
-
-/* =========================================================
-   IMPROVED SHORT DESCRIPTION LAYOUT (AI TEXT SUPPORT)
-   — No design changes, only enhancements
-========================================================= */
-
-.short-desc {
-    font-size: 16px;
-    line-height: 1.7;
-    color: #2f3640;
-    white-space: pre-line;      /* keeps AI line breaks */
-    word-break: break-word;     /* prevents long words breaking layout */
-    margin-top: 15px;
-}
-
-/* Optional: limit width for cleaner text block */
-.product-info .short-desc {
-    max-width: 90%;
-}
-
-/* Make paragraphs smoother */
-.short-desc p {
-    margin-bottom: 10px;
-}
-
-/* Better spacing on mobile */
-@media (max-width: 600px){
-    .short-desc{
-        font-size: 15px;
-        line-height: 1.6;
-        max-width: 100%;
-    }
+.enquiry-footer .back-btn {
+    margin-left: auto;   /* pushes Back to Catalog to the RIGHT */
+    font-size: 13px;
+    font-weight: 500;
+    color: #007185;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
+    <!-- Breadcrumb -->
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a href="/public/catalog.php">All Products</a>
+            <span class="sep">›</span>
+            <span><?= htmlspecialchars($item['title']) ?></span>
+        </div>
+    </div>
+
+    <!-- MAIN PRODUCT CARD -->
     <div class="product-card">
 
-        <!-- IMAGE with Hover Zoom -->
+        <!-- LEFT: IMAGE -->
         <div class="product-image">
             <div class="image-thumb" id="zoomBox">
-                <img src="/uploads/<?= htmlspecialchars($item['image']) ?>">
+                <img src="/uploads/<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['title']) ?>">
             </div>
         </div>
 
-        <!-- PRODUCT INFO -->
+        <!-- RIGHT: INFO -->
         <div class="product-info">
 
             <h1><?= htmlspecialchars($item['title']) ?></h1>
 
-            <div class="product-meta">
-                <div class="product-price">$<?= htmlspecialchars($item['price']) ?></div>
+            <div class="meta-row">
+                <div class="stock-badge">In stock</div>
             </div>
 
-            <!-- PRODUCT DESCRIPTION -->
-       <?php if (!empty($item['short_desc'])): ?>
-                       <div class="product-description">
-        <h2 class="desc-title">Description</h2>
-        <p><?= nl2br(htmlspecialchars((string)($item['short_desc'] ?? ""))) ?></p>
-    </div>
-<?php endif; ?>
+            <div class="price-block">
+                <div class="price-main">$<?= htmlspecialchars($item['price']) ?></div>
+                <div class="price-note">Inclusive of all taxes</div>
+            </div>
 
+            <div class="badge-row">
+                <span class="badge-pill">Best quality</span>
+                <span class="badge-pill">Fast delivery</span>
+                <span class="badge-pill">Secure checkout</span>
+            </div>
 
-            <!-- Add to Cart -->
+            <!-- DESCRIPTION -->
+            <?php if (!empty($item['short_desc'])): ?>
+                <div class="product-description">
+                    <h2 class="desc-title">Description</h2>
+                    <p><?= nl2br(htmlspecialchars((string)($item['short_desc'] ?? ""))) ?></p>
+                </div>
+            <?php endif; ?>
+
+            <!-- ACTIONS -->
             <form method="post" class="product-action-form">
 
                 <div class="quantity-row">
+                    <span class="quantity-label">Quantity:</span>
                     <div class="quantity-controls">
                         <button type="button" id="minus">−</button>
                         <input type="text" id="quantity" name="quantity" value="1">
@@ -634,7 +643,7 @@ textarea{
     <!-- ENQUIRY BOX -->
     <div class="enquiry-box">
 
-        <h2>Enquire Now</h2>
+        <h2>Enquire About This Product</h2>
 
         <?php if($enquirySuccess): ?>
             <div class="success">Enquiry Submitted Successfully</div>
@@ -649,12 +658,12 @@ textarea{
             <input type="text" name="name" placeholder="Your Name"
                    value="<?= htmlspecialchars($_POST['name'] ?? '') ?>">
 
-            <div style="height:12px"></div>
+            <div style="height:8px"></div>
 
             <input type="email" name="email" placeholder="Your Email"
                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
 
-            <div style="height:12px"></div>
+            <div style="height:8px"></div>
 
             <textarea name="message" placeholder="Your Message"><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
 
@@ -670,13 +679,14 @@ textarea{
 
             <script>
             function onTurnstileSuccess(token) {
-                document.querySelector("input[name='cf-turnstile-response']").value = token;
+                const hidden = document.querySelector("input[name='cf-turnstile-response']");
+                if (hidden) hidden.value = token;
             }
             </script>
 
             <div class="enquiry-footer">
                 <button type="submit" class="send-btn">Send Enquiry</button>
-                <a href="/public/catalog.php" class="back-btn">← Back To Catalog</a>
+                <a href="/public/catalog.php" class="back-btn">← Back to Catalog</a>
             </div>
 
         </form>
@@ -687,38 +697,41 @@ textarea{
 <script>
 // Quantity
 const qty = document.getElementById("quantity");
-document.getElementById("plus").onclick = ()=> qty.value = (+qty.value||1)+1;
-document.getElementById("minus").onclick = ()=> qty.value = Math.max(1,(+qty.value||1)-1);
+const plusBtn = document.getElementById("plus");
+const minusBtn = document.getElementById("minus");
+
+if (qty && plusBtn && minusBtn) {
+    plusBtn.onclick = () => qty.value = (+qty.value || 1) + 1;
+    minusBtn.onclick = () => qty.value = Math.max(1, (+qty.value || 1) - 1);
+}
 
 // HOVER ZOOM
 const zoomBox = document.getElementById("zoomBox");
-const zoomImg = zoomBox.querySelector("img");
+if (zoomBox) {
+    const zoomImg = zoomBox.querySelector("img");
 
-zoomBox.addEventListener("mousemove", (e) => {
-    const r = zoomBox.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * 100;
-    const y = ((e.clientY - r.top) / r.height) * 100;
+    zoomBox.addEventListener("mousemove", (e) => {
+        const r = zoomBox.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width) * 100;
+        const y = ((e.clientY - r.top) / r.height) * 100;
 
-    zoomImg.style.transform = "scale(2)";
-    zoomImg.style.transformOrigin = `${x}% ${y}%`;
-});
+        zoomImg.style.transform = "scale(2)";
+        zoomImg.style.transformOrigin = `${x}% ${y}%`;
+    });
 
-zoomBox.addEventListener("mouseleave", () => {
-    zoomImg.style.transform = "scale(1)";
-});
-</script>
+    zoomBox.addEventListener("mouseleave", () => {
+        zoomImg.style.transform = "scale(1)";
+    });
+}
 
-<script>
+// Auto-hide success
 document.addEventListener("DOMContentLoaded", function () {
     const successMsg = document.querySelector(".success");
-
     if (successMsg) {
         setTimeout(() => {
             successMsg.style.opacity = "0";
             successMsg.style.transition = "opacity 0.5s ease";
-
             setTimeout(() => successMsg.remove(), 600);
-
         }, 2500);
     }
 });

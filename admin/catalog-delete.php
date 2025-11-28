@@ -73,26 +73,28 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
    Global Styles
 =========================== */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Inter", Arial, sans-serif;
     margin: 0;
-    background: #f7f8fc;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* ===========================
    Navbar
 =========================== */
 .navbar {
-    background: #2c3e50;
+    background: #1f2937;
     color: #fff;
-    padding: 15px 20px;
+    padding: 16px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .navbar-left {
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .navbar-right {
@@ -101,92 +103,39 @@ body {
 }
 
 .navbar-right span {
-    margin-right: 12px;
-    font-weight: bold;
+    margin-right: 14px;
+    font-weight: 600;
 }
 
 .navbar a {
-    color: #fff;
+    padding: 8px 14px;
+    margin-left: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #e5e7eb;
     text-decoration: none;
-    margin-left: 12px;
-    font-weight: bold;
+    transition: 0.25s ease-in-out;
 }
 
-.nav-btn {
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: background 0.3s ease;
+.navbar a:hover {
+    background: #374151;
 }
 
-.nav-btn:hover {
-    background: #1C86EE;
+.navbar a.active {
+    background: #2563eb !important;
+    color: #fff;
 }
 
 /* ===========================
-   Container
+   Page Title
 =========================== */
-.container {
-    max-width: 1000px;
-    margin: 100px auto 40px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    padding: 30px 28px;
-}
-
 h2 {
     text-align: center;
-    color: #007BFF;
-    margin-bottom: 20px;
-}
-
-/* ===========================
-   Table
-=========================== */
-table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    background: #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-th,
-td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-}
-
-th {
-    background: #007BFF;
-    color: #fff;
-}
-
-tr:nth-child(even) {
-    background: #f5f5f5;
-}
-
-tr:hover {
-    background: #e3f0ff;
-}
-
-img {
-    max-width: 80px;
-}
-
-/* ===========================
-   Links
-=========================== */
-a {
-    color: #007BFF;
-    text-decoration: none;
-    margin-right: 8px;
-}
-
-a:hover {
-    text-decoration: underline;
+    font-size: 26px;
+    font-weight: 700;
+    margin-top: 40px;
+    color: #1f2937;
+    margin-bottom: 25px;
 }
 
 /* ===========================
@@ -195,60 +144,84 @@ a:hover {
 .search-container {
     display: flex;
     justify-content: center;
-    gap: 5px;
-    margin-bottom: 15px;
+    gap: 12px;
     flex-wrap: wrap;
+    margin-bottom: 25px;
 }
 
-.search-container input[type="text"] {
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    width: 250px;
+.search-container input {
+    padding: 12px 14px;
+    width: 300px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: 0.25s;
+}
+
+.search-container input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.25);
 }
 
 .search-container button {
-    padding: 8px 16px;
-    border-radius: 5px;
-    border: none;
-    background: #007BFF;
+    padding: 12px 18px;
+    background: #2563eb;
     color: #fff;
-    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
     cursor: pointer;
+    transition: 0.25s;
 }
 
 .search-container button:hover {
-    background: #0056b3;
+    background: #1e4fd4;
 }
 
 /* ===========================
-   Pagination
+   Table
 =========================== */
-.pagination {
-    text-align: center;
-    margin-top: 15px;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0 auto;
+    max-width: 1150px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
-.pagination a {
-    padding: 6px 12px;
-    border: 1px solid #007BFF;
-    margin: 0 3px;
-    border-radius: 5px;
-    text-decoration: none;
-    color: #007BFF;
-}
-
-.pagination a.active {
-    background: #007BFF;
+thead {
+    background: #2563eb;
     color: #fff;
+}
+
+th, td {
+    padding: 14px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+tr:nth-child(even) {
+    background: #f9fafb;
+}
+
+tr:hover {
+    background: #eef7ff;
+}
+
+img {
+    max-width: 80px;
+    border-radius: 6px;
 }
 
 /* ===========================
    Status Labels
 =========================== */
 .status-archived {
-    color: red;
-    font-weight: bold;
+    color: #b91c1c;
+    font-weight: 700;
 }
 
 /* ===========================
@@ -256,38 +229,73 @@ a:hover {
 =========================== */
 .restore-btn {
     display: inline-block;
-    padding: 6px 12px;
-    background: #007BFF;
+    padding: 8px 14px;
+    background: #10b981;
     color: #fff !important;
-    border-radius: 5px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
     text-decoration: none;
-    font-weight: bold;
-    border: none;
+    transition: 0.25s;
 }
 
 .restore-btn:hover {
-    background: #0056b3;
-    text-decoration: none;
+    background: #0d9466;
 }
 
 /* ===========================
-   Back to Catalog Button
+   Back Button
 =========================== */
 .back-wrapper {
+    max-width: 1150px;
+    margin: 25px auto 0 auto;
     text-align: right;
-    margin-top: 15px;
-    margin-right: 75px; /* Slightly left */
 }
 
 .back-btn {
-    display: inline-block;
-    padding: 8px 16px;
-    background: #007BFF;
-    color: #fff;
-    border-radius: 6px;
-    text-decoration: none !important;
-    font-weight: bold;
+    padding: 10px 20px;
+    background: #6b7280;
+    color: #fff !important;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.25s ease;
 }
+
+.back-btn:hover {
+    background: #4b5563;
+}
+
+/* ===========================
+   Pagination
+=========================== */
+.pagination {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 9px 15px;
+    margin: 0 4px;
+    background: #e5e7eb;
+    color: #1f2937;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.pagination a:hover {
+    background: #d1d5db;
+}
+
+.pagination a.active {
+    background: #2563eb;
+    color: #fff;
+}
+
 </style>
 </head>
 <body>
